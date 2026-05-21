@@ -35,4 +35,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/messages', [ContactController::class, 'index'])->name('admin.messages');
 });
 
+Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
+    if ($request->query('key') !== env('MIGRATE_KEY')) {
+        abort(403, 'Unauthorized');
+    }
+
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', [
+            '--force' => true,
+        ]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        return response($output, 200)
+            ->header('Content-Type', 'text/plain');
+    } catch (\Exception $e) {
+        return response("Migration failed:\n" . $e->getMessage(), 500)
+            ->header('Content-Type', 'text/plain');
+    }
+});
+
 require __DIR__.'/auth.php';

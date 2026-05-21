@@ -9,15 +9,22 @@
     "routes": [
         {
             "src": "/build/(.*)",
+            "headers": {
+                "cache-control": "public, max-age=31536000, immutable"
+            },
             "dest": "/public/build/$1"
         },
         {
-            "src": "/(css|js|images|icons)/(.*)",
+            "src": "/(css|js|images|icons|fonts|assets)/(.*)",
             "dest": "/public/$1/$2"
         },
         {
             "src": "/favicon.ico",
             "dest": "/public/favicon.ico"
+        },
+        {
+            "src": "/robots.txt",
+            "dest": "/public/robots.txt"
         },
         {
             "src": "/(.*)",
