@@ -32,6 +32,26 @@ if (getenv('VERCEL') || isset($_SERVER['VERCEL']) || getenv('NOW_PORT') || isset
     $storagePath = '/tmp/storage';
     $app->useStoragePath($storagePath);
 
+    $bootstrapCachePath = '/tmp/storage/bootstrap/cache';
+    
+    $_ENV['APP_SERVICES_CACHE'] = $bootstrapCachePath . '/services.php';
+    $_ENV['APP_PACKAGES_CACHE'] = $bootstrapCachePath . '/packages.php';
+    $_ENV['APP_CONFIG_CACHE'] = $bootstrapCachePath . '/config.php';
+    $_ENV['APP_ROUTES_CACHE'] = $bootstrapCachePath . '/routes.php';
+    $_ENV['APP_EVENTS_CACHE'] = $bootstrapCachePath . '/events.php';
+    
+    putenv("APP_SERVICES_CACHE={$bootstrapCachePath}/services.php");
+    putenv("APP_PACKAGES_CACHE={$bootstrapCachePath}/packages.php");
+    putenv("APP_CONFIG_CACHE={$bootstrapCachePath}/config.php");
+    putenv("APP_ROUTES_CACHE={$bootstrapCachePath}/routes.php");
+    putenv("APP_EVENTS_CACHE={$bootstrapCachePath}/events.php");
+    
+    $_SERVER['APP_SERVICES_CACHE'] = $bootstrapCachePath . '/services.php';
+    $_SERVER['APP_PACKAGES_CACHE'] = $bootstrapCachePath . '/packages.php';
+    $_SERVER['APP_CONFIG_CACHE'] = $bootstrapCachePath . '/config.php';
+    $_SERVER['APP_ROUTES_CACHE'] = $bootstrapCachePath . '/routes.php';
+    $_SERVER['APP_EVENTS_CACHE'] = $bootstrapCachePath . '/events.php';
+
     $directories = [
         $storagePath,
         $storagePath . '/app',
@@ -42,6 +62,8 @@ if (getenv('VERCEL') || isset($_SERVER['VERCEL']) || getenv('NOW_PORT') || isset
         $storagePath . '/framework/sessions',
         $storagePath . '/framework/views',
         $storagePath . '/logs',
+        '/tmp/storage/bootstrap',
+        $bootstrapCachePath,
     ];
 
     foreach ($directories as $directory) {
