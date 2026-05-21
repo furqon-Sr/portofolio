@@ -1,0 +1,80 @@
+<footer class="mt-40 border-t border-gray-800 pt-16 pb-8">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+        <div class="md:col-span-5 space-y-6">
+            <div class="text-2xl font-bold tracking-tighter text-white">FAHRURI HANAFI</div>
+            <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
+                Bridging design and code to solve real business problems. I build scalable architectures and pixel-perfect interfaces for forward-thinking brands.
+            </p>
+            <div class="flex gap-4 pt-2">
+                <a href="https://www.linkedin.com/in/fahruri-hanafi" target="_blank" aria-label="LinkedIn" class="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center hover:bg-[#0A66C2] hover:border-[#0A66C2] hover:-translate-y-1 transition-all duration-300 text-gray-500 hover:text-white">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+                <a href="#" target="_blank" aria-label="GitHub" class="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center hover:bg-white hover:border-white hover:-translate-y-1 transition-all duration-300 text-gray-500 hover:text-black">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                    </svg>
+                </a>
+  <a href="https://www.instagram.com/_noctave/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center text-gray-500 hover:bg-[#E1306C] hover:border-[#E1306C] hover:text-white hover:-translate-y-1 transition duration-300 ease-in-out">
+    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path fill-rule="evenodd" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" clip-rule="evenodd" />
+    </svg>
+</a>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 lg:col-start-7 space-y-6">
+            <div class="text-white font-bold tracking-widest text-xs uppercase border-b border-gray-800 pb-3 inline-block">Quick Links</div>
+            <ul class="space-y-3">
+                <li><a href="/" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Home</a></li>
+                <li><a href="/works" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Selected Works</a></li>
+                <li><a href="/#about" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">About Me</a></li>
+                <li><a href="{{ asset('assets/cv-hanafi copy.pdf') }}" download class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Download CV</a></li>
+            </ul>
+        </div>
+
+        <div class="md:col-span-4 space-y-6">
+            <div class="text-white font-bold tracking-widest text-xs uppercase border-b border-gray-800 pb-3 inline-block">Get In Touch</div>
+            <div class="space-y-4">
+                <div class="flex items-start gap-3 group cursor-default">
+                    <div class="p-2 bg-[#1a1a1a] rounded-lg border border-gray-800 group-hover:border-blue-600 transition-colors">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-300 text-sm font-medium">Available for Opportunities</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Freelance & Full-time</p>
+                    </div>
+                </div>
+                <a href="mailto:fahrurihanafii@gmail.com" class="flex items-start gap-3 group">
+                    <div class="p-2 bg-[#1a1a1a] rounded-lg border border-gray-800 group-hover:border-blue-600 transition-colors">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-300 text-sm font-medium group-hover:text-blue-500 transition-colors">fahrurihanafii@gmail.com</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Email me anytime</p>
+                    </div>
+                </a>
+                <div class="flex items-start gap-3 group cursor-default">
+                    <div class="p-2 bg-[#1a1a1a] rounded-lg border border-gray-800 group-hover:border-blue-600 transition-colors">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </div>
+                    <div>
+                        <p class="text-gray-300 text-sm font-medium">Surabaya, Indonesia</p>
+                        <p class="text-xs text-gray-500 mt-0.5">Remote available</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-900 gap-4 mt-8">
+        <p class="text-gray-600 text-[10px] uppercase tracking-[0.2em] font-medium text-center md:text-left">
+            © 2026 Fahruri Hanafi. All rights reserved.
+        </p>
+        <div class="flex gap-6">
+            <a href="#" class="text-gray-600 hover:text-gray-400 text-[10px] uppercase tracking-wider font-medium transition-colors">Privacy</a>
+            <a href="#" class="text-gray-600 hover:text-gray-400 text-[10px] uppercase tracking-wider font-medium transition-colors">Terms</a>
+        </div>
+    </div>
+</footer>
