@@ -13,19 +13,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (\Throwable $e) {
-            header('Content-Type: text/plain', true, 500);
-            echo "Original exception: " . get_class($e) . ": " . $e->getMessage() . "\n";
-            echo "File: " . $e->getFile() . ":" . $e->getLine() . "\n";
-            echo "Trace:\n" . $e->getTraceAsString() . "\n";
-            if ($e->getPrevious()) {
-                echo "\nPrevious Exception: " . get_class($e->getPrevious()) . ": " . $e->getPrevious()->getMessage() . "\n";
-                echo "File: " . $e->getPrevious()->getFile() . ":" . $e->getPrevious()->getLine() . "\n";
-                echo "Trace:\n" . $e->getPrevious()->getTraceAsString() . "\n";
-            }
-            exit;
-        });
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
     })->create();
 
 if (getenv('VERCEL') || isset($_SERVER['VERCEL']) || getenv('NOW_PORT') || isset($_SERVER['NOW_PORT'])) {
