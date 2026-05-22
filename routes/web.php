@@ -53,4 +53,49 @@ Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
     }
 });
 
+Route::get('/debug-db', function () {
+    header('Content-Type: text/plain');
+    
+    $results = [];
+    $results[] = "--- Laravel Database Debugging ---";
+    $results[] = "Default connection: " . config('database.default');
+    
+    $connectionName = config('database.default');
+    $config = config("database.connections.{$connectionName}");
+    
+    if ($config) {
+        $maskedConfig = $config;
+        if (isset($maskedConfig['password'])) {
+            $maskedConfig['password'] = '********';
+        }
+        $results[] = "Connection Config:\n" . print_r($maskedConfig, true);
+    } else {
+        $results[] = "No configuration found for connection: {$connectionName}";
+    }
+
+    try {
+        $db = \Illuminate\Support\Facades\DB::connection();
+        $pdo = $db->getPdo();
+        $results[] = "Successfully connected to the database!";
+        
+        // Check tables
+        $tables = ['users', 'sessions', 'contacts', 'migrations'];
+        foreach ($tables as $table) {
+            try {
+                $exists = \Illuminate\Support\Facades\Schema::hasTable($table);
+                $results[] = "Table '{$table}': " . ($exists ? 'EXISTS' : 'DOES NOT EXIST');
+            } catch (\Exception $e) {
+                $results[] = "Table '{$table}' check failed: " . $e->getMessage();
+            }
+        }
+    } catch (\Exception $e) {
+        $results[] = "Database connection failed!";
+        $results[] = "Error Class: " . get_class($e);
+        $results[] = "Error Message: " . $e->getMessage();
+        $results[] = "Trace:\n" . $e->getTraceAsString();
+    }
+
+    return implode("\n", $results);
+});
+
 require __DIR__.'/auth.php';
