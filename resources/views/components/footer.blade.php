@@ -30,7 +30,7 @@
                 <li><a href="/" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Home</a></li>
                 <li><a href="/works" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Selected Works</a></li>
                 <li><a href="/#about" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">About Me</a></li>
-                <li><a href="{{ asset('assets/cv-hanafi copy.pdf') }}" download class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Download CV</a></li>
+                <li><a href="{{ asset('assets/cv-hanafi.pdf') }}" download class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Download CV</a></li>
             </ul>
         </div>
 
