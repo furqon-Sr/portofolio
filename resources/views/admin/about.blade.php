@@ -109,13 +109,13 @@
                 @if($aboutSetting->logo_value)
                 <div class="pt-3 border-t border-white/5 flex items-center gap-4">
                     <span class="text-xs text-gray-500">Logo Saat Ini:</span>
-                    <div class="h-10 flex items-center justify-center p-2 rounded-lg bg-black/40 border border-white/10 text-white select-none [&_svg]:h-8 [&_svg]:w-auto [&_svg]:max-w-full">
+                    <div class="h-10 flex items-center justify-center p-2 rounded-lg bg-black/40 border border-white/10 text-white select-none [&_svg]:!h-8 [&_svg]:!w-auto [&_svg]:max-w-full">
                         @if(($aboutSetting->logo_type ?? 'text') === 'text')
                             <span class="text-sm font-bold">{{ $aboutSetting->logo_value }}</span>
                         @elseif(($aboutSetting->logo_type ?? 'text') === 'svg')
                             {!! $aboutSetting->logo_value !!}
                         @else
-                            <img src="{{ $aboutSetting->logo_value }}" alt="Logo" class="h-8 w-auto object-contain">
+                            <img src="{{ $aboutSetting->logo_value }}" alt="Logo" class="!h-8 !w-auto object-contain">
                         @endif
                     </div>
                 </div>
