@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Contact;
+use App\Models\AboutSetting;
+use App\Models\AboutBox;
+use App\Models\Expertise;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -142,5 +145,167 @@ class AdminController extends Controller
     {
         $messages = Contact::latest()->get();
         return view('admin.messages', compact('messages'));
+    }
+
+    /**
+     * Display the About Me and Expertise settings page.
+     */
+    public function about()
+    {
+        AboutSetting::seedIfEmpty();
+        AboutBox::seedIfEmpty();
+        Expertise::seedIfEmpty();
+
+        $aboutSetting = AboutSetting::first();
+        $aboutBoxes = AboutBox::orderBy('id', 'asc')->get();
+        $expertises = Expertise::orderBy('id', 'asc')->get();
+
+        return view('admin.about', compact('aboutSetting', 'aboutBoxes', 'expertises'));
+    }
+
+    /**
+     * Update the main About Me description text.
+     */
+    public function updateAboutText(Request $request)
+    {
+        $request->validate([
+            'about_text' => 'required|string',
+        ]);
+
+        $aboutSetting = AboutSetting::first();
+        if (!$aboutSetting) {
+            AboutSetting::create(['about_text' => $request->input('about_text')]);
+        } else {
+            $aboutSetting->update(['about_text' => $request->input('about_text')]);
+        }
+
+        return redirect()->route('admin.about')->with('success', 'About text updated successfully!');
+    }
+
+    /**
+     * Show the form for editing an about box text.
+     */
+    public function editAboutBox($id)
+    {
+        $box = AboutBox::findOrFail($id);
+        return view('admin.about.edit_box', compact('box'));
+    }
+
+    /**
+     * Update the specified about box text.
+     */
+    public function updateAboutBox(Request $request, $id)
+    {
+        $box = AboutBox::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $box->update([
+            'title' => $request->input('title'),
+            'description' => $request->input('description'),
+        ]);
+
+        return redirect()->route('admin.about')->with('success', 'Card text updated successfully!');
+    }
+
+    /**
+     * Show the form for creating a new expertise.
+     */
+    public function createExpertise()
+    {
+        return view('admin.about.expertise.create');
+    }
+
+    /**
+     * Store a newly created expertise.
+     */
+    public function storeExpertise(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'nullable|url',
+            'logo_file' => 'nullable|image|max:2048',
+            'logo_url' => 'nullable|url',
+            'bg_class' => 'required|string|max:255',
+            'hover_class' => 'required|string|max:255',
+        ]);
+
+        $logo = '';
+        if ($request->hasFile('logo_file')) {
+            $file = $request->file('logo_file');
+            $logo = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+        } elseif ($request->filled('logo_url')) {
+            $logo = $request->input('logo_url');
+        } else {
+            return back()->withErrors(['logo_file' => 'Please upload a logo image or provide an image URL.']);
+        }
+
+        Expertise::create([
+            'name' => $request->input('name'),
+            'url' => $request->input('url'),
+            'logo' => $logo,
+            'bg_class' => $request->input('bg_class'),
+            'hover_class' => $request->input('hover_class'),
+        ]);
+
+        return redirect()->route('admin.about')->with('success', 'Expertise added successfully!');
+    }
+
+    /**
+     * Show the form for editing an expertise.
+     */
+    public function editExpertise($id)
+    {
+        $expertise = Expertise::findOrFail($id);
+        return view('admin.about.expertise.edit', compact('expertise'));
+    }
+
+    /**
+     * Update the specified expertise.
+     */
+    public function updateExpertise(Request $request, $id)
+    {
+        $expertise = Expertise::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'nullable|url',
+            'logo_file' => 'nullable|image|max:2048',
+            'logo_url' => 'nullable|url',
+            'bg_class' => 'required|string|max:255',
+            'hover_class' => 'required|string|max:255',
+        ]);
+
+        $logo = $expertise->logo;
+        if ($request->hasFile('logo_file')) {
+            $file = $request->file('logo_file');
+            $logo = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+        } elseif ($request->filled('logo_url')) {
+            $logo = $request->input('logo_url');
+        }
+
+        $expertise->update([
+            'name' => $request->input('name'),
+            'url' => $request->input('url'),
+            'logo' => $logo,
+            'bg_class' => $request->input('bg_class'),
+            'hover_class' => $request->input('hover_class'),
+        ]);
+
+        return redirect()->route('admin.about')->with('success', 'Expertise updated successfully!');
+    }
+
+    /**
+     * Delete the specified expertise.
+     */
+    public function deleteExpertise($id)
+    {
+        $expertise = Expertise::findOrFail($id);
+        $expertise->delete();
+
+        return redirect()->route('admin.about')->with('success', 'Expertise deleted successfully!');
     }
 }

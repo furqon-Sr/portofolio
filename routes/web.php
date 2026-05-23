@@ -9,8 +9,16 @@ use App\Models\Project;
 // Home Page - Dynamicized
 Route::get('/', function () {
     Project::seedIfEmpty();
+    \App\Models\AboutSetting::seedIfEmpty();
+    \App\Models\AboutBox::seedIfEmpty();
+    \App\Models\Expertise::seedIfEmpty();
+
     $projects = Project::orderBy('id', 'asc')->take(6)->get(); // Show first 6 on home page
-    return view('welcome', compact('projects'));
+    $aboutText = \App\Models\AboutSetting::first()->about_text ?? '';
+    $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
+    $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
+
+    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises'));
 });
 
 // Works Page - Dynamicized
@@ -46,6 +54,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/projects/{id}/edit', [AdminController::class, 'editProject'])->name('admin.projects.edit');
     Route::put('/admin/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
     Route::delete('/admin/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
+
+    // Admin About Me & Expertise Section CRUD
+    Route::get('/admin/about', [AdminController::class, 'about'])->name('admin.about');
+    Route::put('/admin/about/text', [AdminController::class, 'updateAboutText'])->name('admin.about.text.update');
+    
+    // About Boxes text edit
+    Route::get('/admin/about/boxes/{id}/edit', [AdminController::class, 'editAboutBox'])->name('admin.about.box.edit');
+    Route::put('/admin/about/boxes/{id}', [AdminController::class, 'updateAboutBox'])->name('admin.about.box.update');
+
+    // Expertise CRUD
+    Route::get('/admin/about/expertise/create', [AdminController::class, 'createExpertise'])->name('admin.about.expertise.create');
+    Route::post('/admin/about/expertise', [AdminController::class, 'storeExpertise'])->name('admin.about.expertise.store');
+    Route::get('/admin/about/expertise/{id}/edit', [AdminController::class, 'editExpertise'])->name('admin.about.expertise.edit');
+    Route::put('/admin/about/expertise/{id}', [AdminController::class, 'updateExpertise'])->name('admin.about.expertise.update');
+    Route::delete('/admin/about/expertise/{id}', [AdminController::class, 'deleteExpertise'])->name('admin.about.expertise.delete');
 
     // Breeze default profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
