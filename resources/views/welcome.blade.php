@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hanafi | Product Designer & Fullstack Dev</title>
     @vite('resources/css/app.css')
-    <!-- Font Geist & Termina Bold -->
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://db.onlinewebfonts.com/c/e9591193aa91ce28ad8c8f91c03f6c7b?family=Termina+W05+Bold" rel="stylesheet" type="text/css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Geist', sans-serif; }
-        h1, h2, h3, h4, h5, h6, .font-bold, .font-semibold, .font-heading, strong, b {
-            font-family: 'Termina W05 Bold', 'Termina', sans-serif;
-        }
+        body { font-family: 'Inter', sans-serif; }
         html, body { overflow-x: hidden; }
         @keyframes slide-up {
             0% { opacity: 0; transform: translateY(30px); }
