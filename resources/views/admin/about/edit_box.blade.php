@@ -80,7 +80,7 @@
                     <label for="icon_svg" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Kode SVG Ikon</label>
                     <textarea name="icon_svg" id="icon_svg" rows="3" placeholder="Contoh: <svg class='w-6 h-6 text-blue-500' ...>...</svg>"
                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">@if(Str::startsWith($box->icon, '<svg')){{ $box->icon }}@endif</textarea>
-                    <p class="text-[10px] text-gray-500">Tempel kode tag HTML &lt;svg&gt; lengkap di sini. Pastikan menyertakan class <code>w-6 h-6 text-blue-500</code> agar ukuran dan warna serasi.</p>
+                    <p class="text-[10px] text-gray-500">💡 <strong>Rekomendasi</strong>: Tempel kode tag HTML &lt;svg&gt; lengkap di sini. Pastikan menyertakan class <code>w-6 h-6 text-blue-500</code> agar ikon otomatis berwarna biru mengikuti tema dan responsif terhadap hover.</p>
                     @error('icon_svg')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
@@ -90,7 +90,7 @@
                     <label for="icon_file" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Unggah Gambar Ikon</label>
                     <input type="file" name="icon_file" id="icon_file" accept="image/*"
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                    <p class="text-[10px] text-gray-500">Pilih gambar/icon format PNG/JPG/SVG. Maksimal 2MB.</p>
+                    <p class="text-[10px] text-gray-500">Pilih gambar/icon format PNG/JPG/SVG. Maksimal 2MB.<br><span class="text-amber-500/80">⚠️ Gambar/file ikon tidak bisa berubah warna otomatis melalui CSS. Pastikan berkas Anda sudah berwarna biru (#3b82f6) atau putih (#ffffff).</span></p>
                     @error('icon_file')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
@@ -100,6 +100,7 @@
                     <label for="icon_url" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Link URL Gambar Ikon</label>
                     <input type="url" name="icon_url" id="icon_url" placeholder="Contoh: https://example.com/icon.svg" value="@if(Str::startsWith($box->icon, 'http')){{ $box->icon }}@endif"
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    <p class="text-[10px] text-gray-500">Masukkan tautan gambar ikon.<br><span class="text-amber-500/80">⚠️ URL ikon tidak bisa berubah warna otomatis melalui CSS. Pastikan tautan gambar Anda sudah berwarna biru (#3b82f6) atau putih (#ffffff).</span></p>
                     @error('icon_url')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
