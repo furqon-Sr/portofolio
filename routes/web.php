@@ -57,8 +57,14 @@ Route::get('/debug-db', function () {
     header('Content-Type: text/plain');
     
     $results = [];
-    $results[] = "--- Laravel Database Debugging ---";
-    $results[] = "Default connection: " . config('database.default');
+    $results[] = "--- Laravel Database Config Debugging ---";
+    $results[] = "DB_CONNECTION (env): " . env('DB_CONNECTION');
+    $results[] = "DB_PORT (env): " . env('DB_PORT');
+    $results[] = "DB_HOST (env): " . env('DB_HOST');
+    $results[] = "DB_DATABASE (env): " . env('DB_DATABASE');
+    $results[] = "DB_USERNAME (env): " . env('DB_USERNAME');
+    
+    $results[] = "\nDefault connection (config): " . config('database.default');
     
     $connectionName = config('database.default');
     $config = config("database.connections.{$connectionName}");
@@ -68,31 +74,9 @@ Route::get('/debug-db', function () {
         if (isset($maskedConfig['password'])) {
             $maskedConfig['password'] = '********';
         }
-        $results[] = "Connection Config:\n" . print_r($maskedConfig, true);
+        $results[] = "Active Connection Config:\n" . print_r($maskedConfig, true);
     } else {
         $results[] = "No configuration found for connection: {$connectionName}";
-    }
-
-    try {
-        $db = \Illuminate\Support\Facades\DB::connection();
-        $pdo = $db->getPdo();
-        $results[] = "Successfully connected to the database!";
-        
-        // Check tables
-        $tables = ['users', 'sessions', 'contacts', 'migrations'];
-        foreach ($tables as $table) {
-            try {
-                $exists = \Illuminate\Support\Facades\Schema::hasTable($table);
-                $results[] = "Table '{$table}': " . ($exists ? 'EXISTS' : 'DOES NOT EXIST');
-            } catch (\Exception $e) {
-                $results[] = "Table '{$table}' check failed: " . $e->getMessage();
-            }
-        }
-    } catch (\Exception $e) {
-        $results[] = "Database connection failed!";
-        $results[] = "Error Class: " . get_class($e);
-        $results[] = "Error Message: " . $e->getMessage();
-        $results[] = "Trace:\n" . $e->getTraceAsString();
     }
 
     return implode("\n", $results);

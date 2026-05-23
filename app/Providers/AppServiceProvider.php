@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema; // <-- WAJIB IMPORT INI
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,8 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Solusi untuk limit indeks skema database pada PostgreSQL / MySQL lama
+        Schema::defaultStringLength(191);
+
+        // Paksa HTTPS jika di lingkungan production atau deployment Vercel
         if (config('app.env') === 'production' || getenv('VERCEL') || isset($_SERVER['VERCEL'])) {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
         }
     }
 }
