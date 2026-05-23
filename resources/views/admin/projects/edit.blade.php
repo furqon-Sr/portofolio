@@ -19,7 +19,7 @@
 
     <!-- Form Card -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
-        <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" action="{{ route('admin.projects.update', $project->id) }}" enctype="multipart/form-data" class="space-y-6" x-data="{ category: '{{ old('category', $project->category) }}' }">
             @csrf
             @method('PUT')
 
@@ -38,7 +38,7 @@
                 <!-- Category -->
                 <div class="space-y-2">
                     <label for="category" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Kategori</label>
-                    <select name="category" id="category" required 
+                    <select name="category" id="category" x-model="category" required 
                             class="w-full bg-[#111111] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                         <option value="Web Dev" {{ old('category', $project->category) === 'Web Dev' ? 'selected' : '' }}>Web Dev (Website Project)</option>
                         <option value="Design" {{ old('category', $project->category) === 'Design' ? 'selected' : '' }}>Design (Desain Project)</option>
@@ -73,7 +73,7 @@
                 </div>
 
                 <!-- GitHub Link (Optional) -->
-                <div class="space-y-2">
+                <div class="space-y-2" x-show="category === 'Web Dev'">
                     <label for="github_link" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Link Repository GitHub (Opsional)</label>
                     <input type="url" name="github_link" id="github_link" value="{{ old('github_link', $project->github_link) }}" 
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">

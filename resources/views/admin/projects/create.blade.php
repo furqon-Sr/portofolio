@@ -19,7 +19,7 @@
 
     <!-- Form Card -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
-        <form method="POST" action="{{ route('admin.projects.store') }}" enctype="multipart/form-data" class="space-y-6">
+        <form method="POST" action="{{ route('admin.projects.store') }}" enctype="multipart/form-data" class="space-y-6" x-data="{ category: 'Web Dev' }">
             @csrf
 
             <!-- Form Grid -->
@@ -36,7 +36,7 @@
                 </div>
 
                 <!-- Category -->
-                <div class="space-y-2" x-data="{ category: 'Web Dev' }">
+                <div class="space-y-2">
                     <label for="category" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Kategori</label>
                     <select name="category" id="category" x-model="category" required 
                             class="w-full bg-[#111111] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
@@ -75,7 +75,7 @@
                 </div>
 
                 <!-- GitHub Link (Optional) -->
-                <div class="space-y-2">
+                <div class="space-y-2" x-show="category === 'Web Dev'">
                     <label for="github_link" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Link Repository GitHub (Opsional)</label>
                     <input type="url" name="github_link" id="github_link" value="{{ old('github_link') }}" 
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
