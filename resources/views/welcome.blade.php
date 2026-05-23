@@ -110,61 +110,23 @@
 
             <!-- Projects Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative z-10">
-                <!-- Project 1 (Web) -->
-                <div x-show="category === 'all' || category === 'web'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                @foreach($projects as $index => $project)
+                @php
+                    $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
+                    $num = sprintf("%02d", $index + 1);
+                @endphp
+                <div x-show="category === 'all' || category === '{{ $catClass }}'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
                     <x-project-card 
-                        number="01"
-                        title="ES Kristal Utama Indah" 
-                        category="Web Dev"
-                        description="Company profile & catalog website dengan desain profesional."
-                        link="https://eskristalutamaindah.com"
-                        image="image.png"
+                        number="{{ $num }}"
+                        title="{{ $project->title }}" 
+                        category="{{ $project->category }}"
+                        description="{{ $project->description }}"
+                        link="{{ $project->live_link }}"
+                        github_link="{{ $project->github_link }}"
+                        image="{{ $project->cover_image }}"
                     />
                 </div>
-                <!-- Project 2 (Web) -->
-                <div x-show="category === 'all' || category === 'web'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                    <x-project-card 
-                        number="02"
-                        title="Media PPNK" 
-                        category="Web Dev"
-                        description="Portal informasi dan platform media interaktif untuk PPNK."
-                        link="https://mediappnk.org"
-                         image="p.png"
-                    />
-                </div>
-
-                <!-- Project 4 (Design) -->
-                <div x-show="category === 'all' || category === 'design'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                    <x-project-card 
-                        number="04"
-                        title="PDH Design System" 
-                        category="Design"
-                        description="Design system lengkap untuk PDH, mencakup UI kit, komponen, dan panduan gaya."
-                        link="https://drive.google.com/file/d/1RCrTw1cJWoUGn10cs7VhrqkgtgQW4Ued/view?usp=sharing"
-                        image="pdh.png"
-                    />
-                </div>
-                <!-- Project 5 (Design) -->
-                <div x-show="category === 'all' || category === 'design'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                    <x-project-card 
-                        number="05"
-                        title="FAPRE UNTAR" 
-                        category="Design"
-                        description="Desain identitas visual untuk FAPRE UNTAR."
-                        link="https://drive.google.com/file/d/1HKvCAHvM_LCVYvl5k4UkvYsxr944SyhO/view?usp=sharing"
-                        image="fapre.png"
-                    />
-                </div>
-                <!-- Project 6 (Design) -->
-                <div x-show="category === 'all' || category === 'design'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                     <x-project-card 
-                        number="06"
-                        title="170 th Anniversary cilacap Logo" 
-                        category="Design"
-                        description="Desain logo untuk peringatan 170 tahun Cilacap."
-                        link="https://drive.google.com/file/d/1Kr7S5x2MlZWbB7na6PyV_oU6CKOEH55Y/view?usp=sharing"
-                        image="cilacap.png"
-                    />
+                @endforeach
             </div>
 
             <!-- Footer Action -->

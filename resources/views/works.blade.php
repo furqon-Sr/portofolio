@@ -43,101 +43,24 @@
             </div>
 
             <!-- Works Grid -->
-            <div class="grid grid-cols-3 gap-3 md:gap-8">
-                <!-- Web Projects -->
-                <div class="work-item web" data-category="web">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                @foreach($projects as $index => $project)
+                @php
+                    $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
+                    $num = sprintf("%02d", $index + 1);
+                @endphp
+                <div class="work-item {{ $catClass }}" data-category="{{ $catClass }}">
                     <x-project-card 
-                        number="01"
-                        title="ES Kristal Utama Indah" 
-                        category="Web Dev"
-                        description="Company profile & catalog website dengan desain profesional dan performa optimal."
-                        link="https://eskristalutamaindah.com"
-                        image="image.png"
+                        number="{{ $num }}"
+                        title="{{ $project->title }}" 
+                        category="{{ $project->category }}"
+                        description="{{ $project->description }}"
+                        link="{{ $project->live_link }}"
+                        github_link="{{ $project->github_link }}"
+                        image="{{ $project->cover_image }}"
                     />
                 </div>
-                <div class="work-item web" data-category="web">
-                    <x-project-card 
-                        number="02"
-                        title="Media PPNK" 
-                        category="Web Dev"
-                        description="Portal informasi dan platform media interaktif untuk PPNK."
-                        link="https://mediappnk.org"
-                        image="p.png"
-                    />
-                </div>
-
-                <!-- Design Projects -->
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="04"
-                        title="PDH Design System" 
-                        category="Design"
-                        description="Desain identitas visual menyeluruh dengan fokus pada keselarasan optik."
-                        link="https://drive.google.com/file/d/1RCrTw1cJWoUGn10cs7VhrqkgtgQW4Ued/view?usp=sharing"
-                        image="pdh.png"
-                        
-                    />
-                </div>
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="05"
-                        title="FAPRE UNTAR" 
-                        category="Design"
-                        description="Desain identitas visual untuk FAPRE UNTAR."
-                        link="https://drive.google.com/file/d/1HKvCAHvM_LCVYvl5k4UkvYsxr944SyhO/view?usp=sharing"
-                        image="fapre.png"
-                    />
-                </div>
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="06"
-                        title="170 th Anniversary cilacap Logo" 
-                        category="Design"
-                        description="Desain logo untuk peringatan 170 tahun Cilacap."
-                        link="https://drive.google.com/file/d/1Kr7S5x2MlZWbB7na6PyV_oU6CKOEH55Y/view?usp=sharing"
-                        image="cilacap.png"
-                    />
-                </div>
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="07"
-                        title="karsa Coffee 360 Logo" 
-                        category="Design"
-                        description="Desain logo untuk karsa kopi."
-                        link="https://drive.google.com/file/d/1mVpGZqbPnMS9p9rrINu2QOVam5y8y5Vc/view?usp=sharing"
-                        image="logo._1.png"
-                    />
-                </div>
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="08"
-                        title="Pantai Baru Pandansimo Logo" 
-                        category="Design"
-                        description="Desain logo untuk Pantai Baru Pandansimo."
-                        link="https://drive.google.com/file/d/1NI46cJsx0VGpNJeL2QuDTT93ofKTpd2g/view?usp=sharing"
-                        image="pantai.png"
-                    />
-                </div>
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="09"
-                        title="Es Kristal Utama Indah Logo" 
-                        category="Design"
-                        description="Desain logo untuk Es Kristal Utama Indah."
-                        link="https://drive.google.com/file/d/1OFPnrEakJhrV0yvWMQ7mWsZDJkJUoULf/view?usp=sharing"
-                        image="ui.png"
-                    />
-                </div>
-                <div class="work-item design" data-category="design">
-                    <x-project-card 
-                        number="  10"
-                        title="Price List Coffee Shop" 
-                        category="Design"
-                        description="Desain price list untuk Coffee Shop."
-                        link="https://drive.google.com/file/d/13QaS42JbzoGoLD6lqFxtC5PTxPKEeN_O/view?usp=sharing"
-                        image="pricelist.png"
-                    />
-                </div>
+                @endforeach
             </div>
         </main>
 

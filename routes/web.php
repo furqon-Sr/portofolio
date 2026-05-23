@@ -3,38 +3,57 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Models\Project;
 
-
+// Home Page - Dynamicized
 Route::get('/', function () {
-    return view('welcome');
+    Project::seedIfEmpty();
+    $projects = Project::orderBy('id', 'asc')->take(6)->get(); // Show first 6 on home page
+    return view('welcome', compact('projects'));
 });
+
+// Works Page - Dynamicized
+Route::get('/works', function () {
+    Project::seedIfEmpty();
+    $projects = Project::orderBy('id', 'asc')->get();
+    return view('works', compact('projects'));
+})->name('works.show');
 
 Route::get('/contact', function () {
     return view('contact'); 
 })->name('contact.show');
-Route::get('/works', function () {
-    return view('works'); 
-})->name('works.show');
 
-// Memproses pengiriman form kontak
+// Contact Form Submit
 Route::post('/contact-submit', [ContactController::class, 'store'])->name('contact.store');
 
+// PROTECTED ADMIN ROUTES
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // Redirect /dashboard to the new Admin Dashboard
+    Route::get('/dashboard', function () {
+        return redirect()->route('admin.dashboard');
+    })->name('dashboard');
 
-// PROTECTED ROUTES 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    // Admin Panel Actions
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/admin/messages', [AdminController::class, 'messages'])->name('admin.messages');
+    
+    // Admin Project CRUD
+    Route::get('/admin/projects', [AdminController::class, 'projects'])->name('admin.projects.index');
+    Route::get('/admin/projects/create', [AdminController::class, 'createProject'])->name('admin.projects.create');
+    Route::post('/admin/projects', [AdminController::class, 'storeProject'])->name('admin.projects.store');
+    Route::get('/admin/projects/{id}/edit', [AdminController::class, 'editProject'])->name('admin.projects.edit');
+    Route::put('/admin/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
+    Route::delete('/admin/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
 
-Route::middleware('auth')->group(function () {
-    // Profil bawaan Breeze
+    // Breeze default profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    
-    // Halaman Admin Inbox Pesan
-    Route::get('/admin/messages', [ContactController::class, 'index'])->name('admin.messages');
 });
 
+// Vercel Database Migration Helper
 Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
     if ($request->query('key') !== env('MIGRATE_KEY')) {
         abort(403, 'Unauthorized');
