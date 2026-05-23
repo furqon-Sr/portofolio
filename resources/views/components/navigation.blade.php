@@ -12,11 +12,11 @@
             @if(($siteSetting->logo_type ?? 'text') === 'text')
                 <div class="text-2xl font-bold tracking-tighter text-white">{{ $siteSetting->logo_value ?? 'HANAFI' }}</div>
             @elseif(($siteSetting->logo_type ?? 'text') === 'svg')
-                <div class="h-6 md:h-7 flex items-center select-none text-white [&_svg]:!h-full [&_svg]:!w-auto [&_svg]:max-w-full">
+                <div class="h-3 md:h-3.5 flex items-center select-none text-white [&_svg]:!h-full [&_svg]:!w-auto [&_svg]:max-w-full">
                     {!! $siteSetting->logo_value !!}
                 </div>
             @else
-                <div class="h-6 md:h-7 flex items-center select-none [&_img]:!h-full [&_img]:!w-auto">
+                <div class="h-3 md:h-3.5 flex items-center select-none [&_img]:!h-full [&_img]:!w-auto">
                     <img src="{{ $siteSetting->logo_value }}" alt="Logo" class="object-contain">
                 </div>
             @endif

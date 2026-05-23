@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Contact - Fahruri Hanafi</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Geist & Termina Bold -->
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://db.onlinewebfonts.com/c/e9591193aa91ce28ad8c8f91c03f6c7b?family=Termina+W05+Bold" rel="stylesheet" type="text/css"/>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Geist', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-bold, .font-semibold, .font-heading, strong, b {
+            font-family: 'Termina W05 Bold', 'Termina', sans-serif;
+        }
         .animate-slide-up { animation: slide-up 1s ease-out forwards; }
         @keyframes slide-up {
             0% { opacity: 0; transform: translateY(40px); }
