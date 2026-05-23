@@ -35,11 +35,11 @@
         </form>
     </div>
 
-    <!-- SECTION 2: 4 GRID BOXES (TEXT ONLY) -->
+    <!-- SECTION 2: 4 GRID BOXES -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 overflow-hidden shadow-xl">
         <div class="p-6 md:p-8 border-b border-white/5">
-            <h3 class="text-lg font-bold text-white tracking-tight">4 Grid Highlights (Edit Teks Saja)</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Kelola teks judul dan sub-deskripsi untuk 4 kartu grid highlight. Bentuk layout dan ikon SVG tetap dipertahankan sesuai desain asli.</p>
+            <h3 class="text-lg font-bold text-white tracking-tight">4 Grid Highlights</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Kelola teks judul, sub-deskripsi, dan ikon untuk 4 kartu grid highlight. Anda dapat menggunakan SVG code, upload file gambar, atau menggunakan URL gambar.</p>
         </div>
 
         <div class="overflow-x-auto">
@@ -64,8 +64,14 @@
                     @foreach($aboutBoxes as $box)
                     <tr class="hover:bg-white/[0.01] transition-colors group">
                         <td class="p-5 whitespace-nowrap">
-                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                {!! $svgMap[$box->key] ?? '' !!}
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400">
+                                @if(Str::startsWith($box->icon, '<svg'))
+                                    {!! $box->icon !!}
+                                @elseif(Str::startsWith($box->icon, 'http') || Str::startsWith($box->icon, 'data:'))
+                                    <img src="{{ $box->icon }}" class="w-6 h-6 object-contain">
+                                @else
+                                    {!! $svgMap[$box->key] ?? '' !!}
+                                @endif
                             </div>
                         </td>
                         <td class="p-5 font-semibold text-gray-200">
@@ -77,7 +83,7 @@
                         <td class="p-5 whitespace-nowrap text-right text-sm font-medium">
                             <a href="{{ route('admin.about.box.edit', $box->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5 hover:border-blue-500 hover:text-blue-400 transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                Edit Teks
+                                Edit
                             </a>
                         </td>
                     </tr>

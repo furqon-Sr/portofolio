@@ -192,7 +192,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Update the specified about box text.
+     * Update the specified about box text and icon.
      */
     public function updateAboutBox(Request $request, $id)
     {
@@ -201,14 +201,28 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'icon_file' => 'nullable|image|max:2048',
+            'icon_url' => 'nullable|url',
+            'icon_svg' => 'nullable|string',
         ]);
+
+        $icon = $box->icon;
+        if ($request->hasFile('icon_file')) {
+            $file = $request->file('icon_file');
+            $icon = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+        } elseif ($request->filled('icon_url')) {
+            $icon = $request->input('icon_url');
+        } elseif ($request->filled('icon_svg')) {
+            $icon = $request->input('icon_svg');
+        }
 
         $box->update([
             'title' => $request->input('title'),
             'description' => $request->input('description'),
+            'icon' => $icon,
         ]);
 
-        return redirect()->route('admin.about')->with('success', 'Card text updated successfully!');
+        return redirect()->route('admin.about')->with('success', 'Card updated successfully!');
     }
 
     /**
