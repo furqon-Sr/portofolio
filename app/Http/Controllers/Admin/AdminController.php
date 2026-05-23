@@ -192,7 +192,6 @@ class AdminController extends Controller
             'logo_text' => 'nullable|string|max:255',
             'logo_file' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'logo_url' => 'nullable|url',
-            'logo_svg' => 'nullable|string',
             'footer_name' => 'required|string|max:255',
             'footer_copyright' => 'required|string|max:255',
         ]);
@@ -208,18 +207,25 @@ class AdminController extends Controller
 
         if ($logoType === 'text') {
             $logoValue = $request->input('logo_text', 'HANAFI');
-        } elseif ($logoType === 'file') {
+        } elseif ($logoType === 'file' || $logoType === 'svg') {
             if ($request->hasFile('logo_file')) {
                 $file = $request->file('logo_file');
-                $logoValue = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                $mimeType = $file->getMimeType();
+                $extension = strtolower($file->getClientOriginalExtension());
+                
+                if ($mimeType === 'image/svg+xml' || $extension === 'svg') {
+                    // It's an SVG file! Read content directly as text code
+                    $logoValue = file_get_contents($file->getRealPath());
+                    $logoType = 'svg'; // Automatically mark it as SVG type for inline rendering
+                } else {
+                    // Bitmap images: Encode to base64
+                    $logoValue = 'data:' . $mimeType . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                    $logoType = 'file';
+                }
             }
         } elseif ($logoType === 'url') {
             if ($request->filled('logo_url')) {
                 $logoValue = $request->input('logo_url');
-            }
-        } elseif ($logoType === 'svg') {
-            if ($request->filled('logo_svg')) {
-                $logoValue = $request->input('logo_svg');
             }
         }
 

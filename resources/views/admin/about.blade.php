@@ -53,8 +53,7 @@
                     <select name="logo_type" id="logo_type" x-model="logoType" required 
                             class="w-full bg-[#111111] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
                         <option value="text">Teks Biasa</option>
-                        <option value="svg">SVG Code (Rekomendasi Tajam)</option>
-                        <option value="file">Unggah Gambar / File</option>
+                        <option value="file">Unggah File Logo (Mendukung Gambar & SVG)</option>
                         <option value="url">Link URL Gambar</option>
                     </select>
                     @error('logo_type')
@@ -85,23 +84,12 @@
                     @enderror
                 </div>
 
-                <!-- SVG Textarea -->
-                <div x-show="logoType === 'svg'" class="space-y-2" style="display: none;">
-                    <label for="logo_svg" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Kode SVG Logo</label>
-                    <textarea name="logo_svg" id="logo_svg" rows="4" placeholder="Tempel tag <svg> lengkap Anda di sini..."
-                              class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">@if(($aboutSetting->logo_type ?? '') === 'svg'){{ $aboutSetting->logo_value }}@endif</textarea>
-                    <p class="text-[10px] text-gray-500">💡 Tempel kode &lt;svg&gt; lengkap di sini. Sistem akan secara otomatis menskalakan tinggi logo ke 32px-40px agar tampak pas di navbar navigasi utama.</p>
-                    @error('logo_svg')
-                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- File Upload -->
-                <div x-show="logoType === 'file'" class="space-y-2" style="display: none;">
-                    <label for="logo_file" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Pilih Berkas Logo</label>
-                    <input type="file" name="logo_file" id="logo_file" accept="image/*"
+                <!-- File Upload (Both Images & SVG) -->
+                <div x-show="logoType === 'file' || logoType === 'svg'" class="space-y-2" style="display: none;">
+                    <label for="logo_file" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Pilih Berkas Logo (Gambar / File .svg)</label>
+                    <input type="file" name="logo_file" id="logo_file" accept="image/*,.svg"
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
-                    <p class="text-[10px] text-gray-500">Upload file logo gambar Anda (PNG, JPG, SVG). Maksimal 2MB.</p>
+                    <p class="text-[10px] text-gray-500">Pilih gambar (PNG, JPG) atau file <strong>.svg</strong> Anda langsung dari komputer. Jika Anda mengunggah berkas SVG, sistem akan merendernya sebagai vektor tajam secara otomatis.</p>
                     @error('logo_file')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
