@@ -6,6 +6,48 @@
 @section('content')
 <div class="space-y-10 animate-fade-in">
     
+    <!-- SECTION 0: HERO TEXT -->
+    <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
+        <div class="mb-6">
+            <h3 class="text-lg font-bold text-white tracking-tight">Hero Section Text</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Ubah teks judul utama (heading) dan teks pendukung (subheading/tagline) yang tampil di bagian atas halaman utama.</p>
+        </div>
+
+        <form action="{{ route('admin.about.hero.update') }}" method="POST" class="space-y-4">
+            @csrf
+            @method('PUT')
+            
+            <div class="grid grid-cols-1 gap-4">
+                <div>
+                    <label for="hero_title" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Judul Utama (Heading)</label>
+                    <textarea name="hero_title" id="hero_title" rows="2" 
+                              class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                              required>{{ old('hero_title', $aboutSetting->hero_title ?? 'Bridging the gap between optical balance and scalable architecture.') }}</textarea>
+                    @error('hero_title')
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="hero_subtitle" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Teks Pendukung (Subheading / Tagline)</label>
+                    <input type="text" name="hero_subtitle" id="hero_subtitle" 
+                           value="{{ old('hero_subtitle', $aboutSetting->hero_subtitle ?? 'Product Designer & Fullstack Dev.') }}" 
+                           class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                           required>
+                    @error('hero_subtitle')
+                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
+                    Simpan Teks Hero
+                </button>
+            </div>
+        </form>
+    </div>
+
     <!-- SECTION 1: ABOUT ME TEXT -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
         <div class="mb-6">

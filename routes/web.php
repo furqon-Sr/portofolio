@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/about', [AdminController::class, 'about'])->name('admin.about');
     Route::put('/admin/about/text', [AdminController::class, 'updateAboutText'])->name('admin.about.text.update');
     Route::put('/admin/about/identity', [AdminController::class, 'updateSiteIdentity'])->name('admin.about.identity.update');
+    Route::put('/admin/about/hero', [AdminController::class, 'updateHeroText'])->name('admin.about.hero.update');
     
     // About Boxes text edit
     Route::get('/admin/about/boxes/{id}/edit', [AdminController::class, 'editAboutBox'])->name('admin.about.box.edit');

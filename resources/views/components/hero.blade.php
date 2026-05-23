@@ -1,11 +1,17 @@
+@php
+    $siteSetting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+        'hero_title' => 'Bridging the gap between optical balance and scalable architecture.',
+        'hero_subtitle' => 'Product Designer & Fullstack Dev.'
+    ]);
+@endphp
 <main class="relative mt-16 lg:mt-32 flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
 
     <div class="w-full md:w-1/2 flex flex-col items-center text-center md:items-start md:text-left gap-6 z-10 animate-slide-up">
         <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] text-white tracking-tight">
-            Bridging the gap between optical balance and scalable architecture.
+            {{ $siteSetting->hero_title ?? 'Bridging the gap between optical balance and scalable architecture.' }}
         </h1>
         <p class="text-xl md:text-2xl bg-gradient-to-r from-[#1F7CE6] to-[#E1E1E1] text-transparent bg-clip-text font-medium tracking-wide">
-            Product Designer & Fullstack Dev.
+            {{ $siteSetting->hero_subtitle ?? 'Product Designer & Fullstack Dev.' }}
         </p>
         <a href="/works" class="mt-4 px-8 py-3 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1">
             View My Work

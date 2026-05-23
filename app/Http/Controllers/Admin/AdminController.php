@@ -183,6 +183,33 @@ class AdminController extends Controller
     }
 
     /**
+     * Update the Hero section texts.
+     */
+    public function updateHeroText(Request $request)
+    {
+        $request->validate([
+            'hero_title' => 'required|string',
+            'hero_subtitle' => 'required|string',
+        ]);
+
+        $aboutSetting = AboutSetting::first();
+        if (!$aboutSetting) {
+            AboutSetting::create([
+                'hero_title' => $request->input('hero_title'),
+                'hero_subtitle' => $request->input('hero_subtitle'),
+                'about_text' => '',
+            ]);
+        } else {
+            $aboutSetting->update([
+                'hero_title' => $request->input('hero_title'),
+                'hero_subtitle' => $request->input('hero_subtitle'),
+            ]);
+        }
+
+        return redirect()->route('admin.about')->with('success', 'Hero text updated successfully!');
+    }
+
+    /**
      * Update brand logo and footer text settings.
      */
     public function updateSiteIdentity(Request $request)
