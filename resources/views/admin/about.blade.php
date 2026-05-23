@@ -173,6 +173,49 @@
                     <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                 @enderror
             </div>
+            </div>
+
+            <!-- Favicon / Site Icon -->
+            <div class="space-y-3 p-5 bg-black/30 rounded-2xl border border-white/5">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Favicon / Site Icon</p>
+                    <p class="text-[11px] text-gray-600 mt-0.5">Ikon kecil yang muncul di tab browser. Mendukung PNG, JPG, SVG, atau ICO. Ukuran ideal: 32×32 px atau 64×64 px.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Upload File -->
+                    <div class="space-y-2">
+                        <label for="favicon_file" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Unggah File Favicon</label>
+                        <input type="file" name="favicon_file" id="favicon_file" accept="image/*,.ico,.svg"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        @error('favicon_file')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- URL Input -->
+                    <div class="space-y-2">
+                        <label for="favicon_url" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Atau Link URL Favicon</label>
+                        <input type="url" name="favicon_url" id="favicon_url" 
+                               placeholder="https://example.com/favicon.ico"
+                               value="{{ old('favicon_url', ($aboutSetting->favicon_type ?? 'url') === 'url' ? ($aboutSetting->favicon ?? '') : '') }}"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        @error('favicon_url')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Current Favicon Preview -->
+                @if($aboutSetting->favicon)
+                <div class="flex items-center gap-3 pt-2 border-t border-white/5">
+                    <span class="text-xs text-gray-500">Favicon Aktif:</span>
+                    <div class="w-10 h-10 flex items-center justify-center bg-black/40 border border-white/10 rounded-lg p-1">
+                        <img src="{{ $aboutSetting->favicon }}" alt="Favicon" class="w-full h-full object-contain">
+                    </div>
+                </div>
+                @endif
+            </div>
 
             <div class="flex justify-end pt-4 border-t border-white/5">
                 <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
@@ -180,6 +223,7 @@
                 </button>
             </div>
         </form>
+
     </div>
 
     <!-- SECTION 3: 4 GRID BOXES -->

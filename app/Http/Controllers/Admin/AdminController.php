@@ -221,6 +221,8 @@ class AdminController extends Controller
             'logo_url' => 'nullable|url',
             'footer_name' => 'required|string|max:255',
             'footer_copyright' => 'required|string|max:255',
+            'favicon_file' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,ico|max:1024',
+            'favicon_url' => 'nullable|url',
         ]);
 
         $aboutSetting = AboutSetting::first();
@@ -256,11 +258,25 @@ class AdminController extends Controller
             }
         }
 
+        // Favicon handling
+        $favicon = $aboutSetting->favicon;
+        $faviconType = $aboutSetting->favicon_type ?? 'url';
+        if ($request->hasFile('favicon_file')) {
+            $faviconFile = $request->file('favicon_file');
+            $favicon = 'data:' . $faviconFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($faviconFile->getRealPath()));
+            $faviconType = 'file';
+        } elseif ($request->filled('favicon_url')) {
+            $favicon = $request->input('favicon_url');
+            $faviconType = 'url';
+        }
+
         $aboutSetting->update([
             'logo_type' => $logoType,
             'logo_value' => $logoValue,
             'footer_name' => $request->input('footer_name'),
             'footer_copyright' => $request->input('footer_copyright'),
+            'favicon' => $favicon,
+            'favicon_type' => $faviconType,
         ]);
 
         return redirect()->route('admin.about')->with('success', 'Site identity updated successfully!');

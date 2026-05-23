@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AboutSetting extends Model
 {
-    protected $fillable = ['about_text', 'logo_type', 'logo_value', 'footer_name', 'footer_copyright', 'hero_title', 'hero_subtitle'];
+    protected $fillable = ['about_text', 'logo_type', 'logo_value', 'footer_name', 'footer_copyright', 'hero_title', 'hero_subtitle', 'favicon', 'favicon_type'];
 
     /**
      * Seed default about settings if table is empty.
@@ -24,7 +24,9 @@ class AboutSetting extends Model
             'footer_name' => 'FAHRURI HANAFI',
             'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.',
             'hero_title' => 'Bridging the gap between optical balance and scalable architecture.',
-            'hero_subtitle' => 'Product Designer & Fullstack Dev.'
+            'hero_subtitle' => 'Product Designer & Fullstack Dev.',
+            'favicon' => null,
+            'favicon_type' => 'url',
         ]);
     }
 }

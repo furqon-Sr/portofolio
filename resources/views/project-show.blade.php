@@ -4,6 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $project->title ?? 'Project Details' }} - Fahruri Hanafi</title>
+    @php $siteFavicon = \App\Models\AboutSetting::first(); @endphp
+    @if($siteFavicon && $siteFavicon->favicon)
+    <link rel="icon" type="image/png" href="{{ $siteFavicon->favicon }}">
+    @else
+    <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
+    @endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
