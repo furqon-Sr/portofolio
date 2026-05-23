@@ -1,6 +1,26 @@
+@php
+    $siteSetting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+        'logo_type' => 'text',
+        'logo_value' => 'HANAFI',
+        'footer_name' => 'FAHRURI HANAFI',
+        'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.'
+    ]);
+@endphp
 <nav x-data="{ open: false }" class="py-6 border-b border-gray-800 relative z-50">
     <div class="flex justify-between items-center">
-        <div class="text-2xl font-bold tracking-tighter text-white">HANAFI</div>
+        <a href="/" class="flex items-center">
+            @if(($siteSetting->logo_type ?? 'text') === 'text')
+                <div class="text-2xl font-bold tracking-tighter text-white">{{ $siteSetting->logo_value ?? 'HANAFI' }}</div>
+            @elseif(($siteSetting->logo_type ?? 'text') === 'svg')
+                <div class="h-8 md:h-10 flex items-center select-none text-white [&_svg]:h-full [&_svg]:w-auto [&_svg]:max-w-full">
+                    {!! $siteSetting->logo_value !!}
+                </div>
+            @else
+                <div class="h-8 md:h-10 flex items-center select-none">
+                    <img src="{{ $siteSetting->logo_value }}" alt="Logo" class="h-full w-auto object-contain">
+                </div>
+            @endif
+        </a>
         
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">

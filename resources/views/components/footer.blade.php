@@ -1,7 +1,15 @@
+@php
+    $siteSetting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+        'logo_type' => 'text',
+        'logo_value' => 'HANAFI',
+        'footer_name' => 'FAHRURI HANAFI',
+        'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.'
+    ]);
+@endphp
 <footer class="mt-40 border-t border-gray-800 pt-16 pb-8">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
         <div class="md:col-span-5 space-y-6">
-            <div class="text-2xl font-bold tracking-tighter text-white">FAHRURI HANAFI</div>
+            <div class="text-2xl font-bold tracking-tighter text-white">{{ $siteSetting->footer_name ?? 'FAHRURI HANAFI' }}</div>
             <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
                 Bridging design and code to solve real business problems. I build scalable architectures and pixel-perfect interfaces for forward-thinking brands.
             </p>
@@ -70,7 +78,7 @@
 
     <div class="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-900 gap-4 mt-8">
         <p class="text-gray-600 text-[10px] uppercase tracking-[0.2em] font-medium text-center md:text-left">
-            © 2026 Fahruri Hanafi. All rights reserved.
+            {{ $siteSetting->footer_copyright ?? '© 2026 Fahruri Hanafi. All rights reserved.' }}
         </p>
         <div class="flex gap-6">
             <a href="#" class="text-gray-600 hover:text-gray-400 text-[10px] uppercase tracking-wider font-medium transition-colors">Privacy</a>

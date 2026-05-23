@@ -35,7 +35,124 @@
         </form>
     </div>
 
-    <!-- SECTION 2: 4 GRID BOXES -->
+    <!-- SECTION 2: SITE IDENTITY & FOOTER -->
+    <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl" x-data="{ logoType: '{{ old('logo_type', $aboutSetting->logo_type ?? 'text') }}' }">
+        <div class="mb-6">
+            <h3 class="text-lg font-bold text-white tracking-tight">Site Identity & Footer Logo</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Kelola logo nama pada bagian navigasi utama dan teks hak cipta pada bagian footer.</p>
+        </div>
+
+        <form action="{{ route('admin.about.identity.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            @csrf
+            @method('PUT')
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Logo Type Select -->
+                <div class="space-y-2">
+                    <label for="logo_type" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Tipe Logo Navigasi</label>
+                    <select name="logo_type" id="logo_type" x-model="logoType" required 
+                            class="w-full bg-[#111111] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <option value="text">Teks Biasa</option>
+                        <option value="svg">SVG Code (Rekomendasi Tajam)</option>
+                        <option value="file">Unggah Gambar / File</option>
+                        <option value="url">Link URL Gambar</option>
+                    </select>
+                    @error('logo_type')
+                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Footer Name -->
+                <div class="space-y-2">
+                    <label for="footer_name" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Nama di Footer</label>
+                    <input type="text" name="footer_name" id="footer_name" required value="{{ old('footer_name', $aboutSetting->footer_name ?? 'FAHRURI HANAFI') }}" 
+                           class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    @error('footer_name')
+                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Logo Value Inputs based on Type -->
+            <div class="p-5 bg-black/30 rounded-2xl border border-white/5 space-y-4">
+                <!-- Text Input -->
+                <div x-show="logoType === 'text'" class="space-y-2">
+                    <label for="logo_text" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Teks Logo Navigasi</label>
+                    <input type="text" name="logo_text" id="logo_text" value="{{ old('logo_text', (($aboutSetting->logo_type ?? 'text') === 'text' ? $aboutSetting->logo_value : 'HANAFI')) }}" 
+                           class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    @error('logo_text')
+                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- SVG Textarea -->
+                <div x-show="logoType === 'svg'" class="space-y-2" style="display: none;">
+                    <label for="logo_svg" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Kode SVG Logo</label>
+                    <textarea name="logo_svg" id="logo_svg" rows="4" placeholder="Tempel tag <svg> lengkap Anda di sini..."
+                              class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-xs font-mono text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">@if(($aboutSetting->logo_type ?? '') === 'svg'){{ $aboutSetting->logo_value }}@endif</textarea>
+                    <p class="text-[10px] text-gray-500">💡 Tempel kode &lt;svg&gt; lengkap di sini. Sistem akan secara otomatis menskalakan tinggi logo ke 32px-40px agar tampak pas di navbar navigasi utama.</p>
+                    @error('logo_svg')
+                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- File Upload -->
+                <div x-show="logoType === 'file'" class="space-y-2" style="display: none;">
+                    <label for="logo_file" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Pilih Berkas Logo</label>
+                    <input type="file" name="logo_file" id="logo_file" accept="image/*"
+                           class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    <p class="text-[10px] text-gray-500">Upload file logo gambar Anda (PNG, JPG, SVG). Maksimal 2MB.</p>
+                    @error('logo_file')
+                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Image URL -->
+                <div x-show="logoType === 'url'" class="space-y-2" style="display: none;">
+                    <label for="logo_url" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Link URL Logo Gambar</label>
+                    <input type="url" name="logo_url" id="logo_url" placeholder="Contoh: https://example.com/logo.png" value="{{ old('logo_url', (($aboutSetting->logo_type ?? 'text') === 'url' ? $aboutSetting->logo_value : '')) }}"
+                           class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                    @error('logo_url')
+                        <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Current Logo Preview -->
+                @if($aboutSetting->logo_value)
+                <div class="pt-3 border-t border-white/5 flex items-center gap-4">
+                    <span class="text-xs text-gray-500">Logo Saat Ini:</span>
+                    <div class="h-10 flex items-center justify-center p-2 rounded-lg bg-black/40 border border-white/10 text-white select-none [&_svg]:h-8 [&_svg]:w-auto [&_svg]:max-w-full">
+                        @if(($aboutSetting->logo_type ?? 'text') === 'text')
+                            <span class="text-sm font-bold">{{ $aboutSetting->logo_value }}</span>
+                        @elseif(($aboutSetting->logo_type ?? 'text') === 'svg')
+                            {!! $aboutSetting->logo_value !!}
+                        @else
+                            <img src="{{ $aboutSetting->logo_value }}" alt="Logo" class="h-8 w-auto object-contain">
+                        @endif
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Footer Copyright -->
+            <div class="space-y-2">
+                <label for="footer_copyright" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Teks Hak Cipta (Footer Copyright)</label>
+                <input type="text" name="footer_copyright" id="footer_copyright" required value="{{ old('footer_copyright', $aboutSetting->footer_copyright ?? '© 2026 Fahruri Hanafi. All rights reserved.') }}" 
+                       class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                @error('footer_copyright')
+                    <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="flex justify-end pt-4 border-t border-white/5">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
+                    Simpan Identitas Situs
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- SECTION 3: 4 GRID BOXES -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 overflow-hidden shadow-xl">
         <div class="p-6 md:p-8 border-b border-white/5">
             <h3 class="text-lg font-bold text-white tracking-tight">4 Grid Highlights</h3>

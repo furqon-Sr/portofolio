@@ -183,6 +183,57 @@ class AdminController extends Controller
     }
 
     /**
+     * Update brand logo and footer text settings.
+     */
+    public function updateSiteIdentity(Request $request)
+    {
+        $request->validate([
+            'logo_type' => 'required|string|in:text,svg,file,url',
+            'logo_text' => 'nullable|string|max:255',
+            'logo_file' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'logo_url' => 'nullable|url',
+            'logo_svg' => 'nullable|string',
+            'footer_name' => 'required|string|max:255',
+            'footer_copyright' => 'required|string|max:255',
+        ]);
+
+        $aboutSetting = AboutSetting::first();
+        if (!$aboutSetting) {
+            AboutSetting::seedIfEmpty();
+            $aboutSetting = AboutSetting::first();
+        }
+
+        $logoValue = $aboutSetting->logo_value;
+        $logoType = $request->input('logo_type');
+
+        if ($logoType === 'text') {
+            $logoValue = $request->input('logo_text', 'HANAFI');
+        } elseif ($logoType === 'file') {
+            if ($request->hasFile('logo_file')) {
+                $file = $request->file('logo_file');
+                $logoValue = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            }
+        } elseif ($logoType === 'url') {
+            if ($request->filled('logo_url')) {
+                $logoValue = $request->input('logo_url');
+            }
+        } elseif ($logoType === 'svg') {
+            if ($request->filled('logo_svg')) {
+                $logoValue = $request->input('logo_svg');
+            }
+        }
+
+        $aboutSetting->update([
+            'logo_type' => $logoType,
+            'logo_value' => $logoValue,
+            'footer_name' => $request->input('footer_name'),
+            'footer_copyright' => $request->input('footer_copyright'),
+        ]);
+
+        return redirect()->route('admin.about')->with('success', 'Site identity updated successfully!');
+    }
+
+    /**
      * Show the form for editing an about box text.
      */
     public function editAboutBox($id)
