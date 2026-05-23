@@ -201,19 +201,30 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'icon_file' => 'nullable|image|max:2048',
+            'icon_file' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'icon_url' => 'nullable|url',
             'icon_svg' => 'nullable|string',
+            'upload_type' => 'required|string|in:svg,file,url',
         ]);
 
+        $uploadType = $request->input('upload_type');
         $icon = $box->icon;
-        if ($request->hasFile('icon_file')) {
-            $file = $request->file('icon_file');
-            $icon = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-        } elseif ($request->filled('icon_url')) {
-            $icon = $request->input('icon_url');
-        } elseif ($request->filled('icon_svg')) {
-            $icon = $request->input('icon_svg');
+
+        if ($uploadType === 'file') {
+            if ($request->hasFile('icon_file')) {
+                $file = $request->file('icon_file');
+                $icon = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            }
+        } elseif ($uploadType === 'url') {
+            if ($request->filled('icon_url')) {
+                $icon = $request->input('icon_url');
+            }
+        } elseif ($uploadType === 'svg') {
+            if ($request->filled('icon_svg')) {
+                $icon = $request->input('icon_svg');
+            } else {
+                $icon = null; // Clear to use fallback default svg
+            }
         }
 
         $box->update([

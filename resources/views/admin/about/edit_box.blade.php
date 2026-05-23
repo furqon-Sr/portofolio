@@ -44,7 +44,7 @@
             </div>
 
             <!-- Icon Customization (File or URL or SVG) -->
-            <div class="space-y-4 p-5 bg-black/30 rounded-2xl border border-white/5" x-data="{ uploadType: 'svg' }">
+            <div class="space-y-4 p-5 bg-black/30 rounded-2xl border border-white/5" x-data="{ uploadType: '{{ Str::startsWith($box->icon, '<svg') ? 'svg' : (Str::startsWith($box->icon, 'http') ? 'url' : (Str::startsWith($box->icon, 'data:') ? 'file' : 'svg')) }}' }">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div class="flex flex-wrap items-center gap-3">
                         <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Pilihan Tipe Ikon</span>
