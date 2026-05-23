@@ -53,33 +53,4 @@ Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
     }
 });
 
-Route::get('/debug-db', function () {
-    header('Content-Type: text/plain');
-    
-    $results = [];
-    $results[] = "--- Laravel Database Config Debugging ---";
-    $results[] = "DB_CONNECTION (env): " . env('DB_CONNECTION');
-    $results[] = "DB_PORT (env): " . env('DB_PORT');
-    $results[] = "DB_HOST (env): " . env('DB_HOST');
-    $results[] = "DB_DATABASE (env): " . env('DB_DATABASE');
-    $results[] = "DB_USERNAME (env): " . env('DB_USERNAME');
-    
-    $results[] = "\nDefault connection (config): " . config('database.default');
-    
-    $connectionName = config('database.default');
-    $config = config("database.connections.{$connectionName}");
-    
-    if ($config) {
-        $maskedConfig = $config;
-        if (isset($maskedConfig['password'])) {
-            $maskedConfig['password'] = '********';
-        }
-        $results[] = "Active Connection Config:\n" . print_r($maskedConfig, true);
-    } else {
-        $results[] = "No configuration found for connection: {$connectionName}";
-    }
-
-    return implode("\n", $results);
-});
-
 require __DIR__.'/auth.php';
