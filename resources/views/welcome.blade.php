@@ -142,5 +142,8 @@
 
     </div> 
 
+    <!-- Project Preview Modal -->
+    <x-project-preview-modal />
+
 </body>
 </html>
