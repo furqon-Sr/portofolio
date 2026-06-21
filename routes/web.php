@@ -15,7 +15,7 @@ Route::get('/', function () {
 
     $projects = Project::orderBy('id', 'asc')->get(); // Show all projects on home page
     $aboutText = \App\Models\AboutSetting::first()->about_text ?? '';
-    $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
+    $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->take(3)->get();
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
 
     return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises'));
