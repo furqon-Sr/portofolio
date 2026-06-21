@@ -90,15 +90,21 @@
             </div>
         </section>
 
-        <section x-data="{ 
-            category: 'all',
-            projectsList: @json($projects->map(fn($p) => ['id' => $p->id, 'category' => $p->category === 'Web Dev' ? 'web' : 'design'])),
-            shouldShow(id) {
-                const filtered = this.projectsList.filter(p => this.category === 'all' || p.category === this.category);
-                const index = filtered.findIndex(p => p.id === id);
-                return index >= 0 && index < 3;
-            }
-        }" class="mt-40 mb-32 bg-[#1a1a1a] border border-gray-800 rounded-3xl p-8 lg:p-16 relative overflow-hidden">
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('portfolioSection', () => ({
+                    category: 'all',
+                    projectsList: @json($projects->map(fn($p) => ['id' => $p->id, 'category' => $p->category === 'Web Dev' ? 'web' : 'design'])),
+                    shouldShow(id) {
+                        const filtered = this.projectsList.filter(p => this.category === 'all' || p.category === this.category);
+                        const index = filtered.findIndex(p => p.id === id);
+                        return index >= 0 && index < 3;
+                    }
+                }));
+            });
+        </script>
+
+        <section x-data="portfolioSection" class="mt-40 mb-32 bg-[#1a1a1a] border border-gray-800 rounded-3xl p-8 lg:p-16 relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
             
             <!-- Header -->
