@@ -90,7 +90,15 @@
             </div>
         </section>
 
-        <section x-data="{ category: 'all' }" class="mt-40 mb-32 bg-[#1a1a1a] border border-gray-800 rounded-3xl p-8 lg:p-16 relative overflow-hidden">
+        <section x-data="{ 
+            category: 'all',
+            projectsList: @json($projects->map(fn($p) => ['id' => $p->id, 'category' => $p->category === 'Web Dev' ? 'web' : 'design'])),
+            shouldShow(id) {
+                const filtered = this.projectsList.filter(p => this.category === 'all' || p.category === this.category);
+                const index = filtered.findIndex(p => p.id === id);
+                return index >= 0 && index < 3;
+            }
+        }" class="mt-40 mb-32 bg-[#1a1a1a] border border-gray-800 rounded-3xl p-8 lg:p-16 relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
             
             <!-- Header -->
@@ -114,7 +122,7 @@
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
                     $num = sprintf("%02d", $index + 1);
                 @endphp
-                <div x-show="category === 'all' || category === '{{ $catClass }}'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <div x-show="shouldShow({{ $project->id }})" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
                     <x-project-card 
                         number="{{ $num }}"
                         title="{{ $project->title }}" 
