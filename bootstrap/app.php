@@ -14,7 +14,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->report(function (\Throwable $e) {
+            error_log("LARAVEL_EXCEPTION: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+        });
     })->create();
 
 if (getenv('VERCEL') || isset($_SERVER['VERCEL']) || getenv('NOW_PORT') || isset($_SERVER['NOW_PORT'])) {
