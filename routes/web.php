@@ -28,6 +28,13 @@ Route::get('/works', function () {
     return view('works', compact('projects'));
 })->name('works.show');
 
+// Certificates Page
+Route::get('/certificates', function () {
+    \App\Models\Certificate::seedIfEmpty();
+    $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
+    return view('certificates', compact('certificates'));
+})->name('certificates.show');
+
 Route::get('/contact', function () {
     return view('contact'); 
 })->name('contact.show');
@@ -54,6 +61,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/projects/{id}/edit', [AdminController::class, 'editProject'])->name('admin.projects.edit');
     Route::put('/admin/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
     Route::delete('/admin/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
+
+    // Admin Certificate CRUD
+    Route::get('/admin/certificates', [AdminController::class, 'certificates'])->name('admin.certificates.index');
+    Route::get('/admin/certificates/create', [AdminController::class, 'createCertificate'])->name('admin.certificates.create');
+    Route::post('/admin/certificates', [AdminController::class, 'storeCertificate'])->name('admin.certificates.store');
+    Route::get('/admin/certificates/{id}/edit', [AdminController::class, 'editCertificate'])->name('admin.certificates.edit');
+    Route::put('/admin/certificates/{id}', [AdminController::class, 'updateCertificate'])->name('admin.certificates.update');
+    Route::delete('/admin/certificates/{id}', [AdminController::class, 'deleteCertificate'])->name('admin.certificates.delete');
 
     // Admin About Me & Expertise Section CRUD
     Route::get('/admin/about', [AdminController::class, 'about'])->name('admin.about');

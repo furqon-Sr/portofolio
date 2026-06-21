@@ -28,6 +28,7 @@
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
             <a href="/works" class="hover:text-white transition-colors">Works</a>
+            <a href="/certificates" class="hover:text-white transition-colors">Certificates</a>
             <a href="/#about" class="hover:text-white transition-colors">About</a>
             <a href="/contact" class="hover:text-white transition-colors">Contact</a>
             <a href="{{ asset('assets/cv-hanafi.pdf') }}" download="CV_Hanafi.pdf" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-block backdrop-blur-sm">
@@ -55,6 +56,7 @@
          style="display: none;" 
          class="md:hidden absolute top-full left-0 right-0 mt-3 bg-gray-950/90 backdrop-blur-xl border border-gray-800/80 rounded-2xl z-50 flex flex-col items-center py-6 gap-6 shadow-2xl">
         <a href="/works" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Works</a>
+        <a href="/certificates" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Certificates</a>
         <a href="/#about" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">About</a>
         <a href="/contact" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Contact</a>
         <a href="{{ asset('assets/cv-hanafi.pdf') }}" download="CV_Hanafi.pdf" class="px-6 py-2 mt-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">

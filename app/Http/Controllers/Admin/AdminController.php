@@ -8,6 +8,7 @@ use App\Models\Contact;
 use App\Models\AboutSetting;
 use App\Models\AboutBox;
 use App\Models\Expertise;
+use App\Models\Certificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -20,10 +21,12 @@ class AdminController extends Controller
     {
         $projectCount = Project::count();
         $messageCount = Contact::count();
+        $certificateCount = Certificate::count();
         $recentMessages = Contact::latest()->take(5)->get();
         $recentProjects = Project::latest()->take(5)->get();
+        $recentCertificates = Certificate::latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('projectCount', 'messageCount', 'recentMessages', 'recentProjects'));
+        return view('admin.dashboard', compact('projectCount', 'messageCount', 'certificateCount', 'recentMessages', 'recentProjects', 'recentCertificates'));
     }
 
     /**
@@ -136,6 +139,116 @@ class AdminController extends Controller
         $project->delete();
 
         return redirect()->route('admin.projects.index')->with('success', 'Project deleted successfully!');
+    }
+
+    /**
+     * Display a listing of all certificates.
+     */
+    public function certificates()
+    {
+        Certificate::seedIfEmpty();
+        $certificates = Certificate::orderBy('id', 'desc')->get();
+        return view('admin.certificates.index', compact('certificates'));
+    }
+
+    /**
+     * Show the form for creating a new certificate.
+     */
+    public function createCertificate()
+    {
+        return view('admin.certificates.create');
+    }
+
+    /**
+     * Store a newly created certificate in the database.
+     */
+    public function storeCertificate(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'issuer' => 'required|string|max:255',
+            'issued_at' => 'required|string|max:255',
+            'credential_id' => 'nullable|string|max:255',
+            'credential_url' => 'nullable|url',
+            'image_file' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ]);
+
+        $image = 'cert.png'; // default placeholder
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $image = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+        } elseif ($request->filled('image_url')) {
+            $image = $request->input('image_url');
+        }
+
+        Certificate::create([
+            'name' => $request->input('name'),
+            'issuer' => $request->input('issuer'),
+            'issued_at' => $request->input('issued_at'),
+            'credential_id' => $request->input('credential_id'),
+            'credential_url' => $request->input('credential_url'),
+            'image' => $image,
+        ]);
+
+        return redirect()->route('admin.certificates.index')->with('success', 'Certificate created successfully!');
+    }
+
+    /**
+     * Show the form for editing an existing certificate.
+     */
+    public function editCertificate($id)
+    {
+        $certificate = Certificate::findOrFail($id);
+        return view('admin.certificates.edit', compact('certificate'));
+    }
+
+    /**
+     * Update the specified certificate in the database.
+     */
+    public function updateCertificate(Request $request, $id)
+    {
+        $certificate = Certificate::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'issuer' => 'required|string|max:255',
+            'issued_at' => 'required|string|max:255',
+            'credential_id' => 'nullable|string|max:255',
+            'credential_url' => 'nullable|url',
+            'image_file' => 'nullable|image|max:2048',
+            'image_url' => 'nullable|url',
+        ]);
+
+        $image = $certificate->image;
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $image = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+        } elseif ($request->filled('image_url')) {
+            $image = $request->input('image_url');
+        }
+
+        $certificate->update([
+            'name' => $request->input('name'),
+            'issuer' => $request->input('issuer'),
+            'issued_at' => $request->input('issued_at'),
+            'credential_id' => $request->input('credential_id'),
+            'credential_url' => $request->input('credential_url'),
+            'image' => $image,
+        ]);
+
+        return redirect()->route('admin.certificates.index')->with('success', 'Certificate updated successfully!');
+    }
+
+    /**
+     * Delete the specified certificate from the database.
+     */
+    public function deleteCertificate($id)
+    {
+        $certificate = Certificate::findOrFail($id);
+        $certificate->delete();
+
+        return redirect()->route('admin.certificates.index')->with('success', 'Certificate deleted successfully!');
     }
 
     /**
