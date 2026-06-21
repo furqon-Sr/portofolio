@@ -97,4 +97,43 @@ Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
     }
 });
 
+// Temporary DB & Config Debugging Route
+Route::get('/db-test', function () {
+    $results = [];
+
+    // Test APP_KEY
+    try {
+        $key = config('app.key');
+        $results['app_key'] = [
+            'status' => 'OK',
+            'length' => strlen($key),
+            'value_starts_with' => substr($key, 0, 15) . '...',
+        ];
+    } catch (\Exception $e) {
+        $results['app_key'] = [
+            'status' => 'Failed',
+            'error' => $e->getMessage(),
+        ];
+    }
+
+    // Test Database
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $results['database'] = [
+            'status' => 'OK',
+        ];
+    } catch (\Exception $e) {
+        $results['database'] = [
+            'status' => 'Failed',
+            'error' => $e->getMessage(),
+            'trace' => explode("\n", $e->getTraceAsString()),
+        ];
+    }
+
+    return response()->json($results, 200, [], JSON_PRETTY_PRINT);
+})->withoutMiddleware([
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+]);
+
 require __DIR__.'/auth.php';
