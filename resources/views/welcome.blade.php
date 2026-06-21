@@ -121,14 +121,27 @@
                 </div>
             </div>
 
-            <!-- Projects Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative z-10">
+            <!-- Projects Grid (Bento Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 grid-flow-row-dense gap-6 md:gap-8 relative z-10">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
                     $num = sprintf("%02d", $index + 1);
+                    $bentoSpans = [
+                        0 => 'md:col-span-2',
+                        1 => 'md:col-span-1',
+                        2 => 'md:col-span-1',
+                        3 => 'md:col-span-2',
+                        4 => 'md:col-span-1',
+                        5 => 'md:col-span-1',
+                    ];
+                    $spanClass = $bentoSpans[$index % count($bentoSpans)] ?? 'md:col-span-1';
                 @endphp
-                <div x-show="shouldShow({{ $project->id }})" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <div x-show="shouldShow({{ $project->id }})" 
+                     x-transition:enter="transition ease-out duration-300" 
+                     x-transition:enter-start="opacity-0 transform translate-y-4" 
+                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                     class="{{ $spanClass }}">
                     <x-project-card 
                         number="{{ $num }}"
                         title="{{ $project->title }}" 

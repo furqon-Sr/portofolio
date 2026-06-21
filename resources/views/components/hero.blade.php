@@ -4,6 +4,29 @@
         'hero_subtitle' => 'Product Designer & Fullstack Dev.'
     ]);
 @endphp
+
+<style>
+    @keyframes shimmer-sweep {
+        0% { transform: translate3d(-100%, 0, 0) rotate(15deg); }
+        100% { transform: translate3d(100%, 0, 0) rotate(15deg); }
+    }
+    .shimmer-btn::after {
+        content: '';
+        position: absolute;
+        top: -50%; left: -50%; width: 200%; height: 200%;
+        background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 30%,
+            rgba(255, 255, 255, 0.25) 50%,
+            rgba(255, 255, 255, 0) 70%
+        );
+        transform: translate3d(-100%, 0, 0) rotate(15deg);
+        animation: shimmer-sweep 3s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 5;
+    }
+</style>
+
 <main class="relative mt-16 lg:mt-32 flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
     <!-- Interactive Background Canvas -->
     <canvas id="hero-particles" class="absolute pointer-events-none z-0" style="top: -40px; left: -40px; width: calc(100% + 80px); height: calc(100% + 80px);"></canvas>
@@ -15,8 +38,8 @@
         <p class="text-xl md:text-2xl bg-gradient-to-r from-[#1F7CE6] to-[#E1E1E1] text-transparent bg-clip-text font-medium tracking-wide">
             {{ $siteSetting->hero_subtitle ?? 'Product Designer & Fullstack Dev.' }}
         </p>
-        <a href="/works" class="mt-4 px-8 py-3 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:-translate-y-1">
-            View My Work
+        <a href="/works" class="magnetic-btn shimmer-btn relative overflow-hidden mt-4 px-8 py-3 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 inline-block text-center select-none">
+            <span class="relative z-10 pointer-events-none">View My Work</span>
         </a>
     </div>
 
@@ -184,6 +207,23 @@
         }, { threshold: 0.05 });
 
         observer.observe(canvas);
+
+        // Magnetic Button Effect
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = (e.clientX - rect.left) - (rect.width / 2);
+                const y = (e.clientY - rect.top) - (rect.height / 2);
+                
+                btn.style.transform = `translate3d(${x * 0.35}px, ${y * 0.35}px, 0)`;
+                btn.style.transition = 'transform 0.08s ease-out';
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = 'translate3d(0, 0, 0)';
+                btn.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            });
+        });
 
         window.addEventListener('resize', resize);
         resize();

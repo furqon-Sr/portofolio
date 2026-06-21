@@ -48,14 +48,23 @@
                 <button onclick="filterWorks('design')" id="btn-design" class="filter-btn px-6 py-2 text-xs md:text-sm font-bold bg-[#1a1a1a] text-gray-400 border border-gray-800 rounded-full hover:text-white transition-all">Desain Project</button>
             </div>
 
-            <!-- Works Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <!-- Works Grid (Bento Grid) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 grid-flow-row-dense gap-6 md:gap-8">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
                     $num = sprintf("%02d", $index + 1);
+                    $bentoSpans = [
+                        0 => 'md:col-span-2',
+                        1 => 'md:col-span-1',
+                        2 => 'md:col-span-1',
+                        3 => 'md:col-span-2',
+                        4 => 'md:col-span-1',
+                        5 => 'md:col-span-1',
+                    ];
+                    $spanClass = $bentoSpans[$index % count($bentoSpans)] ?? 'md:col-span-1';
                 @endphp
-                <div class="work-item {{ $catClass }}" data-category="{{ $catClass }}">
+                <div class="work-item {{ $catClass }} {{ $spanClass }}" data-category="{{ $catClass }}">
                     <x-project-card 
                         number="{{ $num }}"
                         title="{{ $project->title }}" 

@@ -6,8 +6,11 @@
         'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.'
     ]);
 @endphp
-<nav x-data="{ open: false }" class="py-6 border-b border-gray-800 relative z-50">
-    <div class="flex justify-between items-center">
+<nav x-data="{ open: false, scrolled: false }" 
+     x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 15 })"
+     :class="scrolled || open ? 'bg-gray-950/70 backdrop-blur-xl border-gray-800/60 shadow-2xl py-4 px-6 mt-4' : 'bg-transparent border-transparent py-6 px-0 mt-0'"
+     class="sticky top-4 z-50 transition-all duration-300 border rounded-2xl flex flex-col justify-center">
+    <div class="flex justify-between items-center w-full">
         <a href="/" class="flex items-center">
             @if(($siteSetting->logo_type ?? 'text') === 'text')
                 <div class="text-2xl font-bold tracking-tighter text-white">{{ $siteSetting->logo_value ?? 'HANAFI' }}</div>
@@ -50,10 +53,10 @@
          x-transition:leave-start="opacity-100 translate-y-0"
          x-transition:leave-end="opacity-0 -translate-y-2"
          style="display: none;" 
-         class="md:hidden absolute top-full left-0 right-0 bg-[#111111] border-b border-gray-800 z-50 flex flex-col items-center py-6 gap-6 shadow-2xl">
-        <a href="/works" class="text-gray-400 hover:text-white font-medium transition-colors">Works</a>
-        <a href="/#about" class="text-gray-400 hover:text-white font-medium transition-colors">About</a>
-        <a href="/contact" class="text-gray-400 hover:text-white font-medium transition-colors">Contact</a>
+         class="md:hidden absolute top-full left-0 right-0 mt-3 bg-gray-950/90 backdrop-blur-xl border border-gray-800/80 rounded-2xl z-50 flex flex-col items-center py-6 gap-6 shadow-2xl">
+        <a href="/works" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Works</a>
+        <a href="/#about" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">About</a>
+        <a href="/contact" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Contact</a>
         <a href="{{ asset('assets/cv-hanafi.pdf') }}" download="CV_Hanafi.pdf" class="px-6 py-2 mt-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
             Download CV
         </a>
