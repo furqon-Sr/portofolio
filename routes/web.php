@@ -13,7 +13,7 @@ Route::get('/', function () {
     \App\Models\AboutBox::seedIfEmpty();
     \App\Models\Expertise::seedIfEmpty();
 
-    $projects = Project::orderBy('id', 'asc')->take(6)->get(); // Show first 6 on home page
+    $projects = Project::orderBy('id', 'asc')->get(); // Show all projects on home page
     $aboutText = \App\Models\AboutSetting::first()->about_text ?? '';
     $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
