@@ -154,6 +154,8 @@ Route::get('/test-pdo', function () {
     \Illuminate\View\Middleware\ShareErrorsFromSession::class,
     \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
     \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    \Illuminate\Foundation\Http\Middleware\TrimStrings::class,
+    \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
 ]);
 
 require __DIR__.'/auth.php';
