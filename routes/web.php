@@ -140,4 +140,20 @@ Route::get('/db-test', function () {
     \Illuminate\Routing\Middleware\SubstituteBindings::class,
 ]);
 
+// Test PDO availability and drivers
+Route::get('/test-pdo', function () {
+    return response()->json([
+        'pdo_exists' => class_exists('PDO'),
+        'drivers' => class_exists('PDO') ? PDO::getAvailableDrivers() : [],
+        'php_version' => PHP_VERSION,
+    ], 200, [], JSON_PRETTY_PRINT);
+})->withoutMiddleware([
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+]);
+
 require __DIR__.'/auth.php';
