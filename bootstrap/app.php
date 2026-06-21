@@ -14,8 +14,14 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->report(function (\Throwable $e) {
-            error_log("LARAVEL_EXCEPTION: " . $e->getMessage() . "\n" . $e->getTraceAsString());
+        $exceptions->render(function (\Throwable $e) {
+            return response(
+                "CRITICAL_CRASH: " . get_class($e) . "\n" .
+                "Message: " . $e->getMessage() . "\n" .
+                "File: " . $e->getFile() . ":" . $e->getLine() . "\n\n" .
+                "Trace:\n" . $e->getTraceAsString(),
+                200
+            )->header('Content-Type', 'text/plain');
         });
     })->create();
 
