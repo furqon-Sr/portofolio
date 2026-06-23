@@ -1,3 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+/* 3D Tilt & Spotlight Border */
+.card-tilt-spotlight {
+    position: relative;
+    transition: transform 0.15s ease-out, border-color 0.3s;
+    transform-style: preserve-3d;
+    will-change: transform;
+    /* Spotlight Border */
+    background: linear-gradient(rgba(17, 17, 17, 0.4), rgba(17, 17, 17, 0.4)) padding-box,
+                radial-gradient(
+                    350px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+                    rgba(59, 130, 246, 0.45),
+                    rgba(255, 255, 255, 0.05) 80%
+                ) border-box !important;
+    border: 1px solid transparent !important;
+}
+
+.card-tilt-spotlight:hover {
+    transition: transform 0.05s ease-out;
+}
+
+/* Spotlight inner light glow effect */
+.card-tilt-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background: radial-gradient(
+        350px circle at var(--mouse-x, 0px) var(--mouse-y, 0px),
+        rgba(59, 130, 246, 0.08),
+        transparent 80%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card-tilt-spotlight:hover::before {
+    opacity: 1;
+}
+
+/* Ensure inner elements sit above the spotlight overlay */
+.card-tilt-spotlight > * {
+    position: relative;
+    z-index: 1;
+}
+

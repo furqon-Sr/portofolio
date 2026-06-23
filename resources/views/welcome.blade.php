@@ -79,7 +79,7 @@
                 </div>
                 <div class="grid grid-cols-4 gap-4">
                     @foreach($expertises as $tech)
-                        <a href="{{ $tech->url }}" target="_blank" class="{{ $tech->bg_class }} {{ $tech->hover_class }} aspect-square rounded-xl flex items-center justify-center border border-gray-800 group transition-all duration-300 overflow-hidden relative">
+                        <a href="{{ $tech->url }}" target="_blank" class="card-tilt-spotlight {{ $tech->bg_class }} {{ $tech->hover_class }} aspect-square rounded-xl flex items-center justify-center border border-gray-800 group transition-all duration-300 overflow-hidden relative">
                             <img src="{{ Str::startsWith($tech->logo, 'http') || Str::startsWith($tech->logo, 'data:') ? $tech->logo : asset('img/logos/' . $tech->logo) }}" 
                                  alt="{{ $tech->name }}" 
                                  class="w-full h-full {{ in_array($tech->name, ['JS', 'Java', 'MySQL']) ? 'object-contain p-2' : 'object-cover' }}">

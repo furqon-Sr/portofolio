@@ -64,3 +64,107 @@
         </a>
     </div>
 </nav>
+
+<style>
+    /* Page Transitions - Scoped to Frontend Pages */
+    body {
+        opacity: 0;
+        transition: opacity 0.25s ease-in-out;
+    }
+    body.loaded {
+        opacity: 1;
+    }
+    body.fade-out {
+        opacity: 0;
+    }
+</style>
+
+<script>
+    // 1. Page Transition Fade-In
+    document.body.classList.add('loaded');
+
+    // Handle back-forward cache show
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            document.body.classList.remove('fade-out');
+            document.body.classList.add('loaded');
+        }
+    });
+
+    // 2. Page Transition Fade-Out on link click
+    document.addEventListener('click', e => {
+        const link = e.target.closest('a');
+        if (!link) return;
+
+        try {
+            const isSamePage = link.pathname === window.location.pathname;
+            const hrefAttr = link.getAttribute('href') || '';
+            const isAnchor = hrefAttr.startsWith('#') || (isSamePage && link.hash);
+
+            // Verify if it's a local link and doesn't open in a new tab/window
+            if (link.hostname === window.location.hostname &&
+                !link.getAttribute('target') &&
+                !isAnchor &&
+                !link.href.startsWith('javascript:') &&
+                !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+                
+                e.preventDefault();
+                const targetUrl = link.href;
+
+                document.body.classList.remove('loaded');
+                document.body.classList.add('fade-out');
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 200);
+            }
+        } catch (err) {
+            // Fallback for parsing errors
+        }
+    });
+
+    // 3. 3D Tilt & Spotlight Border tracker
+    const initTiltAndSpotlight = () => {
+        const cards = document.querySelectorAll('.card-tilt-spotlight');
+        
+        cards.forEach(card => {
+            // Check if already initialized to avoid duplicate listeners
+            if (card.dataset.tiltInitialized) return;
+            card.dataset.tiltInitialized = 'true';
+
+            // Mousemove tracker
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Update CSS variables for spotlight glow border and inner light glow
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+
+                // 3D Tilt Calculations
+                const width = rect.width;
+                const height = rect.height;
+                const rotateX = ((y / height) - 0.5) * 6; // Max tilt: 3 deg (subtle is more premium)
+                const rotateY = (0.5 - (x / width)) * 6;
+
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.015, 1.015, 1.015)`;
+            });
+
+            // Reset on mouse leave
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            });
+        });
+    };
+
+    // Initialize immediately
+    initTiltAndSpotlight();
+
+    // Re-initialize when active elements change (e.g. filter buttons inside Bento grid run)
+    const observer = new MutationObserver(() => {
+        initTiltAndSpotlight();
+    });
+    
+    // Watch body changes (covers dynamic rendering and filter modifications)
+    observer.observe(document.body, { childList: true, subtree: true });
+</script>
