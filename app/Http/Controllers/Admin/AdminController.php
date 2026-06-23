@@ -65,7 +65,8 @@ class AdminController extends Controller
         $coverImage = 'image.png'; // default placeholder
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
-            $coverImage = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $coverImage = self::compressBase64Image($rawBase64);
         } elseif ($request->filled('cover_image_url')) {
             $coverImage = $request->input('cover_image_url');
         }
@@ -112,7 +113,8 @@ class AdminController extends Controller
         $coverImage = $project->cover_image;
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
-            $coverImage = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $coverImage = self::compressBase64Image($rawBase64);
         } elseif ($request->filled('cover_image_url')) {
             $coverImage = $request->input('cover_image_url');
         }
@@ -177,7 +179,8 @@ class AdminController extends Controller
         $image = 'cert.png'; // default placeholder
         if ($request->hasFile('image_file')) {
             $file = $request->file('image_file');
-            $image = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $image = self::compressBase64Image($rawBase64);
         } elseif ($request->filled('image_url')) {
             $image = $request->input('image_url');
         }
@@ -223,7 +226,8 @@ class AdminController extends Controller
         $image = $certificate->image;
         if ($request->hasFile('image_file')) {
             $file = $request->file('image_file');
-            $image = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $image = self::compressBase64Image($rawBase64);
         } elseif ($request->filled('image_url')) {
             $image = $request->input('image_url');
         }
@@ -545,5 +549,60 @@ class AdminController extends Controller
         $expertise->delete();
 
         return redirect()->route('admin.about')->with('success', 'Expertise deleted successfully!');
+    }
+
+    /**
+     * Compress and resize base64 encoded image strings to JPEG format.
+     */
+    public static function compressBase64Image($base64String, $maxWidth = 1000, $quality = 75)
+    {
+        if (empty($base64String) || !str_starts_with($base64String, 'data:image/')) {
+            return $base64String;
+        }
+
+        try {
+            $parts = explode(',', $base64String);
+            if (count($parts) < 2) {
+                return $base64String;
+            }
+            
+            $data = base64_decode($parts[1]);
+            if ($data === false) {
+                return $base64String;
+            }
+
+            $srcImage = imagecreatefromstring($data);
+            if (!$srcImage) {
+                return $base64String;
+            }
+
+            $width = imagesx($srcImage);
+            $height = imagesy($srcImage);
+
+            // Resize if width is larger than maxWidth
+            if ($width > $maxWidth) {
+                $newWidth = $maxWidth;
+                $newHeight = (int)($height * ($maxWidth / $width));
+
+                $dstImage = imagecreatetruecolor($newWidth, $newHeight);
+                
+                // Set background color to white (for transparent PNG/GIF)
+                $white = imagecolorallocate($dstImage, 255, 255, 255);
+                imagefill($dstImage, 0, 0, $white);
+                
+                imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                imagedestroy($srcImage);
+                $srcImage = $dstImage;
+            }
+
+            ob_start();
+            imagejpeg($srcImage, null, $quality);
+            $compressedData = ob_get_clean();
+            imagedestroy($srcImage);
+
+            return 'data:image/jpeg;base64,' . base64_encode($compressedData);
+        } catch (\Exception $e) {
+            return $base64String;
+        }
     }
 }

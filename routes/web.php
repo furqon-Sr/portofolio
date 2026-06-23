@@ -104,10 +104,40 @@ Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
             '--force' => true,
         ]);
         $output = \Illuminate\Support\Facades\Artisan::output();
+        
+        $output .= "\n--- Running Database Image Optimization ---\n";
+        
+        // Optimize Projects
+        $projects = \App\Models\Project::all();
+        $projectCount = 0;
+        foreach ($projects as $project) {
+            $original = $project->cover_image;
+            $compressed = \App\Http\Controllers\Admin\AdminController::compressBase64Image($original);
+            if ($original !== $compressed) {
+                $project->update(['cover_image' => $compressed]);
+                $projectCount++;
+            }
+        }
+        $output .= "Compressed {$projectCount} project cover images.\n";
+        
+        // Optimize Certificates
+        $certificates = \App\Models\Certificate::all();
+        $certificateCount = 0;
+        foreach ($certificates as $certificate) {
+            $original = $certificate->image;
+            $compressed = \App\Http\Controllers\Admin\AdminController::compressBase64Image($original);
+            if ($original !== $compressed) {
+                $certificate->update(['image' => $compressed]);
+                $certificateCount++;
+            }
+        }
+        $output .= "Compressed {$certificateCount} certificate images.\n";
+        $output .= "--- Optimization Complete ---\n";
+
         return response($output, 200)
             ->header('Content-Type', 'text/plain');
     } catch (\Exception $e) {
-        return response("Migration failed:\n" . $e->getMessage(), 500)
+        return response("Migration/Optimization failed:\n" . $e->getMessage(), 500)
             ->header('Content-Type', 'text/plain');
     }
 });
