@@ -45,7 +45,7 @@
 
     <div class="w-full md:w-1/2 flex justify-center md:justify-end z-10 animate-fade-in">
         <div class="relative w-3/5 max-w-[240px] md:w-2/3 md:max-w-[320px] lg:w-full lg:max-w-sm aspect-[4/5] rounded-2xl overflow-hidden border border-gray-800 shadow-2xl shadow-black">
-            <img src="{{ asset('img/porto.png') }}" alt="Hanafi" class="object-cover w-full h-full grayscale">
+            <img src="{{ $siteSetting->profile_photo ?? asset('img/porto.png') }}" alt="Hanafi" class="object-cover w-full h-full grayscale">
             <div class="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent pointer-events-none"></div>
         </div>
     </div>

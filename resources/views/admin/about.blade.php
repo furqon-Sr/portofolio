@@ -13,7 +13,7 @@
             <p class="text-xs text-gray-500 mt-0.5">Ubah teks judul utama (heading) dan teks pendukung (subheading/tagline) yang tampil di bagian atas halaman utama.</p>
         </div>
 
-        <form action="{{ route('admin.about.hero.update') }}" method="POST" class="space-y-4">
+        <form action="{{ route('admin.about.hero.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
             @method('PUT')
             
@@ -40,9 +40,62 @@
                 </div>
             </div>
 
+            <!-- Profile Photo Settings -->
+            <div class="pt-4 border-t border-white/5 space-y-4">
+                <h4 class="text-sm font-semibold text-gray-300">Foto Profil (Hero Image)</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- File upload -->
+                    <div>
+                        <label for="profile_photo_file" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Unggah Foto Profil Baru</label>
+                        <input type="file" name="profile_photo_file" id="profile_photo_file" accept="image/*"
+                               class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <p class="text-[10px] text-gray-500 mt-1">Format gambar (JPG, PNG, GIF). Ukuran maks 2MB.</p>
+                        @error('profile_photo_file')
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- URL input -->
+                    <div>
+                        <label for="profile_photo_url" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Atau Link URL Gambar</label>
+                        <input type="url" name="profile_photo_url" id="profile_photo_url" placeholder="https://example.com/foto.png"
+                               value="{{ old('profile_photo_url') }}"
+                               class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <p class="text-[10px] text-gray-500 mt-1">Gunakan tautan jika gambar disimpan di hosting luar.</p>
+                        @error('profile_photo_url')
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Preview and reset -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-500">Pratinjau Saat Ini:</span>
+                        <div class="w-16 h-20 bg-black/40 border border-white/10 rounded-lg overflow-hidden flex items-center justify-center">
+                            @if($aboutSetting && $aboutSetting->profile_photo)
+                                <img src="{{ $aboutSetting->profile_photo }}" alt="Foto Profil" class="w-full h-full object-cover grayscale">
+                            @else
+                                <img src="{{ asset('img/porto.png') }}" alt="Foto Bawaan" class="w-full h-full object-cover grayscale">
+                            @endif
+                        </div>
+                    </div>
+
+                    @if($aboutSetting && $aboutSetting->profile_photo)
+                        <div class="flex items-center gap-2 sm:ml-auto">
+                            <input type="checkbox" name="remove_profile_photo" id="remove_profile_photo" value="1"
+                                   class="rounded bg-black/40 border-white/10 text-blue-600 focus:ring-blue-500 focus:ring-offset-black">
+                            <label for="remove_profile_photo" class="text-xs text-gray-400 font-semibold cursor-pointer">Kembali ke Foto Bawaan (porto.png)</label>
+                        </div>
+                    @else
+                        <div class="text-xs text-gray-600 sm:ml-auto italic">Menggunakan foto bawaan (porto.png)</div>
+                    @endif
+                </div>
+            </div>
+
             <div class="flex justify-end pt-2">
                 <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
-                    Simpan Teks Hero
+                    Simpan Pengaturan Hero & Foto
                 </button>
             </div>
         </form>

@@ -307,23 +307,35 @@ class AdminController extends Controller
         $request->validate([
             'hero_title' => 'required|string',
             'hero_subtitle' => 'required|string',
+            'profile_photo_file' => 'nullable|image|max:2048',
+            'profile_photo_url' => 'nullable|url',
         ]);
 
         $aboutSetting = AboutSetting::first();
         if (!$aboutSetting) {
-            AboutSetting::create([
-                'hero_title' => $request->input('hero_title'),
-                'hero_subtitle' => $request->input('hero_subtitle'),
-                'about_text' => '',
-            ]);
-        } else {
-            $aboutSetting->update([
-                'hero_title' => $request->input('hero_title'),
-                'hero_subtitle' => $request->input('hero_subtitle'),
-            ]);
+            AboutSetting::seedIfEmpty();
+            $aboutSetting = AboutSetting::first();
         }
 
-        return redirect()->route('admin.about')->with('success', 'Hero text updated successfully!');
+        $profilePhoto = $aboutSetting->profile_photo;
+
+        if ($request->has('remove_profile_photo')) {
+            $profilePhoto = null;
+        } elseif ($request->hasFile('profile_photo_file')) {
+            $file = $request->file('profile_photo_file');
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $profilePhoto = self::compressBase64Image($rawBase64);
+        } elseif ($request->filled('profile_photo_url')) {
+            $profilePhoto = $request->input('profile_photo_url');
+        }
+
+        $aboutSetting->update([
+            'hero_title' => $request->input('hero_title'),
+            'hero_subtitle' => $request->input('hero_subtitle'),
+            'profile_photo' => $profilePhoto,
+        ]);
+
+        return redirect()->route('admin.about')->with('success', 'Hero settings updated successfully!');
     }
 
     /**

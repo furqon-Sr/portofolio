@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AboutSetting extends Model
 {
-    protected $fillable = ['about_text', 'logo_type', 'logo_value', 'footer_name', 'footer_copyright', 'hero_title', 'hero_subtitle', 'favicon', 'favicon_type'];
+    protected $fillable = ['about_text', 'logo_type', 'logo_value', 'footer_name', 'footer_copyright', 'hero_title', 'hero_subtitle', 'favicon', 'favicon_type', 'profile_photo'];
 
     /**
      * Seed default about settings if table is empty.
