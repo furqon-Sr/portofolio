@@ -5,28 +5,6 @@
     ]);
 @endphp
 
-<style>
-    @keyframes shimmer-sweep {
-        0% { transform: translate3d(-100%, 0, 0) rotate(15deg); }
-        100% { transform: translate3d(100%, 0, 0) rotate(15deg); }
-    }
-    .shimmer-btn::after {
-        content: '';
-        position: absolute;
-        top: -50%; left: -50%; width: 200%; height: 200%;
-        background: linear-gradient(
-            to right,
-            rgba(255, 255, 255, 0) 30%,
-            rgba(255, 255, 255, 0.25) 50%,
-            rgba(255, 255, 255, 0) 70%
-        );
-        transform: translate3d(-100%, 0, 0) rotate(15deg);
-        animation: shimmer-sweep 3s ease-in-out infinite;
-        pointer-events: none;
-        z-index: 5;
-    }
-</style>
-
 <main class="relative mt-16 lg:mt-32 flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
     <!-- Interactive Background Canvas -->
     <canvas id="hero-particles" class="absolute pointer-events-none z-0" style="top: -40px; left: -40px; width: calc(100% + 80px); height: calc(100% + 80px);"></canvas>
@@ -38,8 +16,8 @@
         <p class="text-xl md:text-2xl bg-gradient-to-r from-[#1F7CE6] to-[#E1E1E1] text-transparent bg-clip-text font-medium tracking-wide">
             {{ $siteSetting->hero_subtitle ?? 'Product Designer & Fullstack Dev.' }}
         </p>
-        <a href="/works" class="magnetic-btn shimmer-btn relative overflow-hidden mt-4 px-8 py-3 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 inline-block text-center select-none">
-            <span class="relative z-10 pointer-events-none">View My Work</span>
+        <a href="/works" class="magnetic-btn relative mt-4 px-8 py-3 border border-white/20 text-white hover:text-gray-950 font-medium text-sm rounded-full hover:bg-white hover:border-white transition-all duration-300 inline-block text-center select-none">
+            View My Work
         </a>
     </div>
 
