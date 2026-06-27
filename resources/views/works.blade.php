@@ -35,21 +35,21 @@
         
         <x-navigation />
 
-        <main class="flex-grow pt-16 pb-32 animate-slide-up">
-            <div class="mb-12 text-center md:text-left">
+        <main class="flex-grow pt-24 pb-32 animate-slide-up">
+            <div class="mb-16 text-center md:text-left">
                 <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">Selected <span class="text-blue-600">Works</span></h1>
                 <p class="text-gray-400 text-sm md:text-lg">A collection of my recent projects in web development and design.</p>
             </div>
 
             <!-- Filter Buttons -->
-            <div class="flex flex-wrap gap-2 mb-10 justify-center md:justify-start">
-                <button onclick="filterWorks('all')" id="btn-all" class="filter-btn px-6 py-2 text-xs md:text-sm font-bold bg-blue-600 text-white rounded-full transition-all">All Projects</button>
-                <button onclick="filterWorks('web')" id="btn-web" class="filter-btn px-6 py-2 text-xs md:text-sm font-bold bg-[#1a1a1a] text-gray-400 border border-gray-800 rounded-full hover:text-white transition-all">Website Project</button>
-                <button onclick="filterWorks('design')" id="btn-design" class="filter-btn px-6 py-2 text-xs md:text-sm font-bold bg-[#1a1a1a] text-gray-400 border border-gray-800 rounded-full hover:text-white transition-all">Desain Project</button>
+            <div class="flex gap-6 border-b border-white/5 pb-2 md:pb-0 md:border-none mb-12 justify-center md:justify-start">
+                <button onclick="filterWorks('all')" id="btn-all" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-blue-600 text-white transition-all">All</button>
+                <button onclick="filterWorks('web')" id="btn-web" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Web Dev</button>
+                <button onclick="filterWorks('design')" id="btn-design" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Design</button>
             </div>
 
-            <!-- Works Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <!-- Works List -->
+            <div class="flex flex-col border-t border-white/10">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
@@ -77,12 +77,12 @@
         function filterWorks(category) {
             const buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white', 'border-transparent');
-                btn.classList.add('bg-[#1a1a1a]', 'text-gray-400', 'border-gray-800');
+                btn.classList.remove('border-blue-600', 'text-white');
+                btn.classList.add('border-transparent', 'text-gray-500');
             });
             const activeBtn = document.getElementById('btn-' + category);
-            activeBtn.classList.remove('bg-[#1a1a1a]', 'text-gray-400', 'border-gray-800');
-            activeBtn.classList.add('bg-blue-600', 'text-white', 'border-transparent');
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
+            activeBtn.classList.add('border-blue-600', 'text-white');
 
             const items = document.querySelectorAll('.work-item');
             items.forEach(item => {

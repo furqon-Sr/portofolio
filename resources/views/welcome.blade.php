@@ -104,25 +104,25 @@
             });
         </script>
 
-        <section x-data="portfolioSection" class="mt-40 mb-32 bg-[#1a1a1a] border border-gray-800 rounded-3xl p-8 lg:p-16 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-b from-blue-900/10 to-transparent pointer-events-none"></div>
+        <section x-data="portfolioSection" class="mt-48 mb-32 relative">
             
             <!-- Header -->
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 relative z-10">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 relative z-10">
                 <div class="space-y-4">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Explore My <span class="text-blue-600">Selected Works</span></h2>
-                    
-                    <!-- Filter Buttons -->
-                    <div class="flex flex-wrap gap-3">
-                        <button @click="category = 'all'" :class="category === 'all' ? 'bg-blue-600 text-white border-transparent' : 'bg-[#121212] text-gray-400 border-gray-800'" class="px-5 py-2 text-xs font-bold border rounded-full transition-all duration-300">All</button>
-                        <button @click="category = 'web'" :class="category === 'web' ? 'bg-blue-600 text-white border-transparent' : 'bg-[#121212] text-gray-400 border-gray-800'" class="px-5 py-2 text-xs font-bold border rounded-full transition-all duration-300">Web Dev</button>
-                        <button @click="category = 'design'" :class="category === 'design' ? 'bg-blue-600 text-white border-transparent' : 'bg-[#121212] text-gray-400 border-gray-800'" class="px-5 py-2 text-xs font-bold border rounded-full transition-all duration-300">Design</button>
-                    </div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Selected <span class="text-blue-600 font-medium">Works</span></h2>
+                    <p class="text-gray-400 text-sm md:text-base max-w-md leading-relaxed">A curated collection of digital experiences and design systems, built with precision and intent.</p>
+                </div>
+                
+                <!-- Filter Buttons -->
+                <div class="flex gap-6 border-b border-white/5 pb-2 md:pb-0 md:border-none">
+                    <button @click="category = 'all'" :class="category === 'all' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">All</button>
+                    <button @click="category = 'web'" :class="category === 'web' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">Web Dev</button>
+                    <button @click="category = 'design'" :class="category === 'design' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">Design</button>
                 </div>
             </div>
 
-            <!-- Projects Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 relative z-10">
+            <!-- Projects List -->
+            <div class="flex flex-col border-t border-white/10 relative z-10">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
@@ -144,9 +144,9 @@
 
             <!-- Footer Action -->
             <div class="mt-16 text-center relative z-10">
-                <a href="/works" class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1">
+                <a href="/works" class="group inline-flex items-center gap-2 px-6 py-3 border border-white/10 hover:border-blue-500 text-white font-medium text-sm rounded-full hover:bg-white/5 transition-all duration-300 hover:-translate-y-0.5">
                     View All Projects
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
                 </a>
             </div>
         </section>
