@@ -21,7 +21,14 @@ class ContactController extends Controller
 
         // Kirim email ke fhan111205@gmail.com
         try {
-            Mail::raw("Anda mendapatkan pesan baru dari form kontak portfolio:\n\nNama: {$contact->name}\nEmail: {$contact->email}\nPesan:\n{$contact->message}", function ($message) use ($contact) {
+            $emailData = [
+                'contactName' => $contact->name,
+                'contactEmail' => $contact->email,
+                'contactMessage' => $contact->message,
+                'contactTime' => $contact->created_at ? $contact->created_at->timezone('Asia/Jakarta')->format('d F Y, H:i') . ' WIB' : now()->timezone('Asia/Jakarta')->format('d F Y, H:i') . ' WIB',
+            ];
+
+            Mail::send('emails.contact', $emailData, function ($message) use ($contact) {
                 $message->to('fhan111205@gmail.com')
                         ->replyTo($contact->email)
                         ->subject('Pesan Baru dari Kontak Portfolio: ' . $contact->name);
