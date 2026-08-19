@@ -113,5 +113,100 @@
         </main>
     </div>
 
+    <!-- Client-Side Image Compression for Vercel Payload Limit -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const forms = document.querySelectorAll('form[enctype="multipart/form-data"]');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', async function(e) {
+                    const fileInputs = form.querySelectorAll('input[type="file"]');
+                    let needsCompression = false;
+                    
+                    for (let input of fileInputs) {
+                        if (input.files && input.files[0] && input.files[0].type.startsWith('image/')) {
+                            // Only compress if file is larger than 100KB to save processing
+                            if (input.files[0].size > 100 * 1024) {
+                                needsCompression = true;
+                            }
+                        }
+                    }
+
+                    if (!needsCompression) return;
+
+                    e.preventDefault();
+                    
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn ? submitBtn.innerHTML : '';
+                    if(submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = 'Memproses Gambar...';
+                    }
+                    
+                    for (let input of fileInputs) {
+                        if (input.files && input.files[0] && input.files[0].type.startsWith('image/')) {
+                            if (input.files[0].size > 100 * 1024) {
+                                const file = input.files[0];
+                                const compressedBase64 = await compressImage(file);
+                                const compressedFile = dataURLtoFile(compressedBase64, file.name);
+                                const dataTransfer = new DataTransfer();
+                                dataTransfer.items.add(compressedFile);
+                                input.files = dataTransfer.files;
+                            }
+                        }
+                    }
+                    
+                    form.submit();
+                });
+            });
+
+            function compressImage(file) {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = event => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 1200;
+                            const MAX_HEIGHT = 1200;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > MAX_WIDTH) {
+                                    height *= MAX_WIDTH / width;
+                                    width = MAX_WIDTH;
+                                }
+                            } else {
+                                if (height > MAX_HEIGHT) {
+                                    width *= MAX_HEIGHT / height;
+                                    height = MAX_HEIGHT;
+                                }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality JPEG
+                        };
+                    };
+                });
+            }
+
+            function dataURLtoFile(dataurl, filename) {
+                let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                    bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                // Force extension to .jpg since we compressed to image/jpeg
+                filename = filename.replace(/\.[^/.]+$/, "") + ".jpg";
+                return new File([u8arr], filename, {type:mime});
+            }
+        });
+    </script>
 </body>
 </html>
