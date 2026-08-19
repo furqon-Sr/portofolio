@@ -90,6 +90,67 @@
             </div>
         </section>
 
+        <!-- Certificates Marquee Section -->
+        @if($certificates->count() > 0)
+        <section class="mt-32 mb-16 relative overflow-hidden">
+            <div class="flex flex-col items-center mb-10 text-center relative z-10">
+                <h3 class="text-xs font-bold tracking-[0.2em] text-blue-500 uppercase mb-3">Insights & Achievements</h3>
+                <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Professional <span class="text-gray-400 font-medium">Certificates</span></h2>
+            </div>
+
+            <!-- Marquee Container -->
+            <div class="relative flex gap-6 overflow-hidden group">
+                <!-- Fade Gradients -->
+                <div class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-950 to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-950 to-transparent z-10 pointer-events-none"></div>
+
+                <!-- Animated Track 1 -->
+                <div class="flex gap-6 shrink-0 items-center py-4 animate-marquee">
+                    @foreach($certificates as $cert)
+                        <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
+                            <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
+                                <img src="{{ Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/certificates/' . $cert->image) }}" 
+                                     alt="{{ $cert->name }}" 
+                                     class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
+                                <!-- Issuer overlay -->
+                                <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300">{{ $cert->issuer }}</div>
+                            </div>
+                            <h4 class="text-sm font-semibold text-white mb-1 truncate">{{ $cert->name }}</h4>
+                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                <span>{{ $cert->issued_at }}</span>
+                                <span class="text-blue-500 opacity-0 group-hover/cert:opacity-100 transition-opacity">View &rarr;</span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+
+                <!-- Animated Track 2 (Duplicate for infinite loop) -->
+                <div class="flex gap-6 shrink-0 items-center py-4 animate-marquee" aria-hidden="true">
+                    @foreach($certificates as $cert)
+                        <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
+                            <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
+                                <img src="{{ Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/certificates/' . $cert->image) }}" 
+                                     alt="{{ $cert->name }}" 
+                                     class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
+                                <!-- Issuer overlay -->
+                                <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300">{{ $cert->issuer }}</div>
+                            </div>
+                            <h4 class="text-sm font-semibold text-white mb-1 truncate">{{ $cert->name }}</h4>
+                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                <span>{{ $cert->issued_at }}</span>
+                                <span class="text-blue-500 opacity-0 group-hover/cert:opacity-100 transition-opacity">View &rarr;</span>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center relative z-10">
+                <a href="{{ route('certificates.show') }}" class="text-xs font-semibold text-gray-400 hover:text-white transition-colors border-b border-gray-800 hover:border-white pb-1">See All Credentials</a>
+            </div>
+        </section>
+        @endif
+
         <script>
             document.addEventListener('alpine:init', () => {
                 Alpine.data('portfolioSection', () => ({

@@ -12,13 +12,15 @@ Route::get('/', function () {
     \App\Models\AboutSetting::seedIfEmpty();
     \App\Models\AboutBox::seedIfEmpty();
     \App\Models\Expertise::seedIfEmpty();
+    \App\Models\Certificate::seedIfEmpty();
 
     $projects = Project::orderBy('id', 'asc')->get(); // Show all projects on home page
     $aboutText = \App\Models\AboutSetting::first()->about_text ?? '';
     $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
+    $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
 
-    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises'));
+    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises', 'certificates'));
 });
 
 // Works Page - Dynamicized
