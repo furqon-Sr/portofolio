@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hanafi | Product Designer & Fullstack Dev</title>
-    @php $siteFavicon = \App\Models\AboutSetting::first(); @endphp
-    @if($siteFavicon && $siteFavicon->favicon)
-    <link rel="icon" type="image/png" href="{{ $siteFavicon->favicon }}">
+    @php 
+        $siteSettingsData = \App\Models\AboutSetting::first(); 
+        $logoText = $siteSettingsData->logo_value ?? 'Hanafi';
+        $heroSubtitle = $siteSettingsData->hero_subtitle ?? 'Product Designer & Fullstack Dev';
+    @endphp
+    <title>{{ $logoText }} | {{ $heroSubtitle }}</title>
+    @if($siteSettingsData && $siteSettingsData->favicon)
+    <link rel="icon" type="image/png" href="{{ $siteSettingsData->favicon }}">
     @else
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     @endif

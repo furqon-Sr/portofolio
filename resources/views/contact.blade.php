@@ -3,10 +3,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Contact - Fahruri Hanafi</title>
-    @php $siteFavicon = \App\Models\AboutSetting::first(); @endphp
-    @if($siteFavicon && $siteFavicon->favicon)
-    <link rel="icon" type="image/png" href="{{ $siteFavicon->favicon }}">
+    @php 
+        $siteSettingsData = \App\Models\AboutSetting::first(); 
+        $logoText = $siteSettingsData->logo_value ?? 'Hanafi';
+    @endphp
+    <title>Contact | {{ $logoText }}</title>
+    @if($siteSettingsData && $siteSettingsData->favicon)
+    <link rel="icon" type="image/png" href="{{ $siteSettingsData->favicon }}">
     @else
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     @endif
