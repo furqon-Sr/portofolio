@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @php 
         $siteSettingsData = \App\Models\AboutSetting::first(); 
-        $logoText = $siteSettingsData->logo_value ?? 'Hanafi';
+        $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>{{ $logoText }} | Blog & Notes</title>
     @if($siteSettingsData && $siteSettingsData->favicon)
