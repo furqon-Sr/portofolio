@@ -13,14 +13,16 @@ Route::get('/', function () {
     \App\Models\AboutBox::seedIfEmpty();
     \App\Models\Expertise::seedIfEmpty();
     \App\Models\Certificate::seedIfEmpty();
+    \App\Models\Client::seedIfEmpty();
 
     $projects = Project::orderBy('id', 'asc')->get(); // Show all projects on home page
     $aboutText = \App\Models\AboutSetting::first()->about_text ?? '';
     $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
+    $clients = \App\Models\Client::orderBy('order_index', 'asc')->get();
 
-    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises', 'certificates'));
+    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises', 'certificates', 'clients'));
 });
 
 // Works Page - Dynamicized
@@ -173,3 +175,11 @@ Route::post('/api/projects/{id}/view', function ($id) {
     }
     return response()->json(['success' => false], 404);
 });
+
+    // Admin Clients CRUD
+    Route::get('/admin/clients', [App\Http\Controllers\Admin\AdminController::class, 'clients'])->name('admin.clients.index')->middleware(['auth', 'verified']);
+    Route::get('/admin/clients/create', [App\Http\Controllers\Admin\AdminController::class, 'createClient'])->name('admin.clients.create')->middleware(['auth', 'verified']);
+    Route::post('/admin/clients', [App\Http\Controllers\Admin\AdminController::class, 'storeClient'])->name('admin.clients.store')->middleware(['auth', 'verified']);
+    Route::get('/admin/clients/{id}/edit', [App\Http\Controllers\Admin\AdminController::class, 'editClient'])->name('admin.clients.edit')->middleware(['auth', 'verified']);
+    Route::put('/admin/clients/{id}', [App\Http\Controllers\Admin\AdminController::class, 'updateClient'])->name('admin.clients.update')->middleware(['auth', 'verified']);
+    Route::delete('/admin/clients/{id}', [App\Http\Controllers\Admin\AdminController::class, 'deleteClient'])->name('admin.clients.delete')->middleware(['auth', 'verified']);

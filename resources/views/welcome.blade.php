@@ -94,6 +94,36 @@
             </div>
         </section>
 
+        <!-- Trusted By / Clients Section -->
+        @if($clients && $clients->count() > 0)
+        <section class="mt-20 mb-32 relative z-10">
+            <div class="text-center mb-10">
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">Trusted By & Collaborated With</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center opacity-60 hover:opacity-100 transition-opacity duration-500 max-w-5xl mx-auto px-4">
+                @foreach($clients as $client)
+                    @if($client->url)
+                        <a href="{{ $client->url }}" target="_blank" class="block w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
+                            <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
+                                 alt="{{ $client->name }}" 
+                                 class="w-full h-full object-contain filter brightness-0 invert opacity-50 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
+                        </a>
+                    @else
+                        <div class="w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
+                            <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
+                                 alt="{{ $client->name }}" 
+                                 class="w-full h-full object-contain filter brightness-0 invert opacity-50 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+            
+            <!-- Subtle gradient divider -->
+            <div class="h-px w-full max-w-3xl mx-auto mt-20 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        </section>
+        @endif
+
         <!-- Certificates Marquee Section -->
         @if($certificates->count() > 0)
         <section class="mt-32 mb-16 relative overflow-hidden">

@@ -718,5 +718,76 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return $base64String;
         }
+    // Client CRUD
+    public function clients()
+    {
+        $clients = \App\Models\Client::orderBy('order_index', 'asc')->get();
+        return view('admin.clients.index', compact('clients'));
+    }
+
+    public function createClient()
+    {
+        return view('admin.clients.create');
+    }
+
+    public function storeClient(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'nullable|url|max:255',
+            'order_index' => 'nullable|integer',
+            'logo' => 'required',
+        ]);
+
+        $logo = $request->logo;
+        if (str_starts_with($logo, 'data:image')) {
+            $logo = self::compressBase64Image($logo, 60, 400); // Small logos
+        }
+
+        \App\Models\Client::create([
+            'name' => $validated['name'],
+            'url' => $validated['url'],
+            'order_index' => $validated['order_index'] ?? 0,
+            'logo' => $logo,
+        ]);
+
+        return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
+    }
+
+    public function editClient($id)
+    {
+        $client = \App\Models\Client::findOrFail($id);
+        return view('admin.clients.edit', compact('client'));
+    }
+
+    public function updateClient(Request $request, $id)
+    {
+        $client = \App\Models\Client::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'nullable|url|max:255',
+            'order_index' => 'nullable|integer',
+            'logo' => 'required',
+        ]);
+
+        $logo = $request->logo;
+        if ($logo !== $client->logo && str_starts_with($logo, 'data:image')) {
+            $logo = self::compressBase64Image($logo, 60, 400);
+        }
+
+        $client->update([
+            'name' => $validated['name'],
+            'url' => $validated['url'],
+            'order_index' => $validated['order_index'] ?? 0,
+            'logo' => $logo,
+        ]);
+
+        return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
+    }
+
+    public function deleteClient($id)
+    {
+        \App\Models\Client::findOrFail($id)->delete();
+        return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');
     }
 }
