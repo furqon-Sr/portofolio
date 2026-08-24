@@ -29,3 +29,4 @@ class Client extends Model
             static::create($c);
         }
     }
+}
