@@ -14,7 +14,8 @@ class Project extends Model
         'live_link',
         'cover_image',
         'github_link',
-        'gallery_assets'
+        'gallery_assets',
+        'views'
     ];
     protected $casts = [
         'gallery_assets' => 'array',

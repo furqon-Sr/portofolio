@@ -11,7 +11,9 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->validateCsrfTokens(except: [
+            'api/projects/*/view',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

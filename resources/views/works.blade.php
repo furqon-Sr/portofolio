@@ -60,6 +60,8 @@
                 @endphp
                 <div class="work-item {{ $catClass }}" data-category="{{ $catClass }}">
                     <x-project-card 
+                        id="{{ $project->id }}"
+                        views="{{ $project->views }}"
                         number="{{ $num }}"
                         title="{{ $project->title }}" 
                         category="{{ $project->category }}"

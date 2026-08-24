@@ -7,7 +7,8 @@
             link: '#',
             github: null,
             image: '',
-            number: '01'
+            number: '01',
+            views: 0
         }
      }"
      @open-project-preview.window="show = true; project = $event.detail"
@@ -63,9 +64,15 @@
                 <!-- Category and Title -->
                 <div>
                     <div class="flex items-center justify-between gap-4 mb-2">
-                        <span class="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider"
-                              x-text="project.category === 'Web Dev' ? 'Web Development' : 'Design Project'">
-                        </span>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider"
+                                  x-text="project.category === 'Web Dev' ? 'Web Development' : 'Design Project'">
+                            </span>
+                            <div class="text-xs text-zinc-400 flex items-center gap-1.5 font-medium">
+                                <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                <span x-text="project.views ? project.views.toLocaleString('en-US') : 0"></span> views
+                            </div>
+                        </div>
                         <span class="text-zinc-600 font-bold text-xs" x-text="'#' + project.number"></span>
                     </div>
                     <h3 class="text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight" x-text="project.title"></h3>
