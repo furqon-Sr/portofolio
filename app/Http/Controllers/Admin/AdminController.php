@@ -718,6 +718,8 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             return $base64String;
         }
+    }
+
     // Client CRUD
     public function clients()
     {
