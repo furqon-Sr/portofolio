@@ -309,6 +309,8 @@ class AdminController extends Controller
             'hero_subtitle' => 'required|string',
             'profile_photo_file' => 'nullable|image|max:2048',
             'profile_photo_url' => 'nullable|url',
+            'resume_file' => 'nullable|file|mimes:pdf|max:4000',
+            'resume_url' => 'nullable|url',
         ]);
 
         $aboutSetting = AboutSetting::first();
@@ -329,13 +331,24 @@ class AdminController extends Controller
             $profilePhoto = $request->input('profile_photo_url');
         }
 
+        $resumeLink = $aboutSetting->resume_link;
+        if ($request->has('remove_resume')) {
+            $resumeLink = null;
+        } elseif ($request->hasFile('resume_file')) {
+            $file = $request->file('resume_file');
+            $resumeLink = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+        } elseif ($request->filled('resume_url')) {
+            $resumeLink = $request->input('resume_url');
+        }
+
         $aboutSetting->update([
             'hero_title' => $request->input('hero_title'),
             'hero_subtitle' => $request->input('hero_subtitle'),
             'profile_photo' => $profilePhoto,
+            'resume_link' => $resumeLink,
         ]);
 
-        return redirect()->route('admin.about')->with('success', 'Hero settings updated successfully!');
+        return redirect()->route('admin.about')->with('success', 'Hero settings & Resume updated successfully!');
     }
 
     /**

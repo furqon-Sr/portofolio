@@ -93,6 +93,55 @@
                 </div>
             </div>
 
+            <!-- Resume / CV Settings -->
+            <div class="pt-4 border-t border-white/5 space-y-4">
+                <h4 class="text-sm font-semibold text-gray-300">File Resume / CV</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- File upload -->
+                    <div>
+                        <label for="resume_file" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Unggah File PDF Baru</label>
+                        <input type="file" name="resume_file" id="resume_file" accept=".pdf"
+                               class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <p class="text-[10px] text-gray-500 mt-1">Hanya format PDF. Ukuran maks 4MB.</p>
+                        @error('resume_file')
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- URL input -->
+                    <div>
+                        <label for="resume_url" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Atau Link URL Google Drive</label>
+                        <input type="url" name="resume_url" id="resume_url" placeholder="https://drive.google.com/..."
+                               value="{{ old('resume_url') }}"
+                               class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                        <p class="text-[10px] text-gray-500 mt-1">Gunakan tautan jika Anda menyimpan CV di platform lain.</p>
+                        @error('resume_url')
+                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Preview and reset -->
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-gray-500">Status Resume Saat Ini:</span>
+                        @if($aboutSetting && $aboutSetting->resume_link)
+                            <a href="{{ $aboutSetting->resume_link }}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-xs font-bold border border-blue-500/30 hover:bg-blue-600 hover:text-white transition-all">Lihat CV Aktif &rarr;</a>
+                        @else
+                            <span class="text-xs text-red-400 font-semibold italic">Belum ada CV yang diunggah</span>
+                        @endif
+                    </div>
+
+                    @if($aboutSetting && $aboutSetting->resume_link)
+                        <div class="flex items-center gap-2 sm:ml-auto">
+                            <input type="checkbox" name="remove_resume" id="remove_resume" value="1"
+                                   class="rounded bg-black/40 border-white/10 text-red-600 focus:ring-red-500 focus:ring-offset-black">
+                            <label for="remove_resume" class="text-xs text-gray-400 font-semibold cursor-pointer">Hapus CV</label>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <div class="flex justify-end pt-2">
                 <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
                     Simpan Pengaturan Hero & Foto
