@@ -37,6 +37,17 @@ Route::get('/certificates', function () {
     return view('certificates', compact('certificates'));
 })->name('certificates.show');
 
+// Blog Page
+Route::get('/blog', function () {
+    $articles = \App\Models\Article::orderBy('id', 'desc')->get();
+    return view('blog', compact('articles'));
+})->name('blog.index');
+
+Route::get('/blog/{slug}', function ($slug) {
+    $article = \App\Models\Article::where('slug', $slug)->firstOrFail();
+    return view('blog-show', compact('article'));
+})->name('blog.show');
+
 Route::get('/contact', function () {
     return view('contact'); 
 })->name('contact.show');
@@ -71,6 +82,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/certificates/{id}/edit', [AdminController::class, 'editCertificate'])->name('admin.certificates.edit');
     Route::put('/admin/certificates/{id}', [AdminController::class, 'updateCertificate'])->name('admin.certificates.update');
     Route::delete('/admin/certificates/{id}', [AdminController::class, 'deleteCertificate'])->name('admin.certificates.delete');
+
+    // Admin Blog / Articles CRUD
+    Route::get('/admin/articles', [AdminController::class, 'articles'])->name('admin.articles.index');
+    Route::get('/admin/articles/create', [AdminController::class, 'createArticle'])->name('admin.articles.create');
+    Route::post('/admin/articles', [AdminController::class, 'storeArticle'])->name('admin.articles.store');
+    Route::get('/admin/articles/{id}/edit', [AdminController::class, 'editArticle'])->name('admin.articles.edit');
+    Route::put('/admin/articles/{id}', [AdminController::class, 'updateArticle'])->name('admin.articles.update');
+    Route::delete('/admin/articles/{id}', [AdminController::class, 'deleteArticle'])->name('admin.articles.delete');
 
     // Admin About Me & Expertise Section CRUD
     Route::get('/admin/about', [AdminController::class, 'about'])->name('admin.about');

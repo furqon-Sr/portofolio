@@ -255,6 +255,95 @@ class AdminController extends Controller
         return redirect()->route('admin.certificates.index')->with('success', 'Certificate deleted successfully!');
     }
 
+    // ==========================================
+    // ARTICLES / BLOG CRUD
+    // ==========================================
+
+    public function articles()
+    {
+        $articles = \App\Models\Article::orderBy('id', 'desc')->get();
+        return view('admin.articles.index', compact('articles'));
+    }
+
+    public function createArticle()
+    {
+        return view('admin.articles.create');
+    }
+
+    public function storeArticle(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'excerpt' => 'nullable|string',
+            'content' => 'required|string',
+            'cover_image_file' => 'nullable|image|max:2048',
+            'cover_image_url' => 'nullable|url',
+        ]);
+
+        $image = null;
+        if ($request->hasFile('cover_image_file')) {
+            $file = $request->file('cover_image_file');
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $image = self::compressBase64Image($rawBase64);
+        } elseif ($request->filled('cover_image_url')) {
+            $image = $request->input('cover_image_url');
+        }
+
+        \App\Models\Article::create([
+            'title' => $request->input('title'),
+            'excerpt' => $request->input('excerpt'),
+            'content' => $request->input('content'),
+            'cover_image' => $image,
+        ]);
+
+        return redirect()->route('admin.articles.index')->with('success', 'Article created successfully!');
+    }
+
+    public function editArticle($id)
+    {
+        $article = \App\Models\Article::findOrFail($id);
+        return view('admin.articles.edit', compact('article'));
+    }
+
+    public function updateArticle(Request $request, $id)
+    {
+        $article = \App\Models\Article::findOrFail($id);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'excerpt' => 'nullable|string',
+            'content' => 'required|string',
+            'cover_image_file' => 'nullable|image|max:2048',
+            'cover_image_url' => 'nullable|url',
+        ]);
+
+        $image = $article->cover_image;
+        if ($request->hasFile('cover_image_file')) {
+            $file = $request->file('cover_image_file');
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $image = self::compressBase64Image($rawBase64);
+        } elseif ($request->filled('cover_image_url')) {
+            $image = $request->input('cover_image_url');
+        }
+
+        $article->update([
+            'title' => $request->input('title'),
+            'excerpt' => $request->input('excerpt'),
+            'content' => $request->input('content'),
+            'cover_image' => $image,
+        ]);
+
+        return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully!');
+    }
+
+    public function deleteArticle($id)
+    {
+        $article = \App\Models\Article::findOrFail($id);
+        $article->delete();
+
+        return redirect()->route('admin.articles.index')->with('success', 'Article deleted successfully!');
+    }
+
     /**
      * Display a listing of all contact messages.
      */
