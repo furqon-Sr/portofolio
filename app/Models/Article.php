@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
-    protected $fillable = ['title', 'slug', 'excerpt', 'content', 'cover_image'];
+    protected $fillable = ['title', 'slug', 'excerpt', 'content', 'cover_image', 'references'];
+
+    protected $casts = [
+        'references' => 'array',
+    ];
 
     protected static function booted()
     {

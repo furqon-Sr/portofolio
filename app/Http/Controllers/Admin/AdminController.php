@@ -278,6 +278,9 @@ class AdminController extends Controller
             'content' => 'required|string',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
+            'references' => 'nullable|array',
+            'references.*.title' => 'required_with:references|string',
+            'references.*.url' => 'required_with:references|url',
         ]);
 
         $image = null;
@@ -294,6 +297,7 @@ class AdminController extends Controller
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
             'cover_image' => $image,
+            'references' => $request->input('references') ? array_values($request->input('references')) : [],
         ]);
 
         return redirect()->route('admin.articles.index')->with('success', 'Article created successfully!');
@@ -315,6 +319,9 @@ class AdminController extends Controller
             'content' => 'required|string',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
+            'references' => 'nullable|array',
+            'references.*.title' => 'required_with:references|string',
+            'references.*.url' => 'required_with:references|url',
         ]);
 
         $image = $article->cover_image;
@@ -331,6 +338,7 @@ class AdminController extends Controller
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
             'cover_image' => $image,
+            'references' => $request->input('references') ? array_values($request->input('references')) : [],
         ]);
 
         return redirect()->route('admin.articles.index')->with('success', 'Article updated successfully!');
