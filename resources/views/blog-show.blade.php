@@ -88,6 +88,29 @@
                 <div class="prose prose-lg prose-invert max-w-none text-gray-300">
                     {!! nl2br(e($article->content)) !!}
                 </div>
+
+                <!-- References Section -->
+                @if(!empty($article->references) && is_array($article->references) && count($article->references) > 0)
+                <div class="mt-20 pt-10 border-t border-white/10">
+                    <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        Referensi & Jurnal
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        @foreach($article->references as $ref)
+                            <a href="{{ $ref['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="group flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 hover:-translate-y-1">
+                                <div class="mt-1 p-2 bg-blue-500/10 text-blue-400 rounded-lg group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h4 class="text-sm font-semibold text-gray-200 group-hover:text-blue-400 transition-colors leading-relaxed">{{ $ref['title'] ?? 'Referensi' }}</h4>
+                                    <p class="text-xs text-gray-500 mt-1 truncate">{{ $ref['url'] ?? '' }}</p>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </article>
 
         </main>
