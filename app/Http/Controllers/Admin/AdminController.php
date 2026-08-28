@@ -737,7 +737,7 @@ class AdminController extends Controller
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'url' => 'nullable|url|max:255',
+                'url' => 'nullable|string|max:255',
                 'order_index' => 'nullable|integer',
                 'logo' => 'required',
             ]);
@@ -772,7 +772,7 @@ class AdminController extends Controller
             $client = \App\Models\Client::findOrFail($id);
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
-                'url' => 'nullable|url|max:255',
+                'url' => 'nullable|string|max:255',
                 'order_index' => 'nullable|integer',
                 'logo' => 'required',
             ]);

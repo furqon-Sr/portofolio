@@ -25,7 +25,7 @@
             <!-- URL -->
             <div>
                 <label class="block text-sm font-medium text-gray-300 mb-2">Website URL (Optional)</label>
-                <input type="url" name="url" value="{{ $client->url }}" class="w-full bg-gray-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
+                <input type="text" name="url" value="{{ $client->url }}" class="w-full bg-gray-950 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors">
             </div>
             
             <!-- Order -->
