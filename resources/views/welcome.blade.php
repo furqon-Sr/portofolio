@@ -30,6 +30,7 @@
         .animate-slide-up { animation: slide-up 1s ease-out forwards; }
         .animate-fade-in { animation: fade-in 1.5s ease-out forwards; }
     </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="relative overflow-x-hidden bg-gray-950 text-white antialiased selection:bg-blue-600 selection:text-white">
@@ -96,31 +97,36 @@
 
         <!-- Trusted By / Clients Section -->
         @if($clients && $clients->count() > 0)
-        <section class="mt-20 mb-32 relative z-10">
-            <div class="text-center mb-10">
+        <section class="mt-20 mb-32 relative z-10" x-data="{ shown: false }" x-intersect.once="shown = true">
+            <div class="text-center mb-10 transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                 <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">Trusted By & Collaborated With</p>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center opacity-60 hover:opacity-100 transition-opacity duration-500 max-w-5xl mx-auto px-4">
-                @foreach($clients as $client)
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center max-w-5xl mx-auto px-4 group">
+                @foreach($clients as $index => $client)
                     @if($client->url)
-                        <a href="{{ $client->url }}" target="_blank" class="block w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
+                        <a href="{{ $client->url }}" target="_blank" 
+                           class="block w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-700 hover:scale-110 transform"
+                           :class="shown ? 'opacity-60 translate-y-0 hover:opacity-100' : 'opacity-0 translate-y-12'"
+                           style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
                                  alt="{{ $client->name }}" 
-                                 class="w-full h-full object-contain filter brightness-0 invert opacity-50 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
+                                 class="w-full h-full object-contain filter brightness-0 invert opacity-60 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
                         </a>
                     @else
-                        <div class="w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-300 hover:scale-110">
+                        <div class="w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-700 hover:scale-110 transform"
+                             :class="shown ? 'opacity-60 translate-y-0 hover:opacity-100' : 'opacity-0 translate-y-12'"
+                             style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
                                  alt="{{ $client->name }}" 
-                                 class="w-full h-full object-contain filter brightness-0 invert opacity-50 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
+                                 class="w-full h-full object-contain filter brightness-0 invert opacity-60 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
                         </div>
                     @endif
                 @endforeach
             </div>
             
             <!-- Subtle gradient divider -->
-            <div class="h-px w-full max-w-3xl mx-auto mt-20 bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+            <div class="h-px w-full max-w-3xl mx-auto mt-20 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-all duration-1000 delay-500" :class="shown ? 'opacity-100' : 'opacity-0'"></div>
         </section>
         @endif
 
