@@ -254,6 +254,58 @@
             </div>
         </section>
 
+        <!-- Insights & Blog Section -->
+        @if($latestArticles && $latestArticles->count() > 0)
+        <section class="mt-20 mb-32 relative z-10" x-data="{ shown: false }" x-intersect.once="shown = true">
+            <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
+                <div>
+                    <h2 class="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Latest Insights</h2>
+                    <h3 class="text-3xl font-bold text-white tracking-tight">Thoughts & <span class="text-blue-600">Notes</span></h3>
+                </div>
+                <a href="{{ route('blog.index') }}" class="group inline-flex items-center gap-2 text-sm font-semibold text-gray-400 hover:text-white transition-colors">
+                    View all articles
+                    <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach($latestArticles as $index => $article)
+                <a href="{{ route('blog.show', $article->slug) }}" 
+                   class="group flex flex-col bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.05] hover:border-white/10 transition-all duration-700 transform hover:-translate-y-2"
+                   :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
+                   style="transition-delay: {{ $index * 150 }}ms, 0ms, 0ms, 0ms;">
+                    
+                    <!-- Cover Image -->
+                    <div class="w-full aspect-video bg-black/50 overflow-hidden relative border-b border-white/5">
+                        @if($article->cover_image)
+                            <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-gray-600">
+                                <svg class="w-10 h-10 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                            </div>
+                        @endif
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-950/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-[10px] uppercase tracking-widest font-bold text-blue-500">{{ $article->created_at->format('M d, Y') }}</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-white mb-2 leading-tight group-hover:text-blue-400 transition-colors">{{ $article->title }}</h2>
+                        <p class="text-sm text-gray-400 line-clamp-3 mb-6">{{ $article->excerpt ?? Str::limit($article->content, 120) }}</p>
+                        
+                        <div class="mt-auto flex items-center gap-2 text-sm font-semibold text-white group-hover:text-blue-400 transition-colors">
+                            Read Article 
+                            <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                        </div>
+                    </div>
+                </a>
+                @endforeach
+            </div>
+        </section>
+        @endif
+
       
         <x-footer />
 

@@ -21,8 +21,9 @@ Route::get('/', function () {
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
     $clients = \App\Models\Client::orderBy('order_index', 'asc')->get();
+    $latestArticles = \App\Models\Article::orderBy('created_at', 'desc')->take(3)->get();
 
-    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises', 'certificates', 'clients'));
+    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises', 'certificates', 'clients', 'latestArticles'));
 });
 
 // Works Page - Dynamicized
