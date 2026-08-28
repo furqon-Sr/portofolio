@@ -715,7 +715,7 @@ class AdminController extends Controller
             imagedestroy($srcImage);
 
             return 'data:image/jpeg;base64,' . base64_encode($compressedData);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return $base64String;
         }
     }
@@ -734,26 +734,30 @@ class AdminController extends Controller
 
     public function storeClient(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'url' => 'nullable|url|max:255',
-            'order_index' => 'nullable|integer',
-            'logo' => 'required',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'url' => 'nullable|url|max:255',
+                'order_index' => 'nullable|integer',
+                'logo' => 'required',
+            ]);
 
-        $logo = $request->logo;
-        if (str_starts_with($logo, 'data:image')) {
-            $logo = self::compressBase64Image($logo, 60, 400); // Small logos
+            $logo = $request->logo;
+            if (str_starts_with($logo, 'data:image')) {
+                $logo = self::compressBase64Image($logo, 60, 400); // Small logos
+            }
+
+            \App\Models\Client::create([
+                'name' => $validated['name'],
+                'url' => $validated['url'],
+                'order_index' => $validated['order_index'] ?? 0,
+                'logo' => $logo,
+            ]);
+
+            return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
+        } catch (\Throwable $th) {
+            return response('Error in storeClient: ' . $th->getMessage() . '<br>Line: ' . $th->getLine() . '<br>File: ' . $th->getFile(), 500);
         }
-
-        \App\Models\Client::create([
-            'name' => $validated['name'],
-            'url' => $validated['url'],
-            'order_index' => $validated['order_index'] ?? 0,
-            'logo' => $logo,
-        ]);
-
-        return redirect()->route('admin.clients.index')->with('success', 'Client created successfully.');
     }
 
     public function editClient($id)
@@ -764,27 +768,31 @@ class AdminController extends Controller
 
     public function updateClient(Request $request, $id)
     {
-        $client = \App\Models\Client::findOrFail($id);
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'url' => 'nullable|url|max:255',
-            'order_index' => 'nullable|integer',
-            'logo' => 'required',
-        ]);
+        try {
+            $client = \App\Models\Client::findOrFail($id);
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'url' => 'nullable|url|max:255',
+                'order_index' => 'nullable|integer',
+                'logo' => 'required',
+            ]);
 
-        $logo = $request->logo;
-        if ($logo !== $client->logo && str_starts_with($logo, 'data:image')) {
-            $logo = self::compressBase64Image($logo, 60, 400);
+            $logo = $request->logo;
+            if ($logo !== $client->logo && str_starts_with($logo, 'data:image')) {
+                $logo = self::compressBase64Image($logo, 60, 400);
+            }
+
+            $client->update([
+                'name' => $validated['name'],
+                'url' => $validated['url'],
+                'order_index' => $validated['order_index'] ?? 0,
+                'logo' => $logo,
+            ]);
+
+            return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
+        } catch (\Throwable $th) {
+            return response('Error in updateClient: ' . $th->getMessage() . '<br>Line: ' . $th->getLine() . '<br>File: ' . $th->getFile(), 500);
         }
-
-        $client->update([
-            'name' => $validated['name'],
-            'url' => $validated['url'],
-            'order_index' => $validated['order_index'] ?? 0,
-            'logo' => $logo,
-        ]);
-
-        return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
     }
 
     public function deleteClient($id)
