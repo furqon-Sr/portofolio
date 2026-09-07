@@ -33,7 +33,11 @@
                     <td class="px-6 py-4">
                         <div class="h-10 w-24 bg-white/5 rounded p-2 flex items-center justify-center">
                             @if(Str::startsWith($client->logo, '<svg') || Str::startsWith($client->logo, 'data:image'))
-                                <img src="{{ Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo }}" class="max-h-full max-w-full object-contain">
+                                @if(strlen($client->logo) > 1000000)
+                                    <span class="text-[10px] text-orange-400">File too large to preview</span>
+                                @else
+                                    <img src="{{ Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo }}" class="max-h-full max-w-full object-contain">
+                                @endif
                             @else
                                 <span class="text-xs">Invalid</span>
                             @endif
