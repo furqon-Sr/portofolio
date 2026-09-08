@@ -113,7 +113,7 @@
                            style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
                                  alt="{{ $client->name }}" 
-                                 class="w-full h-full object-contain filter brightness-0 invert opacity-60 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
+                                 class="w-full h-full object-contain transition-all duration-300" title="{{ $client->name }}">
                         </a>
                     @else
                         <div class="w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-700 hover:scale-110 transform"
@@ -121,7 +121,7 @@
                              style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
                                  alt="{{ $client->name }}" 
-                                 class="w-full h-full object-contain filter brightness-0 invert opacity-60 hover:opacity-100 transition-all duration-300" title="{{ $client->name }}">
+                                 class="w-full h-full object-contain transition-all duration-300" title="{{ $client->name }}">
                         </div>
                     @endif
                 @endforeach

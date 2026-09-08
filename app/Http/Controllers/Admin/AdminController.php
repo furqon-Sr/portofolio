@@ -733,11 +733,16 @@ class AdminController extends Controller
     }
 
     /**
-     * Compress and resize base64 encoded image strings to JPEG format.
+     * Compress and resize base64 encoded image strings while strictly preserving transparency for PNG/WebP/GIF.
      */
     public static function compressBase64Image($base64String, $maxWidth = 1000, $quality = 75)
     {
         if (empty($base64String) || !str_starts_with($base64String, 'data:image/')) {
+            return $base64String;
+        }
+
+        // SVG vector images must be preserved as-is without rasterization
+        if (str_starts_with($base64String, 'data:image/svg')) {
             return $base64String;
         }
 
@@ -746,13 +751,20 @@ class AdminController extends Controller
             if (count($parts) < 2) {
                 return $base64String;
             }
+
+            // Extract MIME type from header (e.g. data:image/png;base64)
+            preg_match('/^data:image\/([a-zA-Z0-9\+\-]+);base64/', $parts[0], $matches);
+            $mime = strtolower($matches[1] ?? 'jpeg');
+            $isPng = ($mime === 'png');
+            $isWebp = ($mime === 'webp');
+            $isGif = ($mime === 'gif');
             
             $data = base64_decode($parts[1]);
             if ($data === false) {
                 return $base64String;
             }
 
-            $srcImage = imagecreatefromstring($data);
+            $srcImage = @imagecreatefromstring($data);
             if (!$srcImage) {
                 return $base64String;
             }
@@ -767,9 +779,13 @@ class AdminController extends Controller
 
                 $dstImage = imagecreatetruecolor($newWidth, $newHeight);
                 
-                // Set background color to white (for transparent PNG/GIF)
-                $white = imagecolorallocate($dstImage, 255, 255, 255);
-                imagefill($dstImage, 0, 0, $white);
+                // Preserve full alpha transparency for formats supporting it
+                if ($isPng || $isWebp || $isGif) {
+                    imagealphablending($dstImage, false);
+                    imagesavealpha($dstImage, true);
+                    $transparent = imagecolorallocatealpha($dstImage, 0, 0, 0, 127);
+                    imagefilledrectangle($dstImage, 0, 0, $newWidth, $newHeight, $transparent);
+                }
                 
                 imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
                 imagedestroy($srcImage);
@@ -777,11 +793,26 @@ class AdminController extends Controller
             }
 
             ob_start();
-            imagejpeg($srcImage, null, $quality);
-            $compressedData = ob_get_clean();
-            imagedestroy($srcImage);
-
-            return 'data:image/jpeg;base64,' . base64_encode($compressedData);
+            if ($isPng || $isGif) {
+                imagealphablending($srcImage, false);
+                imagesavealpha($srcImage, true);
+                imagepng($srcImage, null, 7); // Level 7 provides great compression without loss of transparency
+                $compressedData = ob_get_clean();
+                imagedestroy($srcImage);
+                return 'data:image/png;base64,' . base64_encode($compressedData);
+            } elseif ($isWebp && function_exists('imagewebp')) {
+                imagealphablending($srcImage, false);
+                imagesavealpha($srcImage, true);
+                imagewebp($srcImage, null, $quality);
+                $compressedData = ob_get_clean();
+                imagedestroy($srcImage);
+                return 'data:image/webp;base64,' . base64_encode($compressedData);
+            } else {
+                imagejpeg($srcImage, null, $quality);
+                $compressedData = ob_get_clean();
+                imagedestroy($srcImage);
+                return 'data:image/jpeg;base64,' . base64_encode($compressedData);
+            }
         } catch (\Throwable $e) {
             return $base64String;
         }
