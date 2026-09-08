@@ -11,6 +11,11 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->redirectGuestsTo(fn () => '/');
+        $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
+        $middleware->alias([
+            'edge.cache' => \App\Http\Middleware\EdgeCache::class,
+        ]);
         $middleware->validateCsrfTokens(except: [
             'api/projects/*/view',
         ]);

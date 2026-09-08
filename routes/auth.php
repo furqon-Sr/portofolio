@@ -11,29 +11,23 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest')->group(function () {
-    // Disable registration for security since admin user is already registered.
-    // Route::get('register', [RegisteredUserController::class, 'create'])
-    //     ->name('register');
+$adminSecretPath = env('ADMIN_SECRET_PATH', 'console-fh927');
 
-    // Route::post('register', [RegisteredUserController::class, 'store']);
-
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
+Route::middleware('guest')->group(function () use ($adminSecretPath) {
+    // Secret Login Route (Protected by Rate Limiter)
+    Route::get($adminSecretPath, [AuthenticatedSessionController::class, 'create'])
+        ->middleware('throttle:10,1')
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post($adminSecretPath, [AuthenticatedSessionController::class, 'store'])
+        ->middleware('throttle:5,1');
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    // Honeypot redirects for visitors/bots attempting default auth URLs
+    Route::any('login', fn () => redirect('/'));
+    Route::any('register', fn () => redirect('/'));
+    Route::any('forgot-password', fn () => redirect('/'));
+    Route::any('reset-password', fn () => redirect('/'));
+    Route::any('reset-password/{token}', fn () => redirect('/'));
 });
 
 Route::middleware('auth')->group(function () {
