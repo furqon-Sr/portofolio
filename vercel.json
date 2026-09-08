@@ -23,6 +23,19 @@
     ],
     "routes": [
         {
+            "src": "/(.*)",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "fahrurihanafi.vercel.app"
+                }
+            ],
+            "status": 301,
+            "headers": {
+                "Location": "https://fahrurihanafi.site/$1"
+            }
+        },
+        {
             "src": "/build/(.*)",
             "headers": {
                 "cache-control": "public, max-age=31536000, immutable"
