@@ -1,3 +1,4 @@
+@props(['hideContact' => false])
 @php
     $siteSetting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
         'logo_type' => 'text',
@@ -5,10 +6,11 @@
         'footer_name' => 'FAHRURI HANAFI',
         'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.'
     ]);
+    $isContactPage = $hideContact || request()->routeIs('contact.show') || request()->is('contact*');
 @endphp
 <footer class="mt-40 border-t border-gray-800 pt-16 pb-8">
     <div class="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
-        <div class="md:col-span-5 space-y-6">
+        <div class="{{ $isContactPage ? 'md:col-span-7 lg:col-span-8' : 'md:col-span-5' }} space-y-6">
             <div class="text-2xl font-bold tracking-tighter text-white">{{ $siteSetting->footer_name ?? 'FAHRURI HANAFI' }}</div>
             <p class="text-gray-400 text-sm leading-relaxed max-w-sm">
                 Bridging design and code to solve real business problems. I build scalable architectures and pixel-perfect interfaces for forward-thinking brands.
@@ -32,7 +34,7 @@
             </div>
         </div>
 
-        <div class="md:col-span-3 lg:col-start-7 space-y-6">
+        <div class="{{ $isContactPage ? 'md:col-span-5 lg:col-span-4 lg:col-start-9' : 'md:col-span-3 lg:col-start-7' }} space-y-6">
             <div class="text-white font-bold tracking-widest text-xs uppercase border-b border-gray-800 pb-3 inline-block">Quick Links</div>
             <ul class="space-y-3">
                 <li><a href="/" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Home</a></li>
@@ -42,6 +44,7 @@
             </ul>
         </div>
 
+        @if(!$isContactPage)
         <div class="md:col-span-4 space-y-6">
             <div class="text-white font-bold tracking-widest text-xs uppercase border-b border-gray-800 pb-3 inline-block">Get In Touch</div>
             <div class="space-y-4">
@@ -54,12 +57,12 @@
                         <p class="text-xs text-gray-500 mt-0.5">Freelance & Full-time</p>
                     </div>
                 </div>
-                <a href="mailto:fahrurihanafii@gmail.com" class="flex items-start gap-3 group">
+                <a href="mailto:fahrurihanafi@gmail.com" class="flex items-start gap-3 group">
                     <div class="p-2 bg-[#1a1a1a] rounded-lg border border-gray-800 group-hover:border-blue-600 transition-colors">
                         <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     </div>
                     <div>
-                        <p class="text-gray-300 text-sm font-medium group-hover:text-blue-500 transition-colors">fahrurihanafii@gmail.com</p>
+                        <p class="text-gray-300 text-sm font-medium group-hover:text-blue-500 transition-colors">fahrurihanafi@gmail.com</p>
                         <p class="text-xs text-gray-500 mt-0.5">Email me anytime</p>
                     </div>
                 </a>
@@ -74,6 +77,7 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
 
     <div class="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-900 gap-4 mt-8">

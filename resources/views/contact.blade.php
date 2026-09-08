@@ -101,7 +101,7 @@
             </div>
         </main>
 
-        <x-footer />
+        <x-footer :hide-contact="true" />
     </div>
 </body>
 </html>
