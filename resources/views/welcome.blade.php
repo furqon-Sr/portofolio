@@ -31,6 +31,7 @@
         .animate-slide-up { animation: slide-up 1s ease-out forwards; }
         .animate-fade-in { animation: fade-in 1.5s ease-out forwards; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
