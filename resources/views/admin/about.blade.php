@@ -95,7 +95,10 @@
 
             <!-- Resume / CV Settings -->
             <div class="pt-4 border-t border-white/5 space-y-4">
-                <h4 class="text-sm font-semibold text-gray-300">File Resume / CV</h4>
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-300">File Resume / CV</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">Mengendalikan tombol <strong>"Download CV"</strong> yang ada di navigasi kanan atas dan footer website.</p>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- File upload -->
                     <div>
@@ -126,7 +129,7 @@
                     <div class="flex items-center gap-3">
                         <span class="text-xs text-gray-500">Status Resume Saat Ini:</span>
                         @if($aboutSetting && $aboutSetting->resume_link)
-                            <a href="{{ $aboutSetting->resume_link }}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-xs font-bold border border-blue-500/30 hover:bg-blue-600 hover:text-white transition-all">Lihat CV Aktif &rarr;</a>
+                            <a href="{{ route('cv.download') }}" target="_blank" class="px-3 py-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-xs font-bold border border-blue-500/30 hover:bg-blue-600 hover:text-white transition-all">Lihat CV Aktif &rarr;</a>
                         @else
                             <span class="text-xs text-red-400 font-semibold italic">Belum ada CV yang diunggah</span>
                         @endif
@@ -144,7 +147,7 @@
 
             <div class="flex justify-end pt-2">
                 <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
-                    Simpan Pengaturan Hero & Foto
+                    Simpan Pengaturan Hero, Foto & CV
                 </button>
             </div>
         </form>

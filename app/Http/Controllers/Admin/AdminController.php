@@ -433,7 +433,19 @@ class AdminController extends Controller
             $resumeLink = null;
         } elseif ($request->hasFile('resume_file')) {
             $file = $request->file('resume_file');
-            $resumeLink = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $fileContent = file_get_contents($file->getRealPath());
+            $resumeLink = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($fileContent);
+
+            // Attempt to keep static fallback file in sync if filesystem is writable
+            try {
+                $assetDir = public_path('assets');
+                if (!is_dir($assetDir)) {
+                    @mkdir($assetDir, 0755, true);
+                }
+                @file_put_contents(public_path('assets/cv-hanafi.pdf'), $fileContent);
+            } catch (\Throwable $e) {
+                // Ignore in read-only environments like Vercel
+            }
         } elseif ($request->filled('resume_url')) {
             $resumeLink = $request->input('resume_url');
         }
@@ -446,6 +458,53 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.about')->with('success', 'Hero settings & Resume updated successfully!');
+    }
+
+    /**
+     * Download or view the active CV/Resume.
+     */
+    public function downloadCv(Request $request)
+    {
+        $aboutSetting = AboutSetting::first();
+        $resumeLink = $aboutSetting->resume_link ?? null;
+
+        if ($resumeLink) {
+            // If it's an external URL (Google Drive, Dropbox, etc.)
+            if (str_starts_with($resumeLink, 'http://') || str_starts_with($resumeLink, 'https://')) {
+                return redirect()->away($resumeLink);
+            }
+
+            // If it's stored as base64 data URI
+            if (str_starts_with($resumeLink, 'data:')) {
+                $commaPos = strpos($resumeLink, ',');
+                $metadata = substr($resumeLink, 0, $commaPos);
+                $base64Data = substr($resumeLink, $commaPos + 1);
+
+                preg_match('/data:([^;]+);base64/', $metadata, $matches);
+                $mimeType = $matches[1] ?? 'application/pdf';
+
+                $binary = base64_decode($base64Data);
+                $disposition = $request->has('download') ? 'attachment' : 'inline';
+
+                return response($binary, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => $disposition . '; filename="CV_Hanafi.pdf"',
+                    'Content-Length' => strlen($binary),
+                    'Cache-Control' => 'public, max-age=3600',
+                ]);
+            }
+        }
+
+        // Fallback to static asset if available
+        $fallbackPath = public_path('assets/cv-hanafi.pdf');
+        if (file_exists($fallbackPath)) {
+            return response()->file($fallbackPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => ($request->has('download') ? 'attachment' : 'inline') . '; filename="CV_Hanafi.pdf"',
+            ]);
+        }
+
+        abort(404, 'CV belum tersedia.');
     }
 
     /**

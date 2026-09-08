@@ -20,12 +20,6 @@
             <a href="/works" class="magnetic-btn relative px-8 py-3 border border-white/20 text-white hover:text-gray-950 font-medium text-sm rounded-full hover:bg-white hover:border-white transition-all duration-300 inline-block text-center select-none">
                 View My Work
             </a>
-            @if($siteSetting && $siteSetting->resume_link)
-            <a href="{{ $siteSetting->resume_link }}" download="Resume-Hanafi.pdf" target="_blank" class="magnetic-btn relative px-8 py-3 border border-blue-500/30 text-blue-400 bg-blue-500/10 hover:text-white font-medium text-sm rounded-full hover:bg-blue-600 hover:border-blue-500 transition-all duration-300 inline-flex items-center justify-center gap-2 select-none shadow-[0_0_15px_rgba(59,130,246,0.15)] hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Download Resume
-            </a>
-            @endif
         </div>
     </div>
 

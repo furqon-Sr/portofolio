@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://fahrurihanafi.site/certificates" />
     @php 
         $siteSettingsData = \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';

@@ -58,6 +58,9 @@ Route::get('/contact', function () {
 // Contact Form Submit
 Route::post('/contact-submit', [ContactController::class, 'store'])->name('contact.store');
 
+// Download or View Active CV
+Route::get('/cv', [AdminController::class, 'downloadCv'])->name('cv.download');
+
 // PROTECTED ADMIN ROUTES
 Route::middleware(['auth', 'verified'])->group(function () {
     
