@@ -104,24 +104,24 @@
                 <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">Trusted By & Collaborated With</p>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center max-w-5xl mx-auto px-4 group">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center max-w-5xl mx-auto px-4">
                 @foreach($clients as $index => $client)
                     @if($client->url)
                         <a href="{{ $client->url }}" target="_blank" 
-                           class="block w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-700 hover:scale-110 transform"
-                           :class="shown ? 'opacity-60 translate-y-0 hover:opacity-100' : 'opacity-0 translate-y-12'"
+                           class="client-logo-wrap block w-full h-12 md:h-16 relative transition-all duration-300 hover:scale-110 transform"
+                           :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
                            style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
                                  alt="{{ $client->name }}" 
-                                 class="w-full h-full object-contain transition-all duration-300" title="{{ $client->name }}">
+                                 class="client-logo-item w-full h-full object-contain" title="{{ $client->name }}">
                         </a>
                     @else
-                        <div class="w-full h-12 md:h-16 relative grayscale hover:grayscale-0 transition-all duration-700 hover:scale-110 transform"
-                             :class="shown ? 'opacity-60 translate-y-0 hover:opacity-100' : 'opacity-0 translate-y-12'"
+                        <div class="client-logo-wrap w-full h-12 md:h-16 relative transition-all duration-300 hover:scale-110 transform"
+                             :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
                              style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
                                  alt="{{ $client->name }}" 
-                                 class="w-full h-full object-contain transition-all duration-300" title="{{ $client->name }}">
+                                 class="client-logo-item w-full h-full object-contain" title="{{ $client->name }}">
                         </div>
                     @endif
                 @endforeach

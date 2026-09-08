@@ -62,3 +62,17 @@
 .group:hover .animate-marquee {
     animation-play-state: paused;
 }
+
+/* Client Logo: Flat white monochrome by default, original brand colors on hover */
+.client-logo-item {
+    filter: brightness(0) invert(1);
+    opacity: 0.65;
+    transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, transform 0.3s ease;
+    will-change: filter, opacity, transform;
+}
+
+.client-logo-wrap:hover .client-logo-item,
+.client-logo-item:hover {
+    filter: none !important;
+    opacity: 1 !important;
+}
