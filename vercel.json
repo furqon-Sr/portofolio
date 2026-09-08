@@ -8,6 +8,19 @@
             "runtime": "vercel-php@0.8.0"
         }
     },
+    "redirects": [
+        {
+            "source": "/:path*",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "fahrurihanafi.vercel.app"
+                }
+            ],
+            "destination": "https://fahrurihanafi.site/:path*",
+            "permanent": true
+        }
+    ],
     "routes": [
         {
             "src": "/build/(.*)",
