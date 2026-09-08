@@ -31,21 +31,9 @@
             <!-- Ambient Dynamic Glow Backing -->
             <div id="hero-card-glow" class="absolute -inset-3 bg-gradient-to-tr from-blue-600/30 via-cyan-500/20 to-blue-400/30 rounded-3xl blur-2xl opacity-0 transition-opacity duration-1000 pointer-events-none"></div>
 
-            <!-- Main Profile Card Container -->
-            <div id="hero-profile-card" class="relative w-[220px] sm:w-[260px] md:w-[290px] lg:w-[330px] aspect-[4/5] rounded-2xl overflow-hidden will-change-transform shadow-2xl shadow-black/90 border border-white/5" style="transform-style: preserve-3d;">
+            <!-- Main Profile Card Container (Clean without border) -->
+            <div id="hero-profile-card" class="relative w-[220px] sm:w-[260px] md:w-[290px] lg:w-[330px] aspect-[4/5] rounded-2xl overflow-hidden will-change-transform shadow-2xl shadow-black/90" style="transform-style: preserve-3d;">
                 
-                <!-- SVG Animated Border Outline -->
-                <svg class="absolute inset-0 w-full h-full pointer-events-none z-20" xmlns="http://www.w3.org/2000/svg">
-                    <rect id="hero-border-rect" x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="16" ry="16" fill="none" stroke="url(#hero-blue-grad)" stroke-width="1.5" stroke-dasharray="1400" stroke-dashoffset="1400" />
-                    <defs>
-                        <linearGradient id="hero-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.9" />
-                            <stop offset="50%" stop-color="#3B82F6" stop-opacity="0.5" />
-                            <stop offset="100%" stop-color="#60A5FA" stop-opacity="0.9" />
-                        </linearGradient>
-                    </defs>
-                </svg>
-
                 <!-- Profile Photo -->
                 <div class="relative w-full h-full" style="mask-image: linear-gradient(to top, transparent 0%, black 35%); -webkit-mask-image: linear-gradient(to top, transparent 0%, black 35%);">
                     <img id="hero-profile-img" src="{{ $siteSetting->profile_photo ?? asset('img/porto.png') }}" alt="Hanafi" class="object-cover w-full h-full grayscale transition-all duration-700 group-hover:grayscale-[40%] group-hover:scale-105 select-none pointer-events-none">
@@ -65,7 +53,6 @@
         const subtitleEl = document.getElementById('hero-subtitle');
         const ctaEl = document.getElementById('hero-cta');
         const cardWrapper = document.getElementById('hero-card-wrapper');
-        const borderRect = document.getElementById('hero-border-rect');
         const cardGlow = document.getElementById('hero-card-glow');
         const cardGlare = document.getElementById('hero-card-glare');
 
@@ -131,29 +118,6 @@
                     delay: 350,
                     complete: () => {
                         if (cardGlow) cardGlow.classList.remove('opacity-0');
-                    }
-                });
-            }
-
-            // Animate SVG Border Drawing
-            if (borderRect) {
-                anime({
-                    targets: borderRect,
-                    strokeDashoffset: [1400, 0],
-                    duration: 2000,
-                    easing: 'cubicBezier(0.25, 1, 0.5, 1)',
-                    delay: 450,
-                    complete: () => {
-                        // Subtle breathing pulse loop on SVG border
-                        anime({
-                            targets: borderRect,
-                            strokeOpacity: [0.45, 0.95],
-                            strokeWidth: [1.2, 1.8],
-                            duration: 3000,
-                            direction: 'alternate',
-                            loop: true,
-                            easing: 'easeInOutSine'
-                        });
                     }
                 });
             }

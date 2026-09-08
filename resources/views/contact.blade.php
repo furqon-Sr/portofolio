@@ -68,33 +68,37 @@
                     </div>
                 </div>
 
-                <!-- Right Side: Contact Form -->
-                <div class="bg-[#1a1a1a] p-8 md:p-10 rounded-2xl border border-white-10 shadow-2xl">
+                <!-- Right Side: Clean Minimalist Contact Form (No container box) -->
+                <div class="w-full">
                     @if(session('success'))
-                        <div class="mb-6 p-4 bg-green-600 text-white rounded-lg">
-                            {{ session('success') }}
+                        <div class="mb-8 p-4 bg-blue-600/10 border border-blue-500/30 text-blue-400 rounded-xl text-sm font-medium flex items-center gap-3">
+                            <svg class="w-5 h-5 shrink-0 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>{{ session('success') }}</span>
                         </div>
                     @endif
-                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-6">
+                    <form action="{{ route('contact.store') }}" method="POST" class="space-y-8">
                         @csrf
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                            <input type="text" id="name" name="name" class="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors" placeholder="Tulis nama Anda">
+                        <div class="relative group">
+                            <label for="name" class="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1 group-focus-within:text-blue-500 transition-colors">Name</label>
+                            <input type="text" id="name" name="name" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base" placeholder="Tulis nama Anda">
                         </div>
                         
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                            <input type="email" id="email" name="email" class="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors" placeholder="Tulis email Anda">
+                        <div class="relative group">
+                            <label for="email" class="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1 group-focus-within:text-blue-500 transition-colors">Email</label>
+                            <input type="email" id="email" name="email" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base" placeholder="Tulis email Anda">
                         </div>
                         
-                        <div>
-                            <label for="message" class="block text-sm font-medium text-gray-400 mb-2">Message</label>
-                            <textarea id="message" name="message" rows="4" class="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors resize-none" placeholder="Tulis pesan Anda"></textarea>
+                        <div class="relative group">
+                            <label for="message" class="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1 group-focus-within:text-blue-500 transition-colors">Message</label>
+                            <textarea id="message" name="message" rows="4" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base resize-none" placeholder="Tulis pesan Anda"></textarea>
                         </div>
                         
-                        <button type="submit" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-1">
-                            Send Message
-                        </button>
+                        <div class="pt-2">
+                            <button type="submit" class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-gray-950 hover:bg-blue-600 hover:text-white font-semibold text-sm rounded-full transition-all duration-300 shadow-lg shadow-white/5 hover:shadow-blue-500/30 hover:-translate-y-0.5 select-none">
+                                <span>Send Message</span>
+                                <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </button>
+                        </div>
                     </form>
                 </div>
                 

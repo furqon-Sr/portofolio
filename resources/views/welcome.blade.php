@@ -45,15 +45,15 @@
         <x-navigation />
         <x-hero />
         <section id="about" class="mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
-            <div class="lg:col-span-6 space-y-8">
+            <div class="lg:col-span-6 space-y-8" id="about-content">
                 <div class="space-y-4">
-                    <h2 class="text-5xl font-bold text-white tracking-tight">About <span class="text-blue-600">Me</span></h2>
-                    <p class="text-gray-400 leading-relaxed text-lg">
+                    <h2 id="about-heading" class="text-5xl font-bold text-white tracking-tight">About <span class="text-blue-600">Me</span></h2>
+                    <p id="about-text" class="text-gray-400 leading-relaxed text-lg">
                         {{ $aboutText }}
                     </p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div id="about-boxes" class="grid grid-cols-2 gap-4">
                     @php
                         $svgMap = [
                             'box_1' => '<svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>',
@@ -63,7 +63,7 @@
                         ];
                     @endphp
                     @foreach($aboutBoxes as $box)
-                        <div class="p-5 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:border-blue-500/50 transition-colors group">
+                        <div class="about-box p-5 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:border-blue-500/50 transition-colors group">
                             <div class="mb-3 group-hover:scale-110 transition-transform text-blue-500">
                                 @if(Str::startsWith($box->icon, '<svg'))
                                     {!! $box->icon !!}
@@ -80,13 +80,13 @@
                 </div>
             </div>
 
-            <div class="lg:col-span-6">
+            <div class="lg:col-span-6" id="expertise-section">
                 <div class="flex lg:justify-end mb-8">
-                    <h3 class="text-2xl font-bold font-heading bg-gradient-to-r from-[#1F7CE6] to-[#E1E1E1] text-transparent bg-clip-text">Expertise</h3>
+                    <h3 id="expertise-heading" class="text-2xl font-bold font-heading bg-gradient-to-r from-[#1F7CE6] to-[#E1E1E1] text-transparent bg-clip-text">Expertise</h3>
                 </div>
-                <div class="grid grid-cols-4 gap-4">
+                <div id="expertise-grid" class="grid grid-cols-4 gap-4">
                     @foreach($expertises as $tech)
-                        <a href="{{ $tech->url }}" target="_blank" class="card-tilt-spotlight {{ $tech->bg_class }} {{ $tech->hover_class }} aspect-square rounded-xl flex items-center justify-center border border-gray-800 group transition-all duration-300 overflow-hidden relative">
+                        <a href="{{ $tech->url }}" target="_blank" class="expertise-card card-tilt-spotlight {{ $tech->bg_class }} {{ $tech->hover_class }} aspect-square rounded-xl flex items-center justify-center border border-gray-800 group transition-all duration-300 overflow-hidden relative">
                             <img src="{{ Str::startsWith($tech->logo, 'http') || Str::startsWith($tech->logo, 'data:') ? $tech->logo : asset('img/logos/' . $tech->logo) }}" 
                                  alt="{{ $tech->name }}" 
                                  class="w-full h-full {{ in_array($tech->name, ['JS', 'Java', 'MySQL']) ? 'object-contain p-2' : 'object-cover' }}">
@@ -316,5 +316,138 @@
     <!-- Project Preview Modal -->
     <x-project-preview-modal />
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for reduced motion preference or missing anime.js
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReducedMotion || typeof anime === 'undefined') {
+                return;
+            }
+
+            // --- 1. ABOUT ME SCROLL ANIMATION ---
+            const aboutSection = document.getElementById('about');
+            const aboutHeading = document.getElementById('about-heading');
+            const aboutText = document.getElementById('about-text');
+            const aboutBoxes = document.querySelectorAll('.about-box');
+
+            if (aboutSection) {
+                // Initialize hidden state
+                if (aboutHeading) {
+                    aboutHeading.style.opacity = '0';
+                    aboutHeading.style.transform = 'translateY(28px)';
+                }
+                if (aboutText) {
+                    aboutText.style.opacity = '0';
+                    aboutText.style.transform = 'translateY(24px)';
+                }
+                aboutBoxes.forEach(box => {
+                    box.style.opacity = '0';
+                    box.style.transform = 'translateY(24px) scale(0.96)';
+                });
+
+                const aboutObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Animate Heading & Paragraph Text with smooth fluid motion
+                            const textTargets = [aboutHeading, aboutText].filter(Boolean);
+                            if (textTargets.length) {
+                                anime({
+                                    targets: textTargets,
+                                    opacity: [0, 1],
+                                    translateY: [28, 0],
+                                    duration: 900,
+                                    delay: anime.stagger(140),
+                                    easing: 'cubicBezier(0.16, 1, 0.3, 1)',
+                                    complete: () => {
+                                        if (aboutHeading) aboutHeading.style.transform = '';
+                                        if (aboutText) aboutText.style.transform = '';
+                                    }
+                                });
+                            }
+
+                            // Animate About Info Cards
+                            if (aboutBoxes.length) {
+                                anime({
+                                    targets: aboutBoxes,
+                                    opacity: [0, 1],
+                                    translateY: [24, 0],
+                                    scale: [0.96, 1],
+                                    duration: 800,
+                                    delay: anime.stagger(90, { start: 200 }),
+                                    easing: 'cubicBezier(0.34, 1.56, 0.64, 1)',
+                                    complete: () => {
+                                        aboutBoxes.forEach(box => { box.style.transform = ''; });
+                                    }
+                                });
+                            }
+
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+
+                aboutObserver.observe(aboutSection);
+            }
+
+            // --- 2. EXPERTISE 1-BY-1 POP-IN ANIMATION ---
+            const expertiseSection = document.getElementById('expertise-section');
+            const expertiseHeading = document.getElementById('expertise-heading');
+            const expertiseCards = document.querySelectorAll('.expertise-card');
+
+            if (expertiseSection && expertiseCards.length) {
+                // Initialize hidden state
+                if (expertiseHeading) {
+                    expertiseHeading.style.opacity = '0';
+                    expertiseHeading.style.transform = 'translateY(20px)';
+                }
+                expertiseCards.forEach(card => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(36px) scale(0.4) rotate(-6deg)';
+                });
+
+                const expertiseObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Animate Heading
+                            if (expertiseHeading) {
+                                anime({
+                                    targets: expertiseHeading,
+                                    opacity: [0, 1],
+                                    translateY: [20, 0],
+                                    duration: 750,
+                                    easing: 'cubicBezier(0.16, 1, 0.3, 1)',
+                                    complete: () => {
+                                        expertiseHeading.style.transform = '';
+                                    }
+                                });
+                            }
+
+                            // Animate icons 1 per 1 (staggered entrance with dynamic spring bounce)
+                            anime({
+                                targets: expertiseCards,
+                                opacity: [0, 1],
+                                translateY: [36, 0],
+                                scale: [0.4, 1],
+                                rotate: [-6, 0],
+                                duration: 700,
+                                delay: anime.stagger(60, { start: 100 }), // Pops up 1 by 1 sequentially
+                                easing: 'cubicBezier(0.34, 1.56, 0.64, 1)',
+                                complete: () => {
+                                    // Remove inline transforms to maintain spotlight tilt hover responsiveness
+                                    expertiseCards.forEach(card => {
+                                        card.style.transform = '';
+                                    });
+                                }
+                            });
+
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+
+                expertiseObserver.observe(expertiseSection);
+            }
+        });
+    </script>
 </body>
 </html>
