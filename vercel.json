@@ -55,6 +55,10 @@
             "dest": "/public/robots.txt"
         },
         {
+            "src": "/og-image.jpg",
+            "dest": "/public/og-image.jpg"
+        },
+        {
             "src": "/(.*)",
             "dest": "/api/index.php"
         }

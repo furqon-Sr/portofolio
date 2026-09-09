@@ -9,6 +9,22 @@
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>Certificates | {{ $logoText }}</title>
+
+    <!-- Open Graph / WhatsApp & LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fahrurihanafi.site/certificates" />
+    <meta property="og:title" content="Certificates & Credentials | Fahruri Hanafi" />
+    <meta property="og:description" content="Portfolio of Fahruri Hanafi - Bridging design and code to solve real business problems." />
+    <meta property="og:image" content="https://fahrurihanafi.site/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Certificates & Credentials | Fahruri Hanafi" />
+    <meta name="twitter:description" content="Portfolio of Fahruri Hanafi - Bridging design and code to solve real business problems." />
+    <meta name="twitter:image" content="https://fahrurihanafi.site/og-image.jpg" />
+
     @if($siteSettingsData && $siteSettingsData->favicon)
     <link rel="icon" type="image/png" href="{{ $siteSettingsData->favicon }}">
     @else
