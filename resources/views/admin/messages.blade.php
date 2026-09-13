@@ -8,10 +8,6 @@
 
     <!-- Header Stats -->
     <div class="flex justify-between items-center">
-        <div>
-            <h3 class="text-lg font-bold text-white tracking-tight">Inbox Leads / Pesan Masuk</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Daftar semua pesan prospek yang dikirim melalui formulir kontak.</p>
-        </div>
         <div class="text-xs text-gray-400 bg-white/5 border border-white/5 px-4 py-2 rounded-xl">
             Total Pesan: <span class="text-blue-500 font-bold ml-1">{{ $messages->count() }}</span>
         </div>
