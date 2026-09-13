@@ -22,7 +22,7 @@
             </div>
             <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs">
                 <span class="text-gray-400">Kelola item portofolio Anda</span>
-                <a href="{{ route('admin.projects.index') }}" class="text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors">
+                <a href="{{ route('admin.projects.index') }}" class=" relative z-10text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors pointer-events-none">
                     Kelola
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                 </a>
@@ -43,7 +43,7 @@
             </div>
             <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs">
                 <span class="text-gray-400">Kelola sertifikat kompetensi Anda</span>
-                <a href="{{ route('admin.certificates.index') }}" class="text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors">
+                <a href="{{ route('admin.certificates.index') }}" class="relative z-10 text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors pointer-events-none">
                     Kelola
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                 </a>
@@ -64,7 +64,7 @@
             </div>
             <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs">
                 <span class="text-gray-400">Lihat pesan masuk terbaru</span>
-                <a href="{{ route('admin.messages') }}" class="text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors">
+                <a href="{{ route('admin.messages') }}" class="relative z-10 text-blue-500 hover:text-blue-400 font-bold flex items-center gap-1 transition-colors pointer-events-none">
                     Inbox
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                 </a>
