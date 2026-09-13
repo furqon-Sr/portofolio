@@ -277,7 +277,6 @@
             <div class="space-y-3 p-5 bg-black/30 rounded-2xl border border-white/5">
                 <div>
                     <p class="text-xs font-bold uppercase tracking-wider text-gray-400">Favicon / Site Icon</p>
-                    <p class="text-[11px] text-gray-600 mt-0.5">Ikon kecil yang muncul di tab browser. Mendukung PNG, JPG, SVG, atau ICO. Ukuran ideal: 32×32 px atau 64×64 px.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
