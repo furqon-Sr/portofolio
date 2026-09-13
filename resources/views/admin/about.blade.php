@@ -93,7 +93,6 @@
             <div class="pt-4 border-t border-white/5 space-y-4">
                 <div>
                     <h4 class="text-sm font-semibold text-gray-300">File Resume / CV</h4>
-                    <p class="text-xs text-gray-500 mt-0.5">Mengendalikan tombol <strong>"Download CV"</strong> yang ada di navigasi kanan atas dan footer website.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- File upload -->
