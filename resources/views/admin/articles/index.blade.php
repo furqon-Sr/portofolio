@@ -10,7 +10,6 @@
     <div class="flex justify-between items-center">
         <div>
             <h3 class="text-lg font-bold text-white tracking-tight">Daftar Artikel</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Kelola tulisan blog, catatan (notes), dan studi kasus Anda.</p>
         </div>
         <a href="{{ route('admin.articles.create') }}" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
