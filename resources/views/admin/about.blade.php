@@ -8,10 +8,6 @@
     
     <!-- SECTION 0: HERO TEXT -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
-        <div class="mb-6">
-            <h3 class="text-lg font-bold text-white tracking-tight">Hero Section Text</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Ubah teks judul utama (heading) dan teks pendukung (subheading/tagline) yang tampil di bagian atas halaman utama.</p>
-        </div>
 
         <form action="{{ route('admin.about.hero.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
@@ -19,7 +15,7 @@
             
             <div class="grid grid-cols-1 gap-4">
                 <div>
-                    <label for="hero_title" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Judul Utama (Heading)</label>
+                    <label for="hero_title" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Judul Utama</label>
                     <textarea name="hero_title" id="hero_title" rows="2" 
                               class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                               required>{{ old('hero_title', $aboutSetting->hero_title ?? 'Bridging the gap between optical balance and scalable architecture.') }}</textarea>
@@ -29,7 +25,7 @@
                 </div>
 
                 <div>
-                    <label for="hero_subtitle" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Teks Pendukung (Subheading / Tagline)</label>
+                    <label for="hero_subtitle" class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Teks Pendukung </label>
                     <input type="text" name="hero_subtitle" id="hero_subtitle" 
                            value="{{ old('hero_subtitle', $aboutSetting->hero_subtitle ?? 'Product Designer & Fullstack Dev.') }}" 
                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
@@ -42,7 +38,7 @@
 
             <!-- Profile Photo Settings -->
             <div class="pt-4 border-t border-white/5 space-y-4">
-                <h4 class="text-sm font-semibold text-gray-300">Foto Profil (Hero Image)</h4>
+                <h4 class="text-sm font-semibold text-gray-300">Foto Profil </h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- File upload -->
                     <div>
@@ -157,7 +153,6 @@
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
         <div class="mb-6">
             <h3 class="text-lg font-bold text-white tracking-tight">About Me Description</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Ubah teks paragraf deskripsi singkat tentang diri Anda yang tampil di halaman utama.</p>
         </div>
 
         <form action="{{ route('admin.about.text.update') }}" method="POST" class="space-y-4">
@@ -186,7 +181,6 @@
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl" x-data="{ logoType: '{{ old('logo_type', $aboutSetting->logo_type ?? 'text') }}' }">
         <div class="mb-6">
             <h3 class="text-lg font-bold text-white tracking-tight">Site Identity & Footer Logo</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Kelola logo nama pada bagian navigasi utama dan teks hak cipta pada bagian footer.</p>
         </div>
 
         <form action="{{ route('admin.about.identity.update') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -335,7 +329,6 @@
     <div class="bg-[#111111] rounded-2xl border border-white/5 overflow-hidden shadow-xl">
         <div class="p-6 md:p-8 border-b border-white/5">
             <h3 class="text-lg font-bold text-white tracking-tight">4 Grid Highlights</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Kelola teks judul, sub-deskripsi, dan ikon untuk 4 kartu grid highlight. Anda dapat menggunakan SVG code, upload file gambar, atau menggunakan URL gambar.</p>
         </div>
 
         <div class="overflow-x-auto">
@@ -394,7 +387,6 @@
         <div class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h3 class="text-lg font-bold text-white tracking-tight">Expertise / Tech Logos</h3>
-                <p class="text-xs text-gray-500 mt-0.5">Kelola logo teknologi/keahlian yang tersusun di sebelah kanan bagian About Me.</p>
             </div>
             <a href="{{ route('admin.about.expertise.create') }}" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
