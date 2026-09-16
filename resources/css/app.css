@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 150% Website Zoom */
+html {
+    zoom: 1.5;
+}
+
 
 
 /* 3D Tilt & Spotlight Border */
