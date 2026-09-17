@@ -34,6 +34,7 @@
     @endif
     @vite('resources/css/app.css')
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         html, body { overflow-x: hidden; }
@@ -171,19 +172,21 @@
                             $certImg = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image));
                         @endphp
                         <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
-                            <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
+                            <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-0">
                                 @if($isCertPdf)
-                                <div class="flex flex-col items-center justify-center text-red-400 py-3">
-                                    <svg class="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-full object-cover opacity-85 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500"></canvas>
+                                <div class="pdf-welcome-fallback absolute inset-0 flex flex-col items-center justify-center text-red-400 py-3 bg-[#161616]">
+                                    <svg class="w-7 h-7 mb-1 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                                     <span class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">DOKUMEN PDF</span>
                                 </div>
+                                <div class="absolute top-2 right-2 bg-red-600/90 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shadow z-10">PDF</div>
                                 @else
                                 <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
                                 @endif
                                 <!-- Issuer overlay -->
-                                <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300">{{ $cert->issuer }}</div>
+                                <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300 z-10">{{ $cert->issuer }}</div>
                             </div>
                             <h4 class="text-sm font-semibold text-white mb-1 truncate">{{ $cert->name }}</h4>
                             <div class="flex justify-between items-center text-xs text-gray-500">
@@ -202,19 +205,21 @@
                             $certImg = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image));
                         @endphp
                         <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
-                            <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
+                            <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-0">
                                 @if($isCertPdf)
-                                <div class="flex flex-col items-center justify-center text-red-400 py-3">
-                                    <svg class="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-full object-cover opacity-85 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500"></canvas>
+                                <div class="pdf-welcome-fallback absolute inset-0 flex flex-col items-center justify-center text-red-400 py-3 bg-[#161616]">
+                                    <svg class="w-7 h-7 mb-1 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                                     <span class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">DOKUMEN PDF</span>
                                 </div>
+                                <div class="absolute top-2 right-2 bg-red-600/90 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shadow z-10">PDF</div>
                                 @else
                                 <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
                                 @endif
                                 <!-- Issuer overlay -->
-                                <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300">{{ $cert->issuer }}</div>
+                                <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300 z-10">{{ $cert->issuer }}</div>
                             </div>
                             <h4 class="text-sm font-semibold text-white mb-1 truncate">{{ $cert->name }}</h4>
                             <div class="flex justify-between items-center text-xs text-gray-500">
@@ -485,6 +490,44 @@
                 }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
 
                 expertiseObserver.observe(expertiseSection);
+            }
+
+            // Render PDF Thumbnails in Marquee
+            if (window.pdfjsLib) {
+                try {
+                    const workerBlob = new Blob(
+                        ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
+                        { type: "application/javascript" }
+                    );
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+                } catch(e) {
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+                }
+
+                const canvases = document.querySelectorAll('canvas[data-pdf-thumb]');
+                canvases.forEach(async (canvas) => {
+                    const url = canvas.dataset.pdfThumb;
+                    if (!url) return;
+                    try {
+                        const pdf = await pdfjsLib.getDocument(url).promise;
+                        const page = await pdf.getPage(1);
+                        const parentW = canvas.parentElement.clientWidth || 280;
+                        const unscaled = page.getViewport({ scale: 1.0 });
+                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
+                        const scale = (parentW * dpr) / unscaled.width;
+                        const viewport = page.getViewport({ scale: scale });
+
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const ctx = canvas.getContext('2d');
+                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                        const fallback = canvas.parentElement.querySelector('.pdf-welcome-fallback');
+                        if (fallback) fallback.style.display = 'none';
+                    } catch (e) {
+                        console.error('Gagal render thumbnail PDF marquee:', e);
+                    }
+                });
             }
         });
     </script>

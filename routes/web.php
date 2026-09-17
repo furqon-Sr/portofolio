@@ -78,6 +78,8 @@ Route::get('/media/certificates/{id}', function ($id) {
         return response(base64_decode($data), 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="certificate-' . $cert->id . '.pdf"',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
             'Cache-Control' => 'public, max-age=31536000, immutable',
         ]);
     }
@@ -88,6 +90,8 @@ Route::get('/media/certificates/{id}', function ($id) {
         $mime = 'image/' . ($matches[1] ?? 'jpeg');
         return response(base64_decode($data), 200, [
             'Content-Type' => $mime,
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
             'Cache-Control' => 'public, max-age=31536000, immutable',
         ]);
     }
