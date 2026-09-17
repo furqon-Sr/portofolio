@@ -39,9 +39,6 @@ if ($isPublicCacheable) {
     header_remove('Set-Cookie');
 }
 
-$response->headers->set('X-Debug-Cacheable', $isPublicCacheable ? 'yes' : 'no');
-$response->headers->set('X-Debug-Req-Path', $path);
-
 $response->send();
 if ($isPublicCacheable) {
     header_remove('Set-Cookie');
