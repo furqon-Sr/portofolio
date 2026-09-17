@@ -7,7 +7,6 @@
             link: '#',
             github: null,
             image: '',
-            number: '01',
             views: 0
         }
      }"
@@ -73,7 +72,6 @@
                                 <span x-text="project.views ? project.views.toLocaleString('en-US') : 0"></span> views
                             </div>
                         </div>
-                        <span class="text-zinc-600 font-bold text-xs" x-text="'#' + project.number"></span>
                     </div>
                     <h3 class="text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight" x-text="project.title"></h3>
                 </div>

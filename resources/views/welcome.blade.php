@@ -247,7 +247,7 @@
                     shouldShow(id) {
                         const filtered = this.projectsList.filter(p => this.category === 'all' || p.category === this.category);
                         const index = filtered.findIndex(p => p.id === id);
-                        return index >= 0 && index < 3;
+                        return index >= 0 && index < 4;
                     }
                 }));
             });
@@ -271,17 +271,19 @@
             </div>
 
             <!-- Projects List -->
-            <div class="flex flex-col border-t border-white/10 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 relative z-10">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
-                    $num = sprintf("%02d", $index + 1);
                 @endphp
-                <div x-show="shouldShow({{ $project->id }})" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <div x-show="shouldShow({{ $project->id }})" 
+                     x-transition:enter="transition ease-out duration-300" 
+                     x-transition:enter-start="opacity-0 transform translate-y-4" 
+                     x-transition:enter-end="opacity-100 transform translate-y-0"
+                     class="flex flex-col h-full">
                     <x-project-card 
                         id="{{ $project->id }}"
                         views="{{ $project->views }}"
-                        number="{{ $num }}"
                         title="{{ $project->title }}" 
                         category="{{ $project->category }}"
                         description="{{ $project->description }}"

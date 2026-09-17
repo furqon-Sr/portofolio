@@ -72,17 +72,15 @@
             </div>
 
             <!-- Works List -->
-            <div class="flex flex-col border-t border-white/10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
-                    $num = sprintf("%02d", $index + 1);
                 @endphp
-                <div class="work-item {{ $catClass }}" data-category="{{ $catClass }}">
+                <div class="work-item {{ $catClass }} flex flex-col h-full" data-category="{{ $catClass }}">
                     <x-project-card 
                         id="{{ $project->id }}"
                         views="{{ $project->views }}"
-                        number="{{ $num }}"
                         title="{{ $project->title }}" 
                         category="{{ $project->category }}"
                         description="{{ $project->description }}"
@@ -116,10 +114,9 @@
             const items = document.querySelectorAll('.work-item');
             items.forEach(item => {
                 if (category === 'all' || item.dataset.category === category) {
-                    item.style.display = 'block';
-                    // Optional fade in
+                    item.style.display = '';
                     item.style.opacity = '0';
-                    setTimeout(() => { item.style.transition = 'opacity 0.4s'; item.style.opacity = '1'; }, 50);
+                    setTimeout(() => { item.style.transition = 'opacity 0.3s ease'; item.style.opacity = '1'; }, 30);
                 } else {
                     item.style.display = 'none';
                 }
