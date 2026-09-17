@@ -23,8 +23,8 @@ class AdminController extends Controller
         $messageCount = Contact::count();
         $certificateCount = Certificate::count();
         $recentMessages = Contact::latest()->take(5)->get();
-        $recentProjects = Project::latest()->take(5)->get();
-        $recentCertificates = Certificate::latest()->take(5)->get();
+        $recentProjects = Project::select('id', 'title', 'category', 'cover_image', 'updated_at')->latest()->take(5)->get();
+        $recentCertificates = Certificate::select('id', 'name', 'issuer', 'image', 'updated_at')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('projectCount', 'messageCount', 'certificateCount', 'recentMessages', 'recentProjects', 'recentCertificates'));
     }
@@ -35,7 +35,10 @@ class AdminController extends Controller
     public function projects()
     {
         Project::seedIfEmpty();
-        $projects = Project::orderBy('id', 'desc')->get();
+        $projects = Project::select('id', 'title', 'category', 'description', 'live_link', 'github_link', 'cover_image', 'updated_at')
+            ->selectRaw('(design_file IS NOT NULL) as has_design_file')
+            ->orderBy('id', 'desc')
+            ->get();
         return view('admin.projects.index', compact('projects'));
     }
 

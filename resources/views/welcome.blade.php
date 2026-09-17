@@ -289,7 +289,7 @@
                         description="{{ $project->description }}"
                         link="{{ $project->live_link }}"
                         github_link="{{ $project->github_link }}"
-                        image="{{ $project->cover_image }}"
+                        image="{{ $project->cover_image_url }}"
                         design_url="{{ $project->design_pdf_url }}"
                     />
                 </div>

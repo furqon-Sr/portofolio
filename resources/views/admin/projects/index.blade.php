@@ -36,7 +36,7 @@
                         <!-- Image -->
                         <td class="p-5 whitespace-nowrap">
                             <div class="w-16 h-10 rounded-lg overflow-hidden bg-white/5 border border-white/10 relative">
-                                <img src="{{ Str::startsWith($proj->cover_image, 'http') || Str::startsWith($proj->cover_image, 'data:') ? $proj->cover_image : asset('img/' . $proj->cover_image) }}" 
+                                <img src="{{ $proj->cover_image_url }}" 
                                      alt="{{ $proj->title }}" class="w-full h-full object-cover">
                             </div>
                         </td>

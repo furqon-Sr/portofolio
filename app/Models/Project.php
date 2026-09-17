@@ -23,11 +23,28 @@ class Project extends Model
     ];
 
     /**
+     * Get the public URL for the project cover image.
+     */
+    public function getCoverImageUrlAttribute(): string
+    {
+        if (empty($this->cover_image)) {
+            return asset('img/porto.png');
+        }
+        if (str_starts_with($this->cover_image, 'data:')) {
+            return route('media.project.cover', [$this->id, 'v' => $this->updated_at?->timestamp ?? 1]);
+        }
+        if (str_starts_with($this->cover_image, 'http')) {
+            return $this->cover_image;
+        }
+        return asset('img/' . ltrim($this->cover_image, '/'));
+    }
+
+    /**
      * Get the public URL for the design PDF document.
      */
     public function getDesignPdfUrlAttribute(): ?string
     {
-        if (!$this->design_file) {
+        if (empty($this->design_file) && empty($this->has_design_file)) {
             return null;
         }
         return route('media.project.design', [$this->id, 'v' => $this->updated_at?->timestamp ?? 1]);

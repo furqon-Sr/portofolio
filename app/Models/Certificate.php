@@ -16,6 +16,31 @@ class Certificate extends Model
     ];
 
     /**
+     * Get the public URL for the certificate image or PDF stream.
+     */
+    public function getImageUrlAttribute(): string
+    {
+        if (empty($this->image)) {
+            return asset('favicon.ico');
+        }
+        if (str_starts_with($this->image, 'data:')) {
+            return route('media.certificate', [$this->id, 'v' => $this->updated_at?->timestamp ?? 1]);
+        }
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+        return asset('img/certificates/' . ltrim($this->image, '/'));
+    }
+
+    /**
+     * Check if certificate is a PDF document.
+     */
+    public function getIsPdfAttribute(): bool
+    {
+        return str_starts_with($this->image ?? '', 'data:application/pdf') || str_ends_with(strtolower($this->image ?? ''), '.pdf');
+    }
+
+    /**
      * Seed default certificates if the database table is empty.
      */
     public static function seedIfEmpty(): void

@@ -120,7 +120,7 @@
                     @forelse($recentProjects as $proj)
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-8 rounded overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
-                            <img src="{{ Str::startsWith($proj->cover_image, 'http') || Str::startsWith($proj->cover_image, 'data:') ? $proj->cover_image : asset('img/' . $proj->cover_image) }}" 
+                            <img src="{{ $proj->cover_image_url }}" 
                                  alt="{{ $proj->title }}" class="w-full h-full object-cover">
                         </div>
                         <div class="min-w-0 flex-1">
@@ -143,9 +143,15 @@
                 <div class="space-y-4">
                     @forelse($recentCertificates as $cert)
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-8 rounded overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
-                            <img src="{{ Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/' . $cert->image) }}" 
-                                 alt="{{ $cert->name }}" class="w-full h-full object-cover">
+                        <div class="w-12 h-8 rounded overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative flex items-center justify-center">
+                            @if($cert->is_pdf)
+                                <div class="w-full h-full flex items-center justify-center bg-red-500/10 text-red-400">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                </div>
+                            @else
+                                <img src="{{ $cert->image_url }}" 
+                                     alt="{{ $cert->name }}" class="w-full h-full object-cover">
+                            @endif
                         </div>
                         <div class="min-w-0 flex-1">
                             <h4 class="text-xs font-semibold text-gray-200 truncate leading-tight">{{ $cert->name }}</h4>

@@ -19,7 +19,10 @@ Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 
 // Home Page - Cached at Vercel Edge CDN for 3600s
 Route::get('/', function () {
-    $projects = Project::orderBy('id', 'asc')->get();
+    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
+        ->selectRaw('(design_file IS NOT NULL) as has_design_file')
+        ->orderBy('id', 'asc')
+        ->get();
     $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
@@ -31,7 +34,10 @@ Route::get('/', function () {
 
 // Works Page - Cached at Vercel Edge CDN for 3600s
 Route::get('/works', function () {
-    $projects = Project::orderBy('id', 'asc')->get();
+    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
+        ->selectRaw('(design_file IS NOT NULL) as has_design_file')
+        ->orderBy('id', 'asc')
+        ->get();
     return view('works', compact('projects'));
 })->name('works.show')->middleware('edge.cache:3600');
 
@@ -128,6 +134,33 @@ Route::get('/media/projects/{id}/design', function ($id) {
 
     return redirect(asset('storage/' . ltrim($file, '/')));
 })->name('media.project.design')->middleware('edge.cache:86400');
+
+// Project Cover Image Stream Route
+Route::get('/media/projects/{id}/cover', function ($id) {
+    $project = \App\Models\Project::findOrFail($id);
+    $image = $project->cover_image;
+    if (!$image) {
+        return redirect(asset('img/porto.png'));
+    }
+
+    if (str_starts_with($image, 'data:image/')) {
+        [$meta, $data] = explode(',', $image, 2);
+        preg_match('#data:image/([a-zA-Z0-9\+\.-]+);base64#', $meta, $matches);
+        $mime = 'image/' . ($matches[1] ?? 'jpeg');
+        return response(base64_decode($data), 200, [
+            'Content-Type' => $mime,
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    if (str_starts_with($image, 'http')) {
+        return redirect($image);
+    }
+
+    return redirect(asset('img/' . ltrim($image, '/')));
+})->name('media.project.cover')->middleware('edge.cache:86400');
 
 // Blog Page - Cached at Vercel Edge CDN for 3600s
 Route::get('/blog', function () {
