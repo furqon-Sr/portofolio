@@ -88,27 +88,38 @@
             <!-- Certificate Image (Base64 or URL) -->
             <div class="space-y-4 border-t border-white/5 pt-6" x-data="{ imgSource: '{{ Str::startsWith($certificate->image, 'http') ? 'url' : 'file' }}' }">
                 <div class="flex justify-between items-center">
-                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Gambar / Foto Sertifikat</span>
+                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Berkas Sertifikat (Gambar atau PDF)</span>
                     <!-- Tab Toggle -->
                     <div class="flex p-0.5 bg-black/40 rounded-lg border border-white/5">
-                        <button type="button" @click="imgSource = 'file'" :class="imgSource === 'file' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Upload File</button>
+                        <button type="button" @click="imgSource = 'file'" :class="imgSource === 'file' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Upload File (Gambar/PDF)</button>
                         <button type="button" @click="imgSource = 'url'" :class="imgSource === 'url' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Paste URL</button>
                     </div>
                 </div>
 
                 <!-- File Input -->
                 <div x-show="imgSource === 'file'" class="space-y-4">
+                    @php
+                        $isCurrentPdf = Str::startsWith($certificate->image, 'data:application/pdf') || Str::endsWith(strtolower($certificate->image), '.pdf');
+                        $currentUrl = Str::startsWith($certificate->image, 'data:') ? route('media.certificate', $certificate->id) : (Str::startsWith($certificate->image, 'http') ? $certificate->image : asset('img/' . $certificate->image));
+                    @endphp
                     <div class="flex items-center gap-4">
-                        <div class="w-24 h-16 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
-                            <img src="{{ Str::startsWith($certificate->image, 'http') || Str::startsWith($certificate->image, 'data:') ? $certificate->image : asset('img/' . $certificate->image) }}" 
+                        <div class="w-24 h-16 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative flex items-center justify-center">
+                            @if($isCurrentPdf)
+                            <a href="{{ $currentUrl }}" target="_blank" class="w-full h-full bg-red-500/10 flex flex-col items-center justify-center text-red-400 hover:bg-red-500/20 transition-colors" title="Buka Dokumen PDF Saat Ini">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                <span class="text-[9px] font-black uppercase tracking-wider mt-0.5">LIHAT PDF</span>
+                            </a>
+                            @else
+                            <img src="{{ $currentUrl }}" 
                                  alt="Current certificate" class="w-full h-full object-cover">
+                            @endif
                         </div>
                         <div class="flex-1">
-                            <input type="file" name="image_file" id="image_file" accept="image/*"
+                            <input type="file" name="image_file" id="image_file" accept="image/*,.pdf,application/pdf"
                                    class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition-all">
                         </div>
                     </div>
-                    <p class="text-[10px] text-gray-500">Pilih file baru untuk mengganti gambar saat ini. Ukuran maksimal 2MB (otomatis diubah ke Base64).</p>
+                    <p class="text-[10px] text-gray-500">Pilih berkas baru untuk mengganti saat ini. Mendukung format <strong>JPG, PNG, WebP, atau PDF</strong> (maksimal 10MB).</p>
                     @error('image_file')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror

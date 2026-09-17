@@ -73,6 +73,15 @@ Route::get('/media/certificates/{id}', function ($id) {
     }
 
     $image = $cert->image;
+    if (str_starts_with($image, 'data:application/pdf')) {
+        [, $data] = explode(',', $image, 2);
+        return response(base64_decode($data), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="certificate-' . $cert->id . '.pdf"',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
     if (str_starts_with($image, 'data:image/')) {
         [$meta, $data] = explode(',', $image, 2);
         preg_match('#data:image/([a-zA-Z0-9\+\.-]+);base64#', $meta, $matches);

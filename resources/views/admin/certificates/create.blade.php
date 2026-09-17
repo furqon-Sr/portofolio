@@ -84,22 +84,22 @@
                 @enderror
             </div>
 
-            <!-- Certificate Image (Base64 or URL) -->
+            <!-- Certificate File (Image or PDF) -->
             <div class="space-y-4 border-t border-white/5 pt-6" x-data="{ imgSource: 'file' }">
                 <div class="flex justify-between items-center">
-                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Gambar / Foto Sertifikat</span>
+                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Berkas Sertifikat (Gambar atau PDF)</span>
                     <!-- Tab Toggle -->
                     <div class="flex p-0.5 bg-black/40 rounded-lg border border-white/5">
-                        <button type="button" @click="imgSource = 'file'" :class="imgSource === 'file' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Upload File</button>
+                        <button type="button" @click="imgSource = 'file'" :class="imgSource === 'file' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Upload File (Gambar/PDF)</button>
                         <button type="button" @click="imgSource = 'url'" :class="imgSource === 'url' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Paste URL</button>
                     </div>
                 </div>
 
                 <!-- File Input -->
                 <div x-show="imgSource === 'file'" class="space-y-2">
-                    <input type="file" name="image_file" id="image_file" accept="image/*"
+                    <input type="file" name="image_file" id="image_file" accept="image/*,.pdf,application/pdf"
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition-all">
-                    <p class="text-[10px] text-gray-500">Ukuran maksimal file 2MB. Gambar akan otomatis diubah menjadi Base64 agar dapat tersimpan permanen di serverless Vercel.</p>
+                    <p class="text-[10px] text-gray-500">Mendukung format <strong>JPG, PNG, WebP, atau PDF</strong> (maksimal 10MB). Dokumen PDF maupun gambar akan tersimpan permanen di cloud database.</p>
                     @error('image_file')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror

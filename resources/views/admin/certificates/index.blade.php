@@ -33,12 +33,23 @@
                 <tbody class="divide-y divide-white/5">
                     @forelse($certificates as $cert)
                     <tr class="hover:bg-white/[0.01] transition-colors group">
-                        <!-- Image -->
+                        <!-- Image / PDF Preview -->
                         <td class="p-5 whitespace-nowrap">
+                            @php
+                                $isPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
+                                $certUrl = Str::startsWith($cert->image, 'data:') ? route('media.certificate', $cert->id) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/' . $cert->image));
+                            @endphp
+                            @if($isPdf)
+                            <a href="{{ $certUrl }}" target="_blank" class="w-16 h-10 rounded-lg overflow-hidden bg-red-500/10 border border-red-500/20 flex flex-col items-center justify-center text-red-400 hover:bg-red-500/20 transition-all group/pdf" title="Lihat Dokumen PDF">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                <span class="text-[8px] font-black uppercase tracking-wider mt-0.5">PDF</span>
+                            </a>
+                            @else
                             <div class="w-16 h-10 rounded-lg overflow-hidden bg-white/5 border border-white/10 relative">
-                                <img src="{{ Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/' . $cert->image) }}" 
+                                <img src="{{ $certUrl }}" 
                                      alt="{{ $cert->name }}" class="w-full h-full object-cover">
                             </div>
+                            @endif
                         </td>
                         <!-- Name & Date -->
                         <td class="p-5">

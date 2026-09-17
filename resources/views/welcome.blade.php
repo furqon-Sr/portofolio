@@ -166,11 +166,22 @@
                 <!-- Animated Track 1 -->
                 <div class="flex gap-6 shrink-0 items-center py-4 animate-marquee">
                     @foreach($certificates as $cert)
+                        @php
+                            $isCertPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
+                            $certImg = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image));
+                        @endphp
                         <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
                             <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
-                                <img src="{{ Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image)) }}" 
+                                @if($isCertPdf)
+                                <div class="flex flex-col items-center justify-center text-red-400 py-3">
+                                    <svg class="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                    <span class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">DOKUMEN PDF</span>
+                                </div>
+                                @else
+                                <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
+                                @endif
                                 <!-- Issuer overlay -->
                                 <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300">{{ $cert->issuer }}</div>
                             </div>
@@ -186,11 +197,22 @@
                 <!-- Animated Track 2 (Duplicate for infinite loop) -->
                 <div class="flex gap-6 shrink-0 items-center py-4 animate-marquee" aria-hidden="true">
                     @foreach($certificates as $cert)
+                        @php
+                            $isCertPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
+                            $certImg = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image));
+                        @endphp
                         <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
                             <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
-                                <img src="{{ Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image)) }}" 
+                                @if($isCertPdf)
+                                <div class="flex flex-col items-center justify-center text-red-400 py-3">
+                                    <svg class="w-8 h-8 mb-1" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                    <span class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">DOKUMEN PDF</span>
+                                </div>
+                                @else
+                                <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
+                                @endif
                                 <!-- Issuer overlay -->
                                 <div class="absolute top-2 left-2 bg-black/60 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-gray-300">{{ $cert->issuer }}</div>
                             </div>

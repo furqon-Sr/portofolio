@@ -172,15 +172,21 @@ class AdminController extends Controller
             'issued_at' => 'required|string|max:255',
             'credential_id' => 'nullable|string|max:255',
             'credential_url' => 'nullable|url',
-            'image_file' => 'nullable|image|max:2048',
+            'image_file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf|max:10240',
             'image_url' => 'nullable|url',
         ]);
 
         $image = 'cert.png'; // default placeholder
         if ($request->hasFile('image_file')) {
             $file = $request->file('image_file');
-            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $image = self::compressBase64Image($rawBase64);
+            $mime = strtolower($file->getMimeType());
+            $ext = strtolower($file->getClientOriginalExtension());
+            if ($ext === 'pdf' || str_contains($mime, 'pdf')) {
+                $image = 'data:application/pdf;base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            } else {
+                $rawBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                $image = self::compressBase64Image($rawBase64);
+            }
         } elseif ($request->filled('image_url')) {
             $image = $request->input('image_url');
         }
@@ -194,7 +200,7 @@ class AdminController extends Controller
             'image' => $image,
         ]);
 
-        return redirect()->route('admin.certificates.index')->with('success', 'Certificate created successfully!');
+        return redirect()->route('admin.certificates.index')->with('success', 'Sertifikat berhasil ditambahkan!');
     }
 
     /**
@@ -219,15 +225,21 @@ class AdminController extends Controller
             'issued_at' => 'required|string|max:255',
             'credential_id' => 'nullable|string|max:255',
             'credential_url' => 'nullable|url',
-            'image_file' => 'nullable|image|max:2048',
+            'image_file' => 'nullable|mimes:jpg,jpeg,png,webp,pdf|max:10240',
             'image_url' => 'nullable|url',
         ]);
 
         $image = $certificate->image;
         if ($request->hasFile('image_file')) {
             $file = $request->file('image_file');
-            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $image = self::compressBase64Image($rawBase64);
+            $mime = strtolower($file->getMimeType());
+            $ext = strtolower($file->getClientOriginalExtension());
+            if ($ext === 'pdf' || str_contains($mime, 'pdf')) {
+                $image = 'data:application/pdf;base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            } else {
+                $rawBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                $image = self::compressBase64Image($rawBase64);
+            }
         } elseif ($request->filled('image_url')) {
             $image = $request->input('image_url');
         }
@@ -241,7 +253,7 @@ class AdminController extends Controller
             'image' => $image,
         ]);
 
-        return redirect()->route('admin.certificates.index')->with('success', 'Certificate updated successfully!');
+        return redirect()->route('admin.certificates.index')->with('success', 'Sertifikat berhasil diperbarui!');
     }
 
     /**

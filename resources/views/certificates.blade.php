@@ -44,7 +44,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="relative overflow-x-hidden bg-gray-950 text-white antialiased selection:bg-blue-600 selection:text-white"
-      x-data="{ zoomOpen: false, zoomImage: '', zoomTitle: '' }">
+      x-data="{ zoomOpen: false, zoomImage: '', zoomTitle: '', isPdf: false }">
 
     <!-- Ambient Glowing Backdrop -->
     <div class="fixed inset-0 z-[-1] pointer-events-none">
@@ -68,22 +68,39 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                 @forelse($certificates as $index => $cert)
                 @php
+                    $isPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
                     $imgUrl = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/' . $cert->image));
                     $num = sprintf("%02d", $index + 1);
                 @endphp
                 <div class="cursor-pointer group flex flex-col justify-between bg-[#111111]/40 border border-gray-800/60 rounded-2xl p-4 transition-all duration-500 hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/5 h-full"
-                     @click="zoomImage = '{{ $imgUrl }}'; zoomTitle = '{{ $cert->name }}'; zoomOpen = true">
+                     @click="zoomImage = '{{ $imgUrl }}'; zoomTitle = '{{ addslashes($cert->name) }}'; isPdf = {{ $isPdf ? 'true' : 'false' }}; zoomOpen = true">
                     
                     <div>
-                        <!-- Clickable Image Area -->
+                        <!-- Clickable Image / PDF Area -->
                         <div class="block aspect-[16/10] bg-[#1a1a1a] border border-gray-800/80 rounded-xl overflow-hidden relative mb-4 transition-all duration-500 group-hover:border-blue-500/30">
+                            @if($isPdf)
+                            <!-- Elegant PDF Card Graphic -->
+                            <div class="w-full h-full bg-gradient-to-br from-[#1c1515] via-[#141010] to-[#0e0e10] flex flex-col items-center justify-center p-4 relative overflow-hidden group-hover:scale-105 transition-all duration-500">
+                                <div class="absolute -top-10 -right-10 w-28 h-28 bg-red-600/10 rounded-full blur-xl pointer-events-none"></div>
+                                <div class="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mb-2 shadow-lg shadow-red-500/5">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                </div>
+                                <span class="text-[10px] font-black uppercase tracking-widest text-red-400/90 bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20">Dokumen PDF</span>
+                                <span class="text-[9px] text-gray-500 mt-1 font-medium">Klik untuk membaca</span>
+                            </div>
+                            @else
                             <img src="{{ $imgUrl }}" alt="{{ $cert->name }}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-75">
                             <div class="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-85 group-hover:opacity-70 transition-opacity duration-500"></div>
+                            @endif
                             
                             <!-- Zoom Icon Overlay -->
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <div class="p-3 bg-blue-600 rounded-full text-white shadow-lg shadow-blue-500/30 scale-90 group-hover:scale-100 transition-transform">
+                                <div class="p-3 {{ $isPdf ? 'bg-red-600 shadow-red-500/30' : 'bg-blue-600 shadow-blue-500/30' }} rounded-full text-white shadow-lg scale-90 group-hover:scale-100 transition-transform">
+                                    @if($isPdf)
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    @else
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -152,9 +169,28 @@
                 <h3 class="text-white font-bold text-base md:text-lg leading-tight" x-text="zoomTitle"></h3>
             </div>
 
-            <!-- Image Area -->
-            <div class="w-full max-h-[70vh] flex items-center justify-center overflow-hidden rounded-2xl bg-black">
-                <img :src="zoomImage" :alt="zoomTitle" class="max-w-full max-h-[70vh] object-contain select-none">
+            <!-- Content Area: PDF or Image -->
+            <div class="w-full flex items-center justify-center overflow-hidden rounded-2xl bg-black min-h-[300px]">
+                <!-- If PDF -->
+                <template x-if="isPdf">
+                    <iframe :src="zoomImage" class="w-full h-[65vh] rounded-2xl border border-white/10 bg-white" title="PDF Document"></iframe>
+                </template>
+                <!-- If Image -->
+                <template x-if="!isPdf">
+                    <img :src="zoomImage" :alt="zoomTitle" class="max-w-full max-h-[70vh] object-contain select-none">
+                </template>
+            </div>
+
+            <!-- PDF Action Buttons -->
+            <div x-show="isPdf" class="flex flex-wrap items-center justify-center gap-3 mt-4">
+                <a :href="zoomImage" target="_blank" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-lg shadow-red-600/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    Buka Dokumen PDF di Tab Baru
+                </a>
+                <a :href="zoomImage" download="sertifikat.pdf" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Download PDF
+                </a>
             </div>
 
             <!-- Footnote -->
