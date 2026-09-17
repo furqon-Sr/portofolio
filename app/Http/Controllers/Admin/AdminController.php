@@ -362,6 +362,27 @@ class AdminController extends Controller
     }
 
     /**
+     * Delete a specific contact message.
+     */
+    public function deleteMessage($id)
+    {
+        $message = Contact::findOrFail($id);
+        $message->delete();
+
+        return redirect()->back()->with('success', 'Pesan inbox berhasil dihapus!');
+    }
+
+    /**
+     * Clear all contact messages.
+     */
+    public function clearAllMessages()
+    {
+        Contact::query()->delete();
+
+        return redirect()->route('admin.messages')->with('success', 'Semua pesan inbox berhasil dibersihkan!');
+    }
+
+    /**
      * Display the About Me and Expertise settings page.
      */
     public function about()

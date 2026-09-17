@@ -87,7 +87,16 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex justify-between items-baseline gap-2">
                             <h4 class="text-sm font-semibold text-gray-200 truncate">{{ $msg->name }}</h4>
-                            <span class="text-[10px] text-gray-500 whitespace-nowrap">{{ $msg->created_at->diffForHumans() }}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-gray-500 whitespace-nowrap">{{ $msg->created_at->diffForHumans() }}</span>
+                                <form method="POST" action="{{ route('admin.messages.delete', $msg->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pesan dari {{ addslashes($msg->name) }}?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" title="Hapus Pesan" class="text-gray-500 hover:text-red-400 p-0.5 rounded transition-colors">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                         <p class="text-xs text-blue-400 truncate mt-0.5">{{ $msg->email }}</p>
                         <p class="text-xs text-gray-400 mt-2 line-clamp-2 leading-relaxed bg-white/[0.02] p-3 rounded-lg border border-white/5">{{ $msg->message }}</p>

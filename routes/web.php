@@ -125,6 +125,8 @@ Route::prefix($adminPath)->middleware(['auth', 'verified'])->group(function () {
     // Admin Panel Actions
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/messages', [AdminController::class, 'messages'])->name('admin.messages');
+    Route::delete('/messages/{id}', [AdminController::class, 'deleteMessage'])->name('admin.messages.delete');
+    Route::delete('/messages-clear-all', [AdminController::class, 'clearAllMessages'])->name('admin.messages.clearAll');
     
     // Admin Project CRUD
     Route::get('/projects', [AdminController::class, 'projects'])->name('admin.projects.index');
