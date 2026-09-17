@@ -90,7 +90,6 @@
                 @php
                     $isPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
                     $imgUrl = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/' . $cert->image));
-                    $num = sprintf("%02d", $index + 1);
                 @endphp
                 <div class="cursor-pointer group flex flex-col justify-between bg-[#111111]/40 border border-gray-800/60 rounded-2xl p-4 transition-all duration-500 hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/5 h-full"
                      @click="openModal('{{ $imgUrl }}', '{{ addslashes($cert->name) }}', {{ $isPdf ? 'true' : 'false' }})">
@@ -106,13 +105,8 @@
                                 
                                 <canvas class="pdf-card-canvas w-full h-full object-cover opacity-0 transition-opacity duration-300"></canvas>
                                 
-                                <!-- Loading / Fallback placeholder -->
-                                <div class="pdf-card-fallback absolute inset-0 w-full h-full bg-gradient-to-br from-[#1c1515] via-[#141010] to-[#0e0e10] flex flex-col items-center justify-center p-4">
-                                    <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mb-1.5 shadow-lg shadow-red-500/5 animate-pulse">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-                                    </div>
-                                    <span class="text-[10px] text-gray-400 font-medium">Memuat pratinjau...</span>
-                                </div>
+                                <!-- Clean placeholder while canvas renders (no loading graphic or text) -->
+                                <div class="pdf-card-fallback absolute inset-0 w-full h-full bg-[#151518]"></div>
 
                                 <!-- Page indicator badge (only if multi-page e.g. "1 / 3", hidden for single page) -->
                                 <div class="pdf-card-badge absolute top-2.5 right-2.5 bg-black/75 backdrop-blur border border-white/10 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-lg z-10 pointer-events-none hidden">
@@ -148,10 +142,7 @@
 
                         <!-- Details & Info -->
                         <div class="space-y-2">
-                            <div class="flex items-start justify-between gap-2">
-                                <h4 class="text-white font-bold text-sm md:text-base leading-tight group-hover:text-blue-500 transition-colors">{{ $cert->name }}</h4>
-                                <span class="text-blue-500 text-[10px] font-bold uppercase tracking-wider flex-shrink-0 mt-0.5">{{ $num }}</span>
-                            </div>
+                            <h4 class="text-white font-bold text-sm md:text-base leading-tight group-hover:text-blue-500 transition-colors">{{ $cert->name }}</h4>
                             <div class="text-xs text-gray-400 font-semibold">{{ $cert->issuer }}</div>
                             <div class="text-[10px] text-gray-500 tracking-wide uppercase font-bold">Terbit: {{ $cert->issued_at }}</div>
                             @if($cert->credential_id)
