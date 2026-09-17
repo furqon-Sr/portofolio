@@ -1,4 +1,4 @@
-@props(['id' => null, 'title', 'category', 'description', 'link' => '#', 'number' => null, 'image' => null, 'github_link' => null, 'views' => 0])
+@props(['id' => null, 'title', 'category', 'description', 'link' => '#', 'number' => null, 'image' => null, 'github_link' => null, 'design_url' => null, 'views' => 0])
 
 <div x-data="{ views: {{ (int)$views }}, projectId: @js($id) }"
      @click="
@@ -13,6 +13,7 @@
              link: @js($link),
              github: @js($github_link),
              image: @js(Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image)),
+             design_url: @js($design_url),
              views: views
          })
      "

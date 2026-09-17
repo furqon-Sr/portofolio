@@ -52,14 +52,17 @@ class AdminController extends Controller
      */
     public function storeProject(Request $request)
     {
+        $isWeb = $request->input('category') === 'Web Dev';
+
         $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string|in:Web Dev,Design',
             'description' => 'required|string',
-            'live_link' => 'required|url',
+            'live_link' => $isWeb ? 'required|url' : 'nullable|url',
             'github_link' => 'nullable|url',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
+            'design_pdf_file' => 'nullable|file|mimes:pdf|max:30720',
         ]);
 
         $coverImage = 'image.png'; // default placeholder
@@ -71,6 +74,12 @@ class AdminController extends Controller
             $coverImage = $request->input('cover_image_url');
         }
 
+        $designFile = null;
+        if ($request->hasFile('design_pdf_file')) {
+            $pdf = $request->file('design_pdf_file');
+            $designFile = 'data:application/pdf;base64,' . base64_encode(file_get_contents($pdf->getRealPath()));
+        }
+
         Project::create([
             'title' => $request->input('title'),
             'slug' => Str::slug($request->input('title')) . '-' . time(),
@@ -79,6 +88,7 @@ class AdminController extends Controller
             'live_link' => $request->input('live_link'),
             'github_link' => $request->input('github_link'),
             'cover_image' => $coverImage,
+            'design_file' => $designFile,
         ]);
 
         return redirect()->route('admin.projects.index')->with('success', 'Project created successfully!');
@@ -99,15 +109,17 @@ class AdminController extends Controller
     public function updateProject(Request $request, $id)
     {
         $project = Project::findOrFail($id);
+        $isWeb = $request->input('category') === 'Web Dev';
 
         $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string|in:Web Dev,Design',
             'description' => 'required|string',
-            'live_link' => 'required|url',
+            'live_link' => $isWeb ? 'required|url' : 'nullable|url',
             'github_link' => 'nullable|url',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
+            'design_pdf_file' => 'nullable|file|mimes:pdf|max:30720',
         ]);
 
         $coverImage = $project->cover_image;
@@ -119,6 +131,14 @@ class AdminController extends Controller
             $coverImage = $request->input('cover_image_url');
         }
 
+        $designFile = $project->design_file;
+        if ($request->hasFile('design_pdf_file')) {
+            $pdf = $request->file('design_pdf_file');
+            $designFile = 'data:application/pdf;base64,' . base64_encode(file_get_contents($pdf->getRealPath()));
+        } elseif ($request->has('remove_design_file') && $request->boolean('remove_design_file')) {
+            $designFile = null;
+        }
+
         $project->update([
             'title' => $request->input('title'),
             'slug' => Str::slug($request->input('title')) . '-' . $project->id,
@@ -127,6 +147,7 @@ class AdminController extends Controller
             'live_link' => $request->input('live_link'),
             'github_link' => $request->input('github_link'),
             'cover_image' => $coverImage,
+            'design_file' => $designFile,
         ]);
 
         return redirect()->route('admin.projects.index')->with('success', 'Project updated successfully!');

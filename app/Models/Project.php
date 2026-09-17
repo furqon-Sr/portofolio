@@ -13,6 +13,7 @@ class Project extends Model
         'description',
         'live_link',
         'cover_image',
+        'design_file',
         'github_link',
         'gallery_assets',
         'views'
@@ -20,6 +21,17 @@ class Project extends Model
     protected $casts = [
         'gallery_assets' => 'array',
     ];
+
+    /**
+     * Get the public URL for the design PDF document.
+     */
+    public function getDesignPdfUrlAttribute(): ?string
+    {
+        if (!$this->design_file) {
+            return null;
+        }
+        return route('media.project.design', [$this->id, 'v' => $this->updated_at?->timestamp ?? 1]);
+    }
 
     /**
      * Seed default projects if the database table is empty.

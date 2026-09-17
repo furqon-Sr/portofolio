@@ -290,6 +290,7 @@
                         link="{{ $project->live_link }}"
                         github_link="{{ $project->github_link }}"
                         image="{{ $project->cover_image }}"
+                        design_url="{{ $project->design_pdf_url }}"
                     />
                 </div>
                 @endforeach

@@ -103,6 +103,32 @@ Route::get('/media/certificates/{id}', function ($id) {
     return redirect(asset('img/certificates/' . ltrim($image, '/')));
 })->name('media.certificate')->middleware('edge.cache:86400');
 
+// Project Design PDF Stream Route
+Route::get('/media/projects/{id}/design', function ($id) {
+    $project = \App\Models\Project::findOrFail($id);
+    $file = $project->design_file;
+    if (!$file) {
+        abort(404, 'No design document found.');
+    }
+
+    if (str_starts_with($file, 'data:application/pdf')) {
+        [, $data] = explode(',', $file, 2);
+        return response(base64_decode($data), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="design-' . Str::slug($project->title) . '.pdf"',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    if (str_starts_with($file, 'http')) {
+        return redirect($file);
+    }
+
+    return redirect(asset('storage/' . ltrim($file, '/')));
+})->name('media.project.design')->middleware('edge.cache:86400');
+
 // Blog Page - Cached at Vercel Edge CDN for 3600s
 Route::get('/blog', function () {
     $articles = \App\Models\Article::orderBy('id', 'desc')->get();

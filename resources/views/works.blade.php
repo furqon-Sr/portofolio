@@ -41,6 +41,7 @@
         }
         .animate-slide-up { animation: slide-up 1s ease-out forwards; }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="relative overflow-x-hidden bg-gray-950 text-white antialiased selection:bg-blue-600 selection:text-white">
@@ -87,6 +88,7 @@
                         link="{{ $project->live_link }}"
                         github_link="{{ $project->github_link }}"
                         image="{{ $project->cover_image }}"
+                        design_url="{{ $project->design_pdf_url }}"
                     />
                 </div>
                 @endforeach

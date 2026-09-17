@@ -64,11 +64,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Live Link -->
                 <div class="space-y-2">
-                    <label for="live_link" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Link Preview / Tautan</label>
-                    <input type="url" name="live_link" id="live_link" required value="{{ old('live_link') }}" 
+                    <label for="live_link" class="block text-xs font-bold uppercase tracking-wider text-gray-400" x-text="category === 'Web Dev' ? 'Link Live Website' : 'Link Eksternal Cadangan (Opsional)'"></label>
+                    <input type="url" name="live_link" id="live_link" :required="category === 'Web Dev'" value="{{ old('live_link') }}" 
                            class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                           placeholder="https://eskristalutamaindah.com atau link Google Drive">
-                    <p class="text-[10px] text-gray-500">Gunakan link website asli untuk Web Dev, atau link folder Google Drive untuk Design.</p>
+                           placeholder="https://...">
+                    <p class="text-[10px] text-gray-500" x-text="category === 'Web Dev' ? 'Gunakan link website asli untuk Web Dev.' : 'Opsional. Link cadangan jika ada klien yang ingin membuka tautan Google Drive / Figma eksternal.'"></p>
                     @error('live_link')
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
@@ -85,6 +85,24 @@
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+
+            <!-- Design PDF Document (For Design Projects) -->
+            <div class="space-y-3 border-t border-white/5 pt-6" x-show="category === 'Design'">
+                <div class="flex items-center justify-between">
+                    <label for="design_pdf_file" class="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                        Berkas Dokumen Desain (PDF Multi-Halaman)
+                    </label>
+                    <span class="text-[10px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 rounded-full">Disarankan untuk Design</span>
+                </div>
+                <input type="file" name="design_pdf_file" id="design_pdf_file" accept=".pdf,application/pdf"
+                       class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-400 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition-all">
+                <p class="text-[10px] text-gray-500">
+                    Unggah 1 file PDF (misal: Brand Guidelines, Presentasi Pitch Deck, Desain Logo/Poster). Seluruh lembaran halaman dapat di-scroll vertikal oleh pengunjung di website Anda. Maksimal 30MB.
+                </p>
+                @error('design_pdf_file')
+                    <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Cover Image (Base64 or URL) -->
