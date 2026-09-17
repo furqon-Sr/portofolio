@@ -233,13 +233,12 @@
                 <!-- If PDF: LinkedIn Style Continuous Scrollable Viewer -->
                 <div x-show="isPdf" class="w-full h-full flex flex-col">
                     <div id="pdf-scroll-container" 
-                         class="w-full flex-grow overflow-y-auto max-h-[64vh] flex flex-col items-center gap-6 py-4 px-2 md:px-6 bg-[#0c0c0e] rounded-2xl border border-white/5 scroll-smooth custom-scrollbar">
+                         class="w-full flex-grow overflow-y-auto max-h-[75vh] flex flex-col items-center gap-6 py-4 px-2 md:px-6 bg-[#0c0c0e] rounded-2xl border border-white/5 scroll-smooth custom-scrollbar">
                         
                         <!-- Loading State -->
                         <div x-show="pdfLoading" class="py-20 flex flex-col items-center justify-center text-gray-400">
                             <div class="w-10 h-10 border-2 border-red-500 border-t-transparent rounded-full animate-spin mb-3"></div>
                             <p class="text-sm font-medium">Memuat dokumen PDF...</p>
-                            <p class="text-xs text-gray-500 mt-1">Halaman dapat di-scroll seperti di LinkedIn</p>
                         </div>
 
                         <!-- Injected PDF Page Canvases -->
@@ -249,31 +248,10 @@
 
                 <!-- If Standard Image -->
                 <div x-show="!isPdf" class="w-full flex items-center justify-center p-2">
-                    <img :src="zoomImage" :alt="zoomTitle" class="max-w-full max-h-[70vh] object-contain select-none rounded-xl">
+                    <img :src="zoomImage" :alt="zoomTitle" class="max-w-full max-h-[75vh] object-contain select-none rounded-xl">
                 </div>
 
             </div>
-
-            <!-- PDF Action Buttons & Scroll Hint -->
-            <div x-show="isPdf" class="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-800/80">
-                <p class="text-[11px] text-gray-400 flex items-center gap-1.5">
-                    <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>
-                    <span>Gulir / scroll ke bawah untuk membaca seluruh halaman dokumen</span>
-                </p>
-                <div class="flex items-center gap-2">
-                    <a :href="zoomImage" target="_blank" class="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-lg shadow-red-600/20">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                        Buka Tab Baru
-                    </a>
-                    <a :href="zoomImage" download="sertifikat.pdf" class="px-3.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        Download PDF
-                    </a>
-                </div>
-            </div>
-
-            <!-- Footnote -->
-            <p class="text-[10px] text-gray-500 mt-2">Tekan ESC atau klik di luar untuk menutup</p>
 
         </div>
     </div>
