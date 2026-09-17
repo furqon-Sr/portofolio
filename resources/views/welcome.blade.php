@@ -195,7 +195,7 @@
                             <h4 class="text-sm font-semibold text-white mb-1 truncate">{{ $cert->name }}</h4>
                             <div class="flex justify-between items-center text-xs text-gray-500">
                                 <span>{{ $cert->issued_at }}</span>
-                                <span class="text-blue-500 opacity-0 group-hover/cert:opacity-100 transition-opacity">View &rarr;</span>
+                                <span class="text-blue-500 opacity-80 md:opacity-0 md:group-hover/cert:opacity-100 transition-opacity">View &rarr;</span>
                             </div>
                         </a>
                     @endforeach
@@ -227,7 +227,7 @@
                             <h4 class="text-sm font-semibold text-white mb-1 truncate">{{ $cert->name }}</h4>
                             <div class="flex justify-between items-center text-xs text-gray-500">
                                 <span>{{ $cert->issued_at }}</span>
-                                <span class="text-blue-500 opacity-0 group-hover/cert:opacity-100 transition-opacity">View &rarr;</span>
+                                <span class="text-blue-500 opacity-80 md:opacity-0 md:group-hover/cert:opacity-100 transition-opacity">View &rarr;</span>
                             </div>
                         </a>
                     @endforeach

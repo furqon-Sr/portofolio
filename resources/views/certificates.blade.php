@@ -116,13 +116,13 @@
                                 <!-- LinkedIn Style Card Flip Arrows (if multi-page) -->
                                 <button type="button" 
                                         @click.stop="cardPrevPage($event)" 
-                                        class="pdf-card-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/85 hover:bg-black text-white border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 hidden shadow-xl" 
+                                        class="pdf-card-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/85 hover:bg-black text-white border border-white/20 flex items-center justify-center opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-all z-20 hidden shadow-xl" 
                                         title="Halaman sebelumnya">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                                 </button>
                                 <button type="button" 
                                         @click.stop="cardNextPage($event)" 
-                                        class="pdf-card-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/85 hover:bg-black text-white border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20 hidden shadow-xl" 
+                                        class="pdf-card-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/85 hover:bg-black text-white border border-white/20 flex items-center justify-center opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-all z-20 hidden shadow-xl" 
                                         title="Halaman selanjutnya">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                                 </button>
@@ -152,14 +152,18 @@
                     </div>
 
                     <!-- Actions -->
-                    @if($cert->credential_url)
-                    <div class="flex items-center gap-4 pt-3 mt-4 border-t border-white/5 text-xs font-semibold">
-                        <a href="{{ $cert->credential_url }}" target="_blank" @click.stop class="text-white hover:text-blue-500 flex items-center gap-1.5 transition-colors">
+                    <div class="flex items-center justify-between pt-3 mt-4 border-t border-white/5 text-xs font-semibold">
+                        <span class="text-blue-400 group-hover:text-blue-300 flex items-center gap-1.5 transition-colors">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            <span>Pratinjau</span>
+                        </span>
+                        @if($cert->credential_url)
+                        <a href="{{ $cert->credential_url }}" target="_blank" @click.stop class="text-gray-400 hover:text-white flex items-center gap-1.5 transition-colors">
+                            <span>Verifikasi</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            Verifikasi Kredensial
                         </a>
+                        @endif
                     </div>
-                    @endif
 
                 </div>
                 @empty

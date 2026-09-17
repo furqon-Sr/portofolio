@@ -60,9 +60,9 @@
             <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                 
                 <div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Let's build something <span class="text-blue-500">amazing</span> together.</h1>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6">Got something in mind? <span class="text-blue-500">Let's talk.</span></h1>
                     <p class="text-gray-400 text-lg mb-8 leading-relaxed">
-                        I'm currently available for freelance projects and open to full-time opportunities. If you're looking for a developer who understands design, or a designer who understands engineering, let's talk.
+                        I'm currently available for freelance projects and open to full time opportunities. If you need a developer who understands design or a designer who understands engineering, I'm the person you're looking for.
                     </p>
                     
                     <div class="space-y-6">
