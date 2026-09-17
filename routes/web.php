@@ -304,14 +304,17 @@ Route::get('/vercel-migrate', function (\Illuminate\Http\Request $request) {
     }
 });
 
-// API route for incrementing project views
-Route::post('/api/projects/{id}/view', function ($id) {
+// API route for incrementing project views (supports both local and Vercel pathing)
+$incrementProjectViews = function ($id) {
     $project = \App\Models\Project::find($id);
     if ($project) {
         $project->increment('views');
         return response()->json(['success' => true, 'views' => $project->views]);
     }
     return response()->json(['success' => false], 404);
-})->middleware('throttle:30,1');
+};
+
+Route::post('/api/projects/{id}/view', $incrementProjectViews)->middleware('throttle:60,1');
+Route::post('/projects/{id}/view', $incrementProjectViews)->middleware('throttle:60,1');
 
 require __DIR__.'/auth.php';

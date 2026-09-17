@@ -18,6 +18,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->validateCsrfTokens(except: [
             'api/projects/*/view',
+            'projects/*/view',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

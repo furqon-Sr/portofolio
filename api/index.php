@@ -7,4 +7,6 @@ if (str_contains(strtolower($host), 'vercel.app')) {
     exit;
 }
 
+$_SERVER['SCRIPT_NAME'] = '/index.php';
+
 require __DIR__ . '/../public/index.php';
