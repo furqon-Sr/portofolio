@@ -7,6 +7,7 @@
     @php 
         $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
+        $heroTitle = $siteSettingsData->hero_title ?? 'Bridging the gap between optical balance and scalable architecture.';
         $heroSubtitle = $siteSettingsData->hero_subtitle ?? 'Product Designer & Fullstack Dev';
         $aboutText = $siteSettingsData->about_text ?? '';
     @endphp
@@ -15,16 +16,16 @@
     <!-- Open Graph / WhatsApp & LinkedIn -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://fahrurihanafi.site/" />
-    <meta property="og:title" content="Fahruri Hanafi | Graphic Designer & Fullstack Developer" />
-    <meta property="og:description" content="Portfolio of Fahruri Hanafi - Bridging design and code to solve real business problems." />
+    <meta property="og:title" content="{{ $logoText }} | {{ $heroSubtitle }}" />
+    <meta property="og:description" content="{{ $heroTitle }}" />
     <meta property="og:image" content="https://fahrurihanafi.site/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Fahruri Hanafi | Graphic Designer & Fullstack Developer" />
-    <meta name="twitter:description" content="Portfolio of Fahruri Hanafi - Bridging design and code to solve real business problems." />
+    <meta name="twitter:title" content="{{ $logoText }} | {{ $heroSubtitle }}" />
+    <meta name="twitter:description" content="{{ $heroTitle }}" />
     <meta name="twitter:image" content="https://fahrurihanafi.site/og-image.jpg" />
 
     @if($siteSettingsData && $siteSettingsData->favicon)
@@ -65,7 +66,7 @@
     </div>
 
     <div class="max-w-6xl mx-auto px-6 lg:px-8">   
-        <x-hero />
+        <x-hero :site-setting="$siteSettingsData" />
         <section id="about" class="mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
             <div class="lg:col-span-6 space-y-8" id="about-content">
                 <div class="space-y-4">

@@ -30,10 +30,9 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // Global shared site settings (fetched once per request)
+        // Global shared site settings (fetched once per request, scoped to request lifecycle)
         View::composer('*', function ($view) {
-            static $setting = null;
-            if ($setting === null) {
+            if (!app()->has('siteSettingInstance')) {
                 try {
                     $setting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
                         'logo_type' => 'text',
@@ -46,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
                 } catch (\Throwable $e) {
                     $setting = new \App\Models\AboutSetting();
                 }
+                app()->instance('siteSettingInstance', $setting);
+            } else {
+                $setting = app('siteSettingInstance');
             }
             $view->with('siteSetting', $setting);
             $view->with('siteSettingsData', $setting);

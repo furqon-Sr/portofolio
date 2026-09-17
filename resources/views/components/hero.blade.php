@@ -1,5 +1,7 @@
+@props(['siteSetting' => null])
+
 @php
-    $siteSetting = $siteSetting ?? \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+    $siteSetting = $siteSetting ?? $siteSettingsData ?? \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
         'hero_title' => 'Bridging the gap between optical balance and scalable architecture.',
         'hero_subtitle' => 'Product Designer & Fullstack Dev.'
     ]);

@@ -17,7 +17,7 @@ Route::any('/wp-login.php', fn () => redirect('/'));
 Route::any('/wp-admin', fn () => redirect('/'));
 Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 
-// Home Page - Cached at Vercel Edge CDN for 3600s
+// Home Page - Rendered fresh from database
 Route::get('/', function () {
     $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
@@ -30,22 +30,22 @@ Route::get('/', function () {
     $latestArticles = \App\Models\Article::orderBy('created_at', 'desc')->take(3)->get();
 
     return view('welcome', compact('projects', 'aboutBoxes', 'expertises', 'certificates', 'clients', 'latestArticles'));
-})->middleware('edge.cache:3600');
+});
 
-// Works Page - Cached at Vercel Edge CDN for 3600s
+// Works Page - Rendered fresh from database
 Route::get('/works', function () {
     $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
         ->orderBy('id', 'asc')
         ->get();
     return view('works', compact('projects'));
-})->name('works.show')->middleware('edge.cache:3600');
+})->name('works.show');
 
-// Certificates Page - Cached at Vercel Edge CDN for 3600s
+// Certificates Page - Rendered fresh from database
 Route::get('/certificates', function () {
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
     return view('certificates', compact('certificates'));
-})->name('certificates.show')->middleware('edge.cache:3600');
+})->name('certificates.show');
 
 // Optimized Binary Media Delivery (cached permanently at Edge CDN)
 Route::get('/media/profile-photo', function () {
@@ -162,16 +162,16 @@ Route::get('/media/projects/{id}/cover', function ($id) {
     return redirect(asset('img/' . ltrim($image, '/')));
 })->name('media.project.cover')->middleware('edge.cache:86400');
 
-// Blog Page - Cached at Vercel Edge CDN for 3600s
+// Blog Page - Rendered fresh from database
 Route::get('/blog', function () {
     $articles = \App\Models\Article::orderBy('id', 'desc')->get();
     return view('blog', compact('articles'));
-})->name('blog.index')->middleware('edge.cache:3600');
+})->name('blog.index');
 
 Route::get('/blog/{slug}', function ($slug) {
     $article = \App\Models\Article::where('slug', $slug)->firstOrFail();
     return view('blog-show', compact('article'));
-})->name('blog.show')->middleware('edge.cache:3600');
+})->name('blog.show');
 
 // Contact Page (Interactive form: not edge cached to ensure dynamic CSRF tokens)
 Route::get('/contact', function () {
