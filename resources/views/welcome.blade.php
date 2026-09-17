@@ -59,8 +59,12 @@
         <div class="absolute top-[40%] right-[-5%] w-[400px] h-[400px] rounded-full bg-blue-300/10 blur-[120px]"></div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-6 lg:px-8">   
+    <!-- Full-Width Navigation (Mentok Kanan Kiri) -->
+    <div class="w-full px-6 md:px-10 lg:px-12 pt-2">
         <x-navigation />
+    </div>
+
+    <div class="max-w-6xl mx-auto px-6 lg:px-8">   
         <x-hero />
         <section id="about" class="mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
             <div class="lg:col-span-6 space-y-8" id="about-content">
@@ -350,9 +354,11 @@
         </section>
         @endif
 
-      
-        <x-footer />
+    </div> 
 
+    <!-- Full-Width Footer (Mentok Kanan Kiri) -->
+    <div class="w-full px-6 md:px-10 lg:px-12">
+        <x-footer />
     </div> 
 
     <!-- Project Preview Modal -->

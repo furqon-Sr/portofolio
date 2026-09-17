@@ -2,10 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 90% Website Zoom (Public Website Only - Desktop & Tablet) */
+/* 115% Website Zoom (Public Website Only - Desktop & Tablet) */
 @media (min-width: 640px) {
     html:not(.admin-panel) {
-        zoom: 0.9;
+        zoom: 1.15;
     }
 }
 

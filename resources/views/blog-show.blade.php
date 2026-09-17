@@ -46,11 +46,14 @@
         <div class="absolute bottom-[-5%] left-[20%] w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[120px]"></div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-6 lg:px-8 flex flex-col min-h-screen">
-        
-        <x-navigation />
+    <div class="min-h-screen flex flex-col justify-between">
+        <!-- Full-Width Navigation (Mentok Kanan Kiri) -->
+        <div class="w-full px-6 md:px-10 lg:px-12 pt-2">
+            <x-navigation />
+        </div>
 
-        <main class="flex-grow pt-24 pb-32 animate-slide-up">
+        <div class="max-w-6xl mx-auto px-6 lg:px-8 w-full flex-grow">
+            <main class="pt-24 pb-32 animate-slide-up">
             
             <article class="max-w-3xl mx-auto">
                 <!-- Back Link -->
@@ -115,8 +118,12 @@
             </article>
 
         </main>
+        </div>
         
-        <x-footer />
+        <!-- Full-Width Footer (Mentok Kanan Kiri) -->
+        <div class="w-full px-6 md:px-10 lg:px-12">
+            <x-footer />
+        </div>
     </div>
 </body>
 </html>
