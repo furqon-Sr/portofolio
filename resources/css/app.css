@@ -2,9 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 150% Website Zoom (Public Website Only) */
-html:not(.admin-panel) {
-    zoom: 1.5;
+/* 90% Website Zoom (Public Website Only - Desktop & Tablet) */
+@media (min-width: 640px) {
+    html:not(.admin-panel) {
+        zoom: 0.9;
+    }
+}
+
+@media (max-width: 639px) {
+    html:not(.admin-panel) {
+        zoom: 1;
+    }
 }
 
 /* Dashboard & Admin remains at 100% standard zoom */
