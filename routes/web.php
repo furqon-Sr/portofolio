@@ -20,14 +20,13 @@ Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 // Home Page - Cached at Vercel Edge CDN for 3600s
 Route::get('/', function () {
     $projects = Project::orderBy('id', 'asc')->get();
-    $aboutText = \App\Models\AboutSetting::first()->about_text ?? '';
     $aboutBoxes = \App\Models\AboutBox::orderBy('id', 'asc')->get();
     $expertises = \App\Models\Expertise::orderBy('id', 'asc')->get();
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
     $clients = \App\Models\Client::orderBy('order_index', 'asc')->get();
     $latestArticles = \App\Models\Article::orderBy('created_at', 'desc')->take(3)->get();
 
-    return view('welcome', compact('projects', 'aboutText', 'aboutBoxes', 'expertises', 'certificates', 'clients', 'latestArticles'));
+    return view('welcome', compact('projects', 'aboutBoxes', 'expertises', 'certificates', 'clients', 'latestArticles'));
 })->middleware('edge.cache:3600');
 
 // Works Page - Cached at Vercel Edge CDN for 3600s
@@ -41,6 +40,55 @@ Route::get('/certificates', function () {
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
     return view('certificates', compact('certificates'));
 })->name('certificates.show')->middleware('edge.cache:3600');
+
+// Optimized Binary Media Delivery (cached permanently at Edge CDN)
+Route::get('/media/profile-photo', function () {
+    $setting = \App\Models\AboutSetting::first();
+    if (!$setting || empty($setting->profile_photo)) {
+        return redirect(asset('img/porto.png'));
+    }
+
+    $photo = $setting->profile_photo;
+    if (str_starts_with($photo, 'data:image/')) {
+        [$meta, $data] = explode(',', $photo, 2);
+        preg_match('#data:image/([a-zA-Z0-9\+\.-]+);base64#', $meta, $matches);
+        $mime = 'image/' . ($matches[1] ?? 'jpeg');
+        return response(base64_decode($data), 200, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    if (str_starts_with($photo, 'http')) {
+        return redirect($photo);
+    }
+
+    return redirect(asset('img/' . ltrim($photo, '/')));
+})->name('media.profile')->middleware('edge.cache:86400');
+
+Route::get('/media/certificates/{id}', function ($id) {
+    $cert = \App\Models\Certificate::find($id);
+    if (!$cert || empty($cert->image)) {
+        return redirect(asset('favicon.ico'));
+    }
+
+    $image = $cert->image;
+    if (str_starts_with($image, 'data:image/')) {
+        [$meta, $data] = explode(',', $image, 2);
+        preg_match('#data:image/([a-zA-Z0-9\+\.-]+);base64#', $meta, $matches);
+        $mime = 'image/' . ($matches[1] ?? 'jpeg');
+        return response(base64_decode($data), 200, [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ]);
+    }
+
+    if (str_starts_with($image, 'http')) {
+        return redirect($image);
+    }
+
+    return redirect(asset('img/certificates/' . ltrim($image, '/')));
+})->name('media.certificate')->middleware('edge.cache:86400');
 
 // Blog Page - Cached at Vercel Edge CDN for 3600s
 Route::get('/blog', function () {

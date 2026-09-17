@@ -1,5 +1,5 @@
 @php
-    $siteSetting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+    $siteSetting = $siteSetting ?? \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
         'hero_title' => 'Bridging the gap between optical balance and scalable architecture.',
         'hero_subtitle' => 'Product Designer & Fullstack Dev.'
     ]);
@@ -36,7 +36,12 @@
                 
                 <!-- Profile Photo -->
                 <div class="relative w-full h-full" style="mask-image: linear-gradient(to top, transparent 0%, black 35%); -webkit-mask-image: linear-gradient(to top, transparent 0%, black 35%);">
-                    <img id="hero-profile-img" src="{{ $siteSetting->profile_photo ?? asset('img/porto.png') }}" alt="Hanafi" class="object-cover w-full h-full grayscale transition-all duration-700 group-hover:grayscale-[40%] group-hover:scale-105 select-none pointer-events-none">
+                    @php
+                        $heroImgSrc = Str::startsWith($siteSetting->profile_photo ?? '', 'data:') 
+                            ? route('media.profile', ['v' => $siteSetting->updated_at?->timestamp ?? 1]) 
+                            : ($siteSetting->profile_photo ?? asset('img/porto.png'));
+                    @endphp
+                    <img id="hero-profile-img" src="{{ $heroImgSrc }}" alt="Hanafi" class="object-cover w-full h-full grayscale transition-all duration-700 group-hover:grayscale-[40%] group-hover:scale-105 select-none pointer-events-none">
                 </div>
 
                 <!-- Subtle Card Glare / Reflection Overlay -->

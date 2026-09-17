@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://fahrurihanafi.site/" />
     @php 
-        $siteSettingsData = \App\Models\AboutSetting::first(); 
+        $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
         $heroSubtitle = $siteSettingsData->hero_subtitle ?? 'Product Designer & Fullstack Dev';
+        $aboutText = $siteSettingsData->about_text ?? '';
     @endphp
     <title>{{ $logoText }} | {{ $heroSubtitle }}</title>
 
@@ -167,7 +168,7 @@
                     @foreach($certificates as $cert)
                         <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
                             <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
-                                <img src="{{ Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/certificates/' . $cert->image) }}" 
+                                <img src="{{ Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image)) }}" 
                                      alt="{{ $cert->name }}" 
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
                                 <!-- Issuer overlay -->
@@ -187,7 +188,7 @@
                     @foreach($certificates as $cert)
                         <a href="{{ route('certificates.show') }}" class="block w-[280px] shrink-0 p-4 bg-[#111111] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.02] transition-all duration-300 group/cert relative overflow-hidden card-tilt-spotlight">
                             <div class="aspect-video w-full rounded-xl bg-[#1a1a1a] mb-4 overflow-hidden border border-white/5 relative flex items-center justify-center p-2">
-                                <img src="{{ Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/certificates/' . $cert->image) }}" 
+                                <img src="{{ Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image)) }}" 
                                      alt="{{ $cert->name }}" 
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
                                 <!-- Issuer overlay -->

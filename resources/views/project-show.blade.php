@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $project->title ?? 'Project Details' }} - Fahruri Hanafi</title>
-    @php $siteFavicon = \App\Models\AboutSetting::first(); @endphp
+    @php $siteFavicon = $siteSetting ?? \App\Models\AboutSetting::first(); @endphp
     @if($siteFavicon && $siteFavicon->favicon)
     <link rel="icon" type="image/png" href="{{ $siteFavicon->favicon }}">
     @else

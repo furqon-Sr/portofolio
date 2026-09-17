@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="{{ url('/blog/' . $article->slug) }}" />
     @php 
-        $siteSettingsData = \App\Models\AboutSetting::first(); 
+        $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>{{ $article->title }} | {{ $logoText }} Blog</title>

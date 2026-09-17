@@ -2,9 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 150% Website Zoom */
-html {
+/* 150% Website Zoom (Public Website Only) */
+html:not(.admin-panel) {
     zoom: 1.5;
+}
+
+/* Dashboard & Admin remains at 100% standard zoom */
+html.admin-panel,
+html.admin-panel body {
+    zoom: 1 !important;
 }
 
 

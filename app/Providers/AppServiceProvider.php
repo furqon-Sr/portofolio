@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema; // <-- WAJIB IMPORT INI
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,5 +29,26 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production' || getenv('VERCEL') || isset($_SERVER['VERCEL'])) {
             URL::forceScheme('https');
         }
+
+        // Global shared site settings (fetched once per request)
+        View::composer('*', function ($view) {
+            static $setting = null;
+            if ($setting === null) {
+                try {
+                    $setting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+                        'logo_type' => 'text',
+                        'logo_value' => 'HANAFI',
+                        'footer_name' => 'FAHRURI HANAFI',
+                        'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.',
+                        'hero_title' => 'Bridging the gap between optical balance and scalable architecture.',
+                        'hero_subtitle' => 'Product Designer & Fullstack Dev.'
+                    ]);
+                } catch (\Throwable $e) {
+                    $setting = new \App\Models\AboutSetting();
+                }
+            }
+            $view->with('siteSetting', $setting);
+            $view->with('siteSettingsData', $setting);
+        });
     }
 }

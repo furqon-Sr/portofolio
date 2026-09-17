@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://fahrurihanafi.site/works" />
     @php 
-        $siteSettingsData = \App\Models\AboutSetting::first(); 
+        $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>{{ $logoText }} | Selected Works</title>

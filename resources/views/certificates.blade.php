@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://fahrurihanafi.site/certificates" />
     @php 
-        $siteSettingsData = \App\Models\AboutSetting::first(); 
+        $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>Certificates | {{ $logoText }}</title>
@@ -68,7 +68,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                 @forelse($certificates as $index => $cert)
                 @php
-                    $imgUrl = Str::startsWith($cert->image, 'http') || Str::startsWith($cert->image, 'data:') ? $cert->image : asset('img/' . $cert->image);
+                    $imgUrl = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/' . $cert->image));
                     $num = sprintf("%02d", $index + 1);
                 @endphp
                 <div class="cursor-pointer group flex flex-col justify-between bg-[#111111]/40 border border-gray-800/60 rounded-2xl p-4 transition-all duration-500 hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/5 h-full"

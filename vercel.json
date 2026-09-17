@@ -3,9 +3,11 @@
     "framework": null,
     "buildCommand": "npm install && npm run build",
     "outputDirectory": "public",
+    "regions": ["sin1"],
     "functions": {
         "api/index.php": {
-            "runtime": "vercel-php@0.8.0"
+            "runtime": "vercel-php@0.8.0",
+            "regions": ["sin1"]
         }
     },
     "redirects": [

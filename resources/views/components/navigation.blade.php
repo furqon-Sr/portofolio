@@ -1,5 +1,5 @@
 @php
-    $siteSetting = \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
+    $siteSetting = $siteSetting ?? \App\Models\AboutSetting::first() ?? new \App\Models\AboutSetting([
         'logo_type' => 'text',
         'logo_value' => 'HANAFI',
         'footer_name' => 'FAHRURI HANAFI',
