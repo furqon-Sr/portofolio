@@ -247,7 +247,7 @@
                     shouldShow(id) {
                         const filtered = this.projectsList.filter(p => this.category === 'all' || p.category === this.category);
                         const index = filtered.findIndex(p => p.id === id);
-                        return index >= 0 && index < 4;
+                        return index >= 0 && index < 3;
                     }
                 }));
             });
@@ -271,7 +271,7 @@
             </div>
 
             <!-- Projects List -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';

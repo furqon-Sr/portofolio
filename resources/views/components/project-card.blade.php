@@ -42,21 +42,21 @@
         </div>
 
         <!-- Content Area -->
-        <div class="p-5 md:p-6">
+        <div class="p-4 sm:p-5">
             <!-- Title -->
-            <h3 class="text-lg md:text-xl font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors mb-2 leading-snug line-clamp-1">
+            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors mb-1.5 leading-snug line-clamp-1">
                 {{ $title }}
             </h3>
 
             <!-- Description -->
-            <p class="text-xs md:text-sm text-gray-400 leading-relaxed line-clamp-2 group-hover:text-gray-300 transition-colors">
+            <p class="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2 group-hover:text-gray-300 transition-colors">
                 {{ $description }}
             </p>
         </div>
     </div>
 
     <!-- Bottom Info & Action Bar -->
-    <div class="px-5 md:px-6 pb-5 pt-3 border-t border-white/5 mt-auto flex items-center justify-between text-xs font-semibold">
+    <div class="px-4 sm:px-5 pb-4 sm:pb-5 pt-3 border-t border-white/5 mt-auto flex items-center justify-between text-xs font-semibold">
         <!-- Left: Views Counter -->
         <div class="flex items-center gap-1.5 text-gray-500 text-xs font-medium">
             <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

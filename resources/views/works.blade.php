@@ -72,7 +72,7 @@
             </div>
 
             <!-- Works List -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($projects as $index => $project)
                 @php
                     $catClass = $project->category === 'Web Dev' ? 'web' : 'design';
