@@ -1,116 +1,4 @@
-<div x-data="{ 
-        show: false, 
-        project: {
-            title: '',
-            category: '',
-            description: '',
-            link: '#',
-            github: null,
-            image: '',
-            design_url: null,
-            views: 0
-        },
-        pdfLoading: false,
-        pdfTotalPages: 1,
-        currentModalPage: 1,
-
-        async loadProjectPdf(url) {
-            if (!url || !window.pdfjsLib) return;
-            this.pdfLoading = true;
-            this.pdfTotalPages = 1;
-            this.currentModalPage = 1;
-
-            const container = document.getElementById('project-pdf-pages-list');
-            if (container) container.innerHTML = '';
-
-            try {
-                if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-                    try {
-                        const workerBlob = new Blob(
-                            ['importScripts(\"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js\");'],
-                            { type: \"application/javascript\" }
-                        );
-                        pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
-                    } catch(e) {
-                        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-                    }
-                }
-
-                const pdf = await pdfjsLib.getDocument(url).promise;
-                this.pdfTotalPages = pdf.numPages;
-                this.pdfLoading = false;
-
-                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                    const page = await pdf.getPage(pageNum);
-                    const parentW = container.clientWidth || 700;
-                    const unscaled = page.getViewport({ scale: 1.0 });
-                    const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
-                    const scale = (parentW * dpr) / unscaled.width;
-                    const viewport = page.getViewport({ scale: scale });
-
-                    const card = document.createElement('div');
-                    card.className = 'project-pdf-modal-page w-full flex flex-col items-center bg-zinc-900/60 rounded-xl overflow-hidden border border-white/5 shadow-2xl';
-                    card.dataset.page = pageNum;
-
-                    const canvas = document.createElement('canvas');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    canvas.className = 'w-full h-auto object-contain block select-none';
-
-                    const ctx = canvas.getContext('2d');
-                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-                    card.appendChild(canvas);
-
-                    const footer = document.createElement('div');
-                    footer.className = 'w-full py-2 px-4 bg-black/60 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400 font-mono';
-                    footer.innerHTML = `<span>Halaman ${pageNum} dari ${pdf.numPages}</span><span class='text-[10px] text-gray-500 uppercase tracking-wider font-bold'>${this.project.title}</span>`;
-                    card.appendChild(footer);
-
-                    container.appendChild(card);
-                }
-
-                this.setupScrollObserver();
-            } catch (err) {
-                console.error('Gagal memuat dokumen desain PDF:', err);
-                this.pdfLoading = false;
-            }
-        },
-
-        setupScrollObserver() {
-            const scrollContainer = document.getElementById('project-pdf-scroll-container');
-            if (!scrollContainer) return;
-
-            const pages = scrollContainer.querySelectorAll('.project-pdf-modal-page');
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
-                        this.currentModalPage = parseInt(entry.target.dataset.page, 10);
-                    }
-                });
-            }, {
-                root: scrollContainer,
-                threshold: [0.4, 0.7]
-            });
-
-            pages.forEach((p) => observer.observe(p));
-        },
-
-        goToPage(pageNum) {
-            if (pageNum < 1 || pageNum > this.pdfTotalPages) return;
-            this.currentModalPage = pageNum;
-            const target = document.querySelector(`.project-pdf-modal-page[data-page='${pageNum}']`);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        },
-
-        closeModal() {
-            this.show = false;
-            const container = document.getElementById('project-pdf-pages-list');
-            if (container) container.innerHTML = '';
-        }
-     }"
+<div x-data="projectPreviewModal()"
      @open-project-preview.window="
         show = true; 
         project = $event.detail;
@@ -264,3 +152,121 @@
         </div>
     </div>
 </div>
+
+<script>
+    function projectPreviewModal() {
+        return {
+            show: false,
+            project: {
+                title: '',
+                category: '',
+                description: '',
+                link: '#',
+                github: null,
+                image: '',
+                design_url: null,
+                views: 0
+            },
+            pdfLoading: false,
+            pdfTotalPages: 1,
+            currentModalPage: 1,
+
+            async loadProjectPdf(url) {
+                if (!url || !window.pdfjsLib) return;
+                this.pdfLoading = true;
+                this.pdfTotalPages = 1;
+                this.currentModalPage = 1;
+
+                const container = document.getElementById('project-pdf-pages-list');
+                if (container) container.innerHTML = '';
+
+                try {
+                    if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                        try {
+                            const workerBlob = new Blob(
+                                ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
+                                { type: "application/javascript" }
+                            );
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+                        } catch(e) {
+                            pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+                        }
+                    }
+
+                    const pdf = await pdfjsLib.getDocument(url).promise;
+                    this.pdfTotalPages = pdf.numPages;
+                    this.pdfLoading = false;
+
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        const page = await pdf.getPage(pageNum);
+                        const parentW = container.clientWidth || 700;
+                        const unscaled = page.getViewport({ scale: 1.0 });
+                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
+                        const scale = (parentW * dpr) / unscaled.width;
+                        const viewport = page.getViewport({ scale: scale });
+
+                        const card = document.createElement('div');
+                        card.className = 'project-pdf-modal-page w-full flex flex-col items-center bg-zinc-900/60 rounded-xl overflow-hidden border border-white/5 shadow-2xl';
+                        card.dataset.page = pageNum;
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        canvas.className = 'w-full h-auto object-contain block select-none';
+
+                        const ctx = canvas.getContext('2d');
+                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                        card.appendChild(canvas);
+
+                        const footer = document.createElement('div');
+                        footer.className = 'w-full py-2 px-4 bg-black/60 border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400 font-mono';
+                        footer.innerHTML = `<span>Halaman ${pageNum} dari ${pdf.numPages}</span><span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">${this.project.title}</span>`;
+                        card.appendChild(footer);
+
+                        container.appendChild(card);
+                    }
+
+                    this.setupScrollObserver();
+                } catch (err) {
+                    console.error('Gagal memuat dokumen desain PDF:', err);
+                    this.pdfLoading = false;
+                }
+            },
+
+            setupScrollObserver() {
+                const scrollContainer = document.getElementById('project-pdf-scroll-container');
+                if (!scrollContainer) return;
+
+                const pages = scrollContainer.querySelectorAll('.project-pdf-modal-page');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting && entry.intersectionRatio >= 0.4) {
+                            this.currentModalPage = parseInt(entry.target.dataset.page, 10);
+                        }
+                    });
+                }, {
+                    root: scrollContainer,
+                    threshold: [0.4, 0.7]
+                });
+
+                pages.forEach((p) => observer.observe(p));
+            },
+
+            goToPage(pageNum) {
+                if (pageNum < 1 || pageNum > this.pdfTotalPages) return;
+                this.currentModalPage = pageNum;
+                const target = document.querySelector(`.project-pdf-modal-page[data-page='${pageNum}']`);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            },
+
+            closeModal() {
+                this.show = false;
+                const container = document.getElementById('project-pdf-pages-list');
+                if (container) container.innerHTML = '';
+            }
+        };
+    }
+</script>
