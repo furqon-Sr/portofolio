@@ -7,4 +7,7 @@ if (str_contains(strtolower($host), 'vercel.app')) {
     exit;
 }
 
+header('X-Debug-URI: ' . ($_SERVER['REQUEST_URI'] ?? 'none'));
+header('X-Debug-Script: ' . ($_SERVER['SCRIPT_NAME'] ?? 'none'));
+
 require __DIR__ . '/../public/index.php';
