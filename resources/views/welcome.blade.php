@@ -179,7 +179,6 @@
                                     <svg class="w-7 h-7 mb-1 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                                     <span class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">DOKUMEN PDF</span>
                                 </div>
-                                <div class="absolute top-2 right-2 bg-red-600/90 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shadow z-10">PDF</div>
                                 @else
                                 <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
@@ -212,7 +211,6 @@
                                     <svg class="w-7 h-7 mb-1 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                                     <span class="text-[9px] font-black uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">DOKUMEN PDF</span>
                                 </div>
-                                <div class="absolute top-2 right-2 bg-red-600/90 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shadow z-10">PDF</div>
                                 @else
                                 <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 

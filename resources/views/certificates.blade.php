@@ -111,10 +111,9 @@
                                     <span class="text-[10px] text-gray-400 font-medium">Memuat pratinjau...</span>
                                 </div>
 
-                                <!-- Page indicator badge (e.g. PDF • 1 / 3) -->
-                                <div class="absolute top-2.5 right-2.5 bg-black/75 backdrop-blur border border-white/10 text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg z-10 flex items-center gap-1.5 pointer-events-none">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                    <span class="pdf-card-page-label">PDF</span>
+                                <!-- Page indicator badge (only if multi-page e.g. "1 / 3", hidden for single page) -->
+                                <div class="pdf-card-badge absolute top-2.5 right-2.5 bg-black/75 backdrop-blur border border-white/10 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-lg z-10 pointer-events-none hidden">
+                                    <span class="pdf-card-page-label"></span>
                                 </div>
 
                                 <!-- LinkedIn Style Card Flip Arrows (if multi-page) -->
@@ -136,14 +135,10 @@
                             <div class="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-85 group-hover:opacity-70 transition-opacity duration-500"></div>
                             @endif
                             
-                            <!-- Zoom Icon Overlay -->
+                            <!-- Zoom Icon Overlay (unified blue magnifying glass) -->
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                                <div class="p-3 {{ $isPdf ? 'bg-red-600 shadow-red-500/30' : 'bg-blue-600 shadow-blue-500/30' }} rounded-full text-white shadow-lg scale-90 group-hover:scale-100 transition-transform">
-                                    @if($isPdf)
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                    @else
+                                <div class="p-3 bg-blue-600 shadow-blue-500/30 rounded-full text-white shadow-lg scale-90 group-hover:scale-100 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -465,7 +460,12 @@
                         if (fallback) fallback.style.display = 'none';
 
                         if (indicator) {
-                            indicator.textContent = numPages > 1 ? `PDF • ${pageNumber}/${numPages}` : 'PDF';
+                            if (numPages > 1) {
+                                indicator.textContent = `${pageNumber} / ${numPages}`;
+                                indicator.parentElement.classList.remove('hidden');
+                            } else {
+                                indicator.parentElement.classList.add('hidden');
+                            }
                         }
                     };
 
