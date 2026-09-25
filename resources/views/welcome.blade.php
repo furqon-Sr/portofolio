@@ -290,15 +290,15 @@
                      x-transition:enter-end="opacity-100 transform translate-y-0"
                      class="flex flex-col h-full">
                     <x-project-card 
-                        id="{{ $project->id }}"
-                        views="{{ $project->views }}"
-                        title="{{ $project->title }}" 
-                        category="{{ $project->category }}"
-                        description="{{ $project->description }}"
-                        link="{{ $project->live_link }}"
-                        github_link="{{ $project->github_link }}"
-                        image="{{ $project->cover_image_url }}"
-                        design_url="{{ $project->design_pdf_url }}"
+                        :id="$project->id"
+                        :views="$project->views"
+                        :title="$project->title" 
+                        :category="$project->category"
+                        :description="$project->description"
+                        :link="$project->live_link"
+                        :github_link="$project->github_link"
+                        :image="$project->cover_image_url"
+                        :design_url="$project->design_pdf_url"
                         :has_pdf_cover="$project->has_pdf_cover"
                     />
                 </div>
@@ -525,9 +525,12 @@
                     canvases.forEach(async (canvas) => {
                         const url = canvas.dataset.pdfThumb;
                         if (!url) return;
-                        canvas.dataset.rendered = "true";
                         try {
-                            const pdf = await pdfjsLib.getDocument(url).promise;
+                            const pdf = await pdfjsLib.getDocument({
+                                url: url,
+                                cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                                cMapPacked: true
+                            }).promise;
                             const page = await pdf.getPage(1);
                             const parentW = Math.max(canvas.parentElement?.clientWidth || 0, 360);
                             const unscaled = page.getViewport({ scale: 1.0 });
@@ -540,6 +543,7 @@
                             const ctx = canvas.getContext('2d');
                             await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
+                            canvas.dataset.rendered = "true";
                             canvas.classList.remove('opacity-0');
                             const fallback = canvas.parentElement?.querySelector('.pdf-welcome-fallback, .pdf-card-fallback');
                             if (fallback) fallback.style.display = 'none';

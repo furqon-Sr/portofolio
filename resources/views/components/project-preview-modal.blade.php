@@ -84,6 +84,19 @@
                             <p class="text-xs text-zinc-500 mt-1">Menyiapkan lembaran presentasi</p>
                         </div>
 
+                        <!-- Error State -->
+                        <div x-show="pdfError" class="py-16 flex flex-col items-center justify-center text-center p-6" style="display: none;">
+                            <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-3">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                            </div>
+                            <p class="text-sm font-semibold text-white mb-1">Gagal menampilkan dokumen di pratinjau</p>
+                            <p class="text-xs text-zinc-400 mb-4 max-w-sm">Dokumen dapat dibuka atau diunduh langsung di tab baru browser Anda.</p>
+                            <a :href="project.design_url" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/20">
+                                <span>Buka Berkas PDF di Tab Baru</span>
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            </a>
+                        </div>
+
                         <!-- Injected PDF Page Canvases -->
                         <div id="project-pdf-pages-list" class="w-full flex flex-col items-center gap-6"></div>
                     </div>
@@ -168,12 +181,14 @@
                 views: 0
             },
             pdfLoading: false,
+            pdfError: false,
             pdfTotalPages: 1,
             currentModalPage: 1,
 
             async loadProjectPdf(url) {
                 if (!url || !window.pdfjsLib) return;
                 this.pdfLoading = true;
+                this.pdfError = false;
                 this.pdfTotalPages = 1;
                 this.currentModalPage = 1;
 
@@ -193,13 +208,17 @@
                         }
                     }
 
-                    const pdf = await pdfjsLib.getDocument(url).promise;
+                    const pdf = await pdfjsLib.getDocument({
+                        url: url,
+                        cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                        cMapPacked: true
+                    }).promise;
                     this.pdfTotalPages = pdf.numPages;
                     this.pdfLoading = false;
 
                     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                         const page = await pdf.getPage(pageNum);
-                        const parentW = container.clientWidth || 700;
+                        const parentW = Math.max(container.clientWidth || 0, 700);
                         const unscaled = page.getViewport({ scale: 1.0 });
                         const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
                         const scale = (parentW * dpr) / unscaled.width;
@@ -231,6 +250,7 @@
                 } catch (err) {
                     console.error('Gagal memuat dokumen desain PDF:', err);
                     this.pdfLoading = false;
+                    this.pdfError = true;
                 }
             },
 

@@ -1,7 +1,9 @@
 @props(['id' => null, 'title', 'category', 'description', 'link' => '#', 'number' => null, 'image' => null, 'github_link' => null, 'design_url' => null, 'views' => 0, 'has_pdf_cover' => false])
 
 @php
-    $resolvedHasPdfCover = (bool)$has_pdf_cover || (
+    $cleanTitle = html_entity_decode($title ?? '', ENT_QUOTES, 'UTF-8');
+    $cleanDesc = html_entity_decode($description ?? '', ENT_QUOTES, 'UTF-8');
+    $resolvedHasPdfCover = filter_var($has_pdf_cover, FILTER_VALIDATE_BOOLEAN) || (
         $category === 'Design' && 
         !empty($design_url) && 
         (empty($image) || in_array(basename($image), ['image.png', 'porto.png', 'pdf-default', 'pdf']) || Str::endsWith(strtolower($image), '.pdf') || $image === $design_url)
@@ -18,9 +20,9 @@
              views++;
          }
          $dispatch('open-project-preview', {
-             title: @js($title),
+             title: @js($cleanTitle),
              category: @js($category),
-             description: @js($description),
+             description: @js($cleanDesc),
              link: @js($link),
              github: @js($github_link),
              image: @js($resolvedHasPdfCover ? $design_url : (Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image))),
@@ -81,12 +83,12 @@
         <div class="p-4 sm:p-5">
             <!-- Title -->
             <h3 class="text-base sm:text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors mb-1.5 leading-snug line-clamp-1">
-                {{ $title }}
+                {{ $cleanTitle }}
             </h3>
 
             <!-- Description -->
             <p class="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2 group-hover:text-gray-300 transition-colors">
-                {{ $description }}
+                {{ $cleanDesc }}
             </p>
         </div>
     </div>
