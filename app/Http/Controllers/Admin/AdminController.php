@@ -737,13 +737,48 @@ class AdminController extends Controller
         // Remove unsafe script tags
         $svg = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $svg);
 
-        // Ensure class contains w-6 h-6 text-blue-500 if missing size classes
-        if (!preg_match('#class=["\'][^"\']*w-\d+[^"\']*["\']#i', $svg)) {
-            if (preg_match('#class=["\']([^"\']*)["\']#i', $svg, $matches)) {
-                $svg = preg_replace('#class=["\'][^"\']*["\']#i', 'class="' . trim($matches[1]) . ' w-6 h-6 text-blue-500"', $svg, 1);
-            } else {
-                $svg = preg_replace('#<svg#i', '<svg class="w-6 h-6 text-blue-500"', $svg, 1);
+        // Clean any accidentally added size classes on child elements
+        $svg = preg_replace('#\s+w-6\s+h-6\s+text-blue-500#', '', $svg);
+
+        // Specifically target the root <svg ...> tag
+        if (preg_match('#^<svg\b([^>]*)>#i', $svg, $match)) {
+            $attrs = $match[1];
+
+            // If viewBox is missing, construct it from width and height attributes if available
+            $hasViewBox = (bool) preg_match('#\bviewBox=[\'"][^\'"]*[\'"]#i', $attrs);
+            if (!$hasViewBox) {
+                $w = null;
+                $h = null;
+                if (preg_match('#\bwidth=[\'"]([0-9]+)[\'"]#i', $attrs, $wm)) $w = $wm[1];
+                if (preg_match('#\bheight=[\'"]([0-9]+)[\'"]#i', $attrs, $hm)) $h = $hm[1];
+                if ($w && $h) {
+                    $attrs .= " viewBox=\"0 0 {$w} {$h}\"";
+                }
             }
+
+            // Remove hardcoded width and height so CSS classes control the dimensions
+            $attrs = preg_replace('#\s+(width|height)=[\'"][^\'"]*[\'"]#i', '', $attrs);
+
+            // Add or merge class="w-6 h-6 text-blue-500" on the root <svg>
+            if (preg_match('#class=[\'"]([^\'"]*)[\'"]#i', $attrs, $classMatch)) {
+                $classes = $classMatch[1];
+                if (!preg_match('#\bw-\d+\b#', $classes)) {
+                    $classes = trim($classes . ' w-6 h-6 text-blue-500');
+                    $attrs = preg_replace('#class=[\'"][^\'"]*[\'"]#i', 'class="' . $classes . '"', $attrs);
+                }
+            } else {
+                $attrs = ' class="w-6 h-6 text-blue-500"' . $attrs;
+            }
+
+            // Add inline style constraint as a foolproof safeguard
+            if (preg_match('#style=[\'"]([^\'"]*)[\'"]#i', $attrs, $styleMatch)) {
+                $styles = rtrim(trim($styleMatch[1]), ';') . '; width: 24px; height: 24px; max-width: 24px; max-height: 24px;';
+                $attrs = preg_replace('#style=[\'"][^\'"]*[\'"]#i', 'style="' . $styles . '"', $attrs);
+            } else {
+                $attrs .= ' style="width: 24px; height: 24px; max-width: 24px; max-height: 24px;"';
+            }
+
+            $svg = '<svg' . $attrs . '>' . substr($svg, strlen($match[0]));
         }
 
         return $svg;

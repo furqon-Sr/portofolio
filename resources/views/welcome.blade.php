@@ -87,7 +87,7 @@
                     @endphp
                     @foreach($aboutBoxes as $box)
                         <div class="about-box p-5 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:border-blue-500/50 transition-colors group">
-                            <div class="mb-3 group-hover:scale-110 transition-transform text-blue-500">
+                            <div class="w-6 h-6 mb-3 group-hover:scale-110 transition-transform text-blue-500 flex items-center justify-center [&>svg]:w-6 [&>svg]:h-6 [&>svg]:max-w-[24px] [&>svg]:max-h-[24px] [&>svg]:shrink-0">
                                 @if(str_contains($box->icon ?? '', '<svg'))
                                     {!! $box->icon !!}
                                 @elseif(Str::startsWith($box->icon ?? '', 'http') || Str::startsWith($box->icon ?? '', 'data:'))

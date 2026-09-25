@@ -351,7 +351,7 @@
                     @foreach($aboutBoxes as $box)
                     <tr class="hover:bg-white/[0.01] transition-colors group">
                         <td class="p-5 whitespace-nowrap">
-                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400 [&>svg]:w-6 [&>svg]:h-6 [&>svg]:max-w-[24px] [&>svg]:max-h-[24px] overflow-hidden">
                                 @if(str_contains($box->icon ?? '', '<svg'))
                                     {!! $box->icon !!}
                                 @elseif(Str::startsWith($box->icon ?? '', 'http') || Str::startsWith($box->icon ?? '', 'data:'))
