@@ -17,6 +17,41 @@ Route::any('/wp-login.php', fn () => redirect('/'));
 Route::any('/wp-admin', fn () => redirect('/'));
 Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 
+// Diagnostic route to troubleshoot database connectivity on Vercel
+Route::get('/debug-db', function () {
+    try {
+        $pdo = \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $dbName = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+        $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+        $projectsCount = \App\Models\Project::count();
+        $certificatesCount = \App\Models\Certificate::count();
+
+        return response()->json([
+            'status' => 'connected',
+            'driver' => $driver,
+            'database' => $dbName,
+            'projects_count' => $projectsCount,
+            'certificates_count' => $certificatesCount,
+            'default_connection' => config('database.default'),
+            'env_db_connection' => env('DB_CONNECTION'),
+            'env_has_database_url' => !empty(env('DATABASE_URL')),
+            'env_has_db_host' => !empty(env('DB_HOST')),
+            'r2_configured' => !empty(config('filesystems.disks.r2.key')),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'default_connection' => config('database.default'),
+            'message' => $e->getMessage(),
+            'exception' => get_class($e),
+            'env_db_connection' => env('DB_CONNECTION'),
+            'env_has_database_url' => !empty(env('DATABASE_URL')),
+            'env_has_db_host' => !empty(env('DB_HOST')),
+            'trace' => array_slice(explode("\n", $e->getTraceAsString()), 0, 5),
+        ], 500);
+    }
+});
+
 // Home Page - Rendered fresh from database
 Route::get('/', function () {
     $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
