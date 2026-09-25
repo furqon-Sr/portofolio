@@ -11,6 +11,8 @@ use App\Models\Expertise;
 use App\Models\Certificate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -72,7 +74,8 @@ class AdminController extends Controller
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
             $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $coverImage = self::compressBase64Image($rawBase64);
+            $compressed = self::compressBase64Image($rawBase64);
+            $coverImage = self::uploadToR2($compressed, 'projects', Str::slug($request->input('title')));
         } elseif ($request->filled('cover_image_url')) {
             $coverImage = $request->input('cover_image_url');
         }
@@ -80,7 +83,7 @@ class AdminController extends Controller
         $designFile = null;
         if ($request->hasFile('design_pdf_file')) {
             $pdf = $request->file('design_pdf_file');
-            $designFile = 'data:application/pdf;base64,' . base64_encode(file_get_contents($pdf->getRealPath()));
+            $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
         }
 
         Project::create([
@@ -129,7 +132,8 @@ class AdminController extends Controller
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
             $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $coverImage = self::compressBase64Image($rawBase64);
+            $compressed = self::compressBase64Image($rawBase64);
+            $coverImage = self::uploadToR2($compressed, 'projects', Str::slug($request->input('title')));
         } elseif ($request->filled('cover_image_url')) {
             $coverImage = $request->input('cover_image_url');
         }
@@ -137,7 +141,7 @@ class AdminController extends Controller
         $designFile = $project->design_file;
         if ($request->hasFile('design_pdf_file')) {
             $pdf = $request->file('design_pdf_file');
-            $designFile = 'data:application/pdf;base64,' . base64_encode(file_get_contents($pdf->getRealPath()));
+            $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
         } elseif ($request->has('remove_design_file') && $request->boolean('remove_design_file')) {
             $designFile = null;
         }
@@ -206,10 +210,11 @@ class AdminController extends Controller
             $mime = strtolower($file->getMimeType());
             $ext = strtolower($file->getClientOriginalExtension());
             if ($ext === 'pdf' || str_contains($mime, 'pdf')) {
-                $image = 'data:application/pdf;base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                $image = self::uploadToR2($file, 'certificates', 'cert-' . Str::slug($request->input('name')));
             } else {
                 $rawBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-                $image = self::compressBase64Image($rawBase64);
+                $compressed = self::compressBase64Image($rawBase64);
+                $image = self::uploadToR2($compressed, 'certificates', 'cert-' . Str::slug($request->input('name')));
             }
         } elseif ($request->filled('image_url')) {
             $image = $request->input('image_url');
@@ -259,10 +264,11 @@ class AdminController extends Controller
             $mime = strtolower($file->getMimeType());
             $ext = strtolower($file->getClientOriginalExtension());
             if ($ext === 'pdf' || str_contains($mime, 'pdf')) {
-                $image = 'data:application/pdf;base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                $image = self::uploadToR2($file, 'certificates', 'cert-' . Str::slug($request->input('name')));
             } else {
                 $rawBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-                $image = self::compressBase64Image($rawBase64);
+                $compressed = self::compressBase64Image($rawBase64);
+                $image = self::uploadToR2($compressed, 'certificates', 'cert-' . Str::slug($request->input('name')));
             }
         } elseif ($request->filled('image_url')) {
             $image = $request->input('image_url');
@@ -323,7 +329,8 @@ class AdminController extends Controller
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
             $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $image = self::compressBase64Image($rawBase64);
+            $compressed = self::compressBase64Image($rawBase64);
+            $image = self::uploadToR2($compressed, 'articles', Str::slug($request->input('title')));
         } elseif ($request->filled('cover_image_url')) {
             $image = $request->input('cover_image_url');
         }
@@ -364,7 +371,8 @@ class AdminController extends Controller
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
             $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $image = self::compressBase64Image($rawBase64);
+            $compressed = self::compressBase64Image($rawBase64);
+            $image = self::uploadToR2($compressed, 'articles', Str::slug($request->input('title')));
         } elseif ($request->filled('cover_image_url')) {
             $image = $request->input('cover_image_url');
         }
@@ -480,7 +488,8 @@ class AdminController extends Controller
         } elseif ($request->hasFile('profile_photo_file')) {
             $file = $request->file('profile_photo_file');
             $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $profilePhoto = self::compressBase64Image($rawBase64);
+            $compressed = self::compressBase64Image($rawBase64);
+            $profilePhoto = self::uploadToR2($compressed, 'profile', 'profile-photo');
         } elseif ($request->filled('profile_photo_url')) {
             $profilePhoto = $request->input('profile_photo_url');
         }
@@ -490,8 +499,7 @@ class AdminController extends Controller
             $resumeLink = null;
         } elseif ($request->hasFile('resume_file')) {
             $file = $request->file('resume_file');
-            $fileContent = file_get_contents($file->getRealPath());
-            $resumeLink = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($fileContent);
+            $resumeLink = self::uploadToR2($file, 'resume', 'cv-hanafi');
 
             // Attempt to keep static fallback file in sync if filesystem is writable
             try {
@@ -499,7 +507,7 @@ class AdminController extends Controller
                 if (!is_dir($assetDir)) {
                     @mkdir($assetDir, 0755, true);
                 }
-                @file_put_contents(public_path('assets/cv-hanafi.pdf'), $fileContent);
+                @file_put_contents(public_path('assets/cv-hanafi.pdf'), file_get_contents($file->getRealPath()));
             } catch (\Throwable $e) {
                 // Ignore in read-only environments like Vercel
             }
@@ -602,8 +610,10 @@ class AdminController extends Controller
                     $logoValue = file_get_contents($file->getRealPath());
                     $logoType = 'svg'; // Automatically mark it as SVG type for inline rendering
                 } else {
-                    // Bitmap images: Encode to base64
-                    $logoValue = 'data:' . $mimeType . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                    // Bitmap images: Upload to R2
+                    $rawBase64 = 'data:' . $mimeType . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                    $compressed = self::compressBase64Image($rawBase64);
+                    $logoValue = self::uploadToR2($compressed, 'identity', 'site-logo');
                     $logoType = 'file';
                 }
             }
@@ -618,7 +628,7 @@ class AdminController extends Controller
         $faviconType = $aboutSetting->favicon_type ?? 'url';
         if ($request->hasFile('favicon_file')) {
             $faviconFile = $request->file('favicon_file');
-            $favicon = 'data:' . $faviconFile->getMimeType() . ';base64,' . base64_encode(file_get_contents($faviconFile->getRealPath()));
+            $favicon = self::uploadToR2($faviconFile, 'identity', 'favicon');
             $faviconType = 'file';
         } elseif ($request->filled('favicon_url')) {
             $favicon = $request->input('favicon_url');
@@ -668,7 +678,7 @@ class AdminController extends Controller
         if ($uploadType === 'file') {
             if ($request->hasFile('icon_file')) {
                 $file = $request->file('icon_file');
-                $icon = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                $icon = self::uploadToR2($file, 'about-boxes', 'icon-' . $box->id);
             }
         } elseif ($uploadType === 'url') {
             if ($request->filled('icon_url')) {
@@ -716,7 +726,7 @@ class AdminController extends Controller
         $logo = '';
         if ($request->hasFile('logo_file')) {
             $file = $request->file('logo_file');
-            $logo = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $logo = self::uploadToR2($file, 'expertise', Str::slug($request->input('name')));
         } elseif ($request->filled('logo_url')) {
             $logo = $request->input('logo_url');
         } else {
@@ -762,7 +772,7 @@ class AdminController extends Controller
         $logo = $expertise->logo;
         if ($request->hasFile('logo_file')) {
             $file = $request->file('logo_file');
-            $logo = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $logo = self::uploadToR2($file, 'expertise', Str::slug($request->input('name')));
         } elseif ($request->filled('logo_url')) {
             $logo = $request->input('logo_url');
         }
@@ -875,6 +885,97 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     * Upload an uploaded file or base64 data URI string to Cloudflare R2.
+     * Returns the public CDN URL on success, or falls back to base64 if R2 is unconfigured or fails.
+     *
+     * @param \Illuminate\Http\UploadedFile|string|null $fileOrBase64
+     * @param string $folder
+     * @param string|null $filenameWithoutExt
+     * @return string|null
+     */
+    public static function uploadToR2($fileOrBase64, string $folder = 'uploads', ?string $filenameWithoutExt = null): ?string
+    {
+        if (empty($fileOrBase64)) {
+            return null;
+        }
+
+        // If it's already an external HTTP URL, return as-is
+        if (is_string($fileOrBase64) && (str_starts_with($fileOrBase64, 'http://') || str_starts_with($fileOrBase64, 'https://'))) {
+            return $fileOrBase64;
+        }
+
+        // Check if R2 is configured
+        if (!config('filesystems.disks.r2.key') || !config('filesystems.disks.r2.endpoint')) {
+            if ($fileOrBase64 instanceof \Illuminate\Http\UploadedFile) {
+                return 'data:' . $fileOrBase64->getMimeType() . ';base64,' . base64_encode(file_get_contents($fileOrBase64->getRealPath()));
+            }
+            return $fileOrBase64;
+        }
+
+        $folder = trim($folder, '/');
+        $timestamp = time();
+        $random = Str::random(8);
+        $baseName = $filenameWithoutExt ? (Str::slug($filenameWithoutExt) . '-' . $timestamp . '-' . $random) : ($timestamp . '-' . Str::random(16));
+
+        try {
+            if ($fileOrBase64 instanceof \Illuminate\Http\UploadedFile) {
+                $ext = strtolower($fileOrBase64->getClientOriginalExtension());
+                if (!$ext) {
+                    $ext = $fileOrBase64->guessExtension() ?: 'bin';
+                }
+                $path = "{$folder}/{$baseName}.{$ext}";
+                $content = file_get_contents($fileOrBase64->getRealPath());
+
+                Storage::disk('r2')->put($path, $content);
+                return Storage::disk('r2')->url($path);
+            }
+
+            if (is_string($fileOrBase64) && str_starts_with($fileOrBase64, 'data:')) {
+                $commaPos = strpos($fileOrBase64, ',');
+                if ($commaPos === false) {
+                    return $fileOrBase64;
+                }
+
+                $meta = substr($fileOrBase64, 0, $commaPos);
+                $data = substr($fileOrBase64, $commaPos + 1);
+                $binary = base64_decode($data);
+                if ($binary === false) {
+                    return $fileOrBase64;
+                }
+
+                $mime = 'application/octet-stream';
+                if (preg_match('#data:([^;]+);base64#', $meta, $matches)) {
+                    $mime = strtolower(trim($matches[1]));
+                }
+
+                $extensions = [
+                    'image/jpeg' => 'jpg',
+                    'image/jpg' => 'jpg',
+                    'image/png' => 'png',
+                    'image/webp' => 'webp',
+                    'image/gif' => 'gif',
+                    'image/svg+xml' => 'svg',
+                    'application/pdf' => 'pdf',
+                ];
+
+                $ext = $extensions[$mime] ?? 'bin';
+                $path = "{$folder}/{$baseName}.{$ext}";
+
+                Storage::disk('r2')->put($path, $binary);
+                return Storage::disk('r2')->url($path);
+            }
+        } catch (\Throwable $e) {
+            Log::error('R2 upload failed: ' . $e->getMessage());
+            if ($fileOrBase64 instanceof \Illuminate\Http\UploadedFile) {
+                return 'data:' . $fileOrBase64->getMimeType() . ';base64,' . base64_encode(file_get_contents($fileOrBase64->getRealPath()));
+            }
+            return $fileOrBase64;
+        }
+
+        return is_string($fileOrBase64) ? $fileOrBase64 : null;
+    }
+
     // Client CRUD
     public function clients()
     {
@@ -899,6 +1000,7 @@ class AdminController extends Controller
         $logo = $request->logo;
         if (str_starts_with($logo, 'data:image')) {
             $logo = self::compressBase64Image($logo, 400, 60); // Small logos
+            $logo = self::uploadToR2($logo, 'clients', Str::slug($validated['name']));
         }
 
         if (strlen($logo) > 1000000) { // 1MB limit for database
@@ -934,6 +1036,7 @@ class AdminController extends Controller
         $logo = $request->logo;
         if ($logo !== $client->logo && str_starts_with($logo, 'data:image')) {
             $logo = self::compressBase64Image($logo, 400, 60);
+            $logo = self::uploadToR2($logo, 'clients', Str::slug($validated['name']));
         }
 
         if (strlen($logo) > 1000000) { // 1MB limit for database
