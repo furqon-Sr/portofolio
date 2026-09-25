@@ -86,11 +86,22 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DATABASE_URL', env('DB_URL', env('POSTGRES_URL'))),
+            'url' => (function () {
+                $url = env('DATABASE_URL') ?: env('DB_URL') ?: env('POSTGRES_URL');
+                // Ignore any old connection URL pointing to the quota-exceeded Neon cluster
+                if ($url && str_contains($url, 'ep-mute-bar')) {
+                    return null;
+                }
+                // If DB_HOST is explicitly configured to the new cluster and URL still points elsewhere, prefer DB_HOST
+                if (env('DB_HOST') && str_contains(env('DB_HOST'), 'ep-super-block') && $url && !str_contains($url, 'ep-super-block')) {
+                    return null;
+                }
+                return $url;
+            })(),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
+            'database' => env('DB_DATABASE', 'neondb'),
+            'username' => env('DB_USERNAME', 'neondb_owner'),
             'password' => env('DB_PASSWORD', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',

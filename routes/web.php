@@ -26,16 +26,20 @@ Route::get('/debug-db', function () {
         $projectsCount = \App\Models\Project::count();
         $certificatesCount = \App\Models\Certificate::count();
 
+        // Check active host
+        $hostRow = \Illuminate\Support\Facades\DB::select("SELECT inet_server_addr() as server_ip, current_database() as current_db");
+
         return response()->json([
             'status' => 'connected',
             'driver' => $driver,
             'database' => $dbName,
             'projects_count' => $projectsCount,
             'certificates_count' => $certificatesCount,
+            'db_server_info' => $hostRow[0] ?? null,
             'default_connection' => config('database.default'),
             'env_db_connection' => env('DB_CONNECTION'),
-            'env_has_database_url' => !empty(env('DATABASE_URL')),
-            'env_has_db_host' => !empty(env('DB_HOST')),
+            'env_db_host' => env('DB_HOST'),
+            'has_database_url' => !empty(env('DATABASE_URL')),
             'r2_configured' => !empty(config('filesystems.disks.r2.key')),
         ]);
     } catch (\Throwable $e) {
@@ -45,8 +49,8 @@ Route::get('/debug-db', function () {
             'message' => $e->getMessage(),
             'exception' => get_class($e),
             'env_db_connection' => env('DB_CONNECTION'),
-            'env_has_database_url' => !empty(env('DATABASE_URL')),
-            'env_has_db_host' => !empty(env('DB_HOST')),
+            'env_db_host' => env('DB_HOST'),
+            'has_database_url' => !empty(env('DATABASE_URL')),
             'trace' => array_slice(explode("\n", $e->getTraceAsString()), 0, 5),
         ], 500);
     }
