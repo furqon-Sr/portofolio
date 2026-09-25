@@ -53,11 +53,6 @@
                         </span>
                     </div>
 
-                    <!-- PDF Badge top left ala Certificate style -->
-                    <div class="absolute top-3 left-3 bg-red-950/80 backdrop-blur-md border border-red-500/30 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-lg z-20 pointer-events-none">
-                        <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
-                        <span>PDF</span>
-                    </div>
                 </div>
             @elseif($image)
                 <img src="{{ Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image) }}" 
