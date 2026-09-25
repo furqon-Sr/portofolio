@@ -1,4 +1,12 @@
-@props(['id' => null, 'title', 'category', 'description', 'link' => '#', 'number' => null, 'image' => null, 'github_link' => null, 'design_url' => null, 'views' => 0])
+@props(['id' => null, 'title', 'category', 'description', 'link' => '#', 'number' => null, 'image' => null, 'github_link' => null, 'design_url' => null, 'views' => 0, 'has_pdf_cover' => false])
+
+@php
+    $resolvedHasPdfCover = (bool)$has_pdf_cover || (
+        $category === 'Design' && 
+        !empty($design_url) && 
+        (empty($image) || in_array(basename($image), ['image.png', 'porto.png', 'pdf-default', 'pdf']) || Str::endsWith(strtolower($image), '.pdf') || $image === $design_url)
+    );
+@endphp
 
 <div x-data="{ views: {{ (int)$views }}, projectId: @js($id) }"
      @click="
@@ -15,7 +23,7 @@
              description: @js($description),
              link: @js($link),
              github: @js($github_link),
-             image: @js(Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image)),
+             image: @js($resolvedHasPdfCover ? $design_url : (Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image))),
              design_url: @js($design_url),
              views: views
          })
@@ -25,21 +33,45 @@
     <div>
         <!-- Cover Image Container (Flush to top, 16:10 aspect ratio matching reference) -->
         <div class="w-full aspect-[16/10] bg-[#18181b] overflow-hidden relative border-b border-white/5">
-            @if($image)
-            <img src="{{ Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image) }}" 
-                 alt="{{ $title }}" 
-                 loading="lazy"
-                 class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out">
+            @if($resolvedHasPdfCover)
+                <!-- Interactive / Dynamic PDF Document Card (Certificate Style) -->
+                <div class="pdf-card-wrapper w-full h-full relative overflow-hidden bg-[#121215]" data-pdf-thumb="{{ $design_url }}">
+                    <canvas data-pdf-thumb="{{ $design_url }}" class="pdf-card-canvas w-full h-full object-cover opacity-0 transition-opacity duration-500 relative z-10"></canvas>
+                    
+                    <!-- Certificate-Style PDF Document Fallback & Loading Placeholder -->
+                    <div class="pdf-card-fallback absolute inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-[#18181c] to-[#0f0f12] text-center">
+                        <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-2 shadow-lg shadow-red-500/5 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        </div>
+                        <span class="text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20 mb-1">
+                            Dokumen PDF
+                        </span>
+                        <span class="text-[11px] text-gray-400 font-medium line-clamp-1 max-w-[85%]">
+                            Pratinjau Desain
+                        </span>
+                    </div>
+
+                    <!-- PDF Badge top left ala Certificate style -->
+                    <div class="absolute top-3 left-3 bg-red-950/80 backdrop-blur-md border border-red-500/30 text-red-300 text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 shadow-lg z-20 pointer-events-none">
+                        <svg class="w-3 h-3 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <span>PDF</span>
+                    </div>
+                </div>
+            @elseif($image)
+                <img src="{{ Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image) }}" 
+                     alt="{{ $title }}" 
+                     loading="lazy"
+                     class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out">
             @else
-            <div class="w-full h-full flex items-center justify-center text-gray-600">
-                <svg class="w-12 h-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            </div>
+                <div class="w-full h-full flex items-center justify-center text-gray-600">
+                    <svg class="w-12 h-12 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
             @endif
 
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity z-10 pointer-events-none"></div>
 
             <!-- Top-Right Category / Badge (ala reference Featured pill) -->
-            <div class="absolute top-3 right-3 bg-black/80 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg pointer-events-none">
+            <div class="absolute top-3 right-3 bg-black/80 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold px-3 py-1 rounded-full flex items-center gap-1.5 shadow-lg pointer-events-none z-20">
                 <span class="w-1.5 h-1.5 rounded-full {{ $category === 'Web Dev' ? 'bg-blue-400' : 'bg-purple-400' }}"></span>
                 <span>{{ $category === 'Web Dev' ? 'Web Development' : 'Design' }}</span>
             </div>

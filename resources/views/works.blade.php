@@ -89,6 +89,7 @@
                         github_link="{{ $project->github_link }}"
                         image="{{ $project->cover_image_url }}"
                         design_url="{{ $project->design_pdf_url }}"
+                        :has_pdf_cover="$project->has_pdf_cover"
                     />
                 </div>
                 @endforeach
@@ -122,6 +123,56 @@
                 } else {
                     item.style.display = 'none';
                 }
+            });
+
+            if (typeof window.renderAllPdfThumbnails === 'function') {
+                window.renderAllPdfThumbnails();
+            }
+        }
+
+        // Initialize PDF Thumbnails on Project Cards
+        if (window.pdfjsLib) {
+            try {
+                const workerBlob = new Blob(
+                    ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
+                    { type: "application/javascript" }
+                );
+                pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+            } catch(e) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+            }
+
+            window.renderAllPdfThumbnails = function() {
+                const canvases = document.querySelectorAll('canvas[data-pdf-thumb]:not([data-rendered="true"])');
+                canvases.forEach(async (canvas) => {
+                    const url = canvas.dataset.pdfThumb;
+                    if (!url) return;
+                    canvas.dataset.rendered = "true";
+                    try {
+                        const pdf = await pdfjsLib.getDocument(url).promise;
+                        const page = await pdf.getPage(1);
+                        const parentW = Math.max(canvas.parentElement?.clientWidth || 0, 360);
+                        const unscaled = page.getViewport({ scale: 1.0 });
+                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
+                        const scale = (parentW * dpr) / unscaled.width;
+                        const viewport = page.getViewport({ scale: scale });
+
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const ctx = canvas.getContext('2d');
+                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                        canvas.classList.remove('opacity-0');
+                        const fallback = canvas.parentElement?.querySelector('.pdf-card-fallback');
+                        if (fallback) fallback.style.display = 'none';
+                    } catch (e) {
+                        console.error('Gagal render thumbnail PDF:', e);
+                    }
+                });
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                window.renderAllPdfThumbnails();
             });
         }
     </script>

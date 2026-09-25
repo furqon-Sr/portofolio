@@ -23,10 +23,31 @@ class Project extends Model
     ];
 
     /**
+     * Check if project uses default PDF cover (like certificates).
+     */
+    public function getHasPdfCoverAttribute(): bool
+    {
+        $hasDesignPdf = !empty($this->design_file) || !empty($this->has_design_file);
+        if (!$hasDesignPdf) {
+            return false;
+        }
+
+        // If category is Design and cover image is either empty, placeholder, or set to pdf-default
+        if (empty($this->cover_image) || in_array($this->cover_image, ['image.png', 'porto.png', 'pdf-default', 'pdf']) || str_ends_with(strtolower($this->cover_image), '.pdf')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get the public URL for the project cover image.
      */
     public function getCoverImageUrlAttribute(): string
     {
+        if ($this->has_pdf_cover) {
+            return $this->design_pdf_url ?? asset('img/porto.png');
+        }
         if (empty($this->cover_image)) {
             return asset('img/porto.png');
         }
@@ -46,6 +67,13 @@ class Project extends Model
     {
         if (empty($this->design_file) && empty($this->has_design_file)) {
             return null;
+        }
+        if (str_starts_with($this->design_file, 'http')) {
+            if (str_contains($this->design_file, '.r2.dev/')) {
+                $path = substr($this->design_file, strpos($this->design_file, '.r2.dev/') + 8);
+                return url('/r2/' . $path);
+            }
+            return $this->design_file;
         }
         return route('media.project.design', [$this->id, 'v' => $this->updated_at?->timestamp ?? 1]);
     }

@@ -71,6 +71,14 @@ class AdminController extends Controller
             'design_pdf_url' => 'nullable|string',
         ]);
 
+        $designFile = null;
+        if ($request->filled('design_pdf_url')) {
+            $designFile = $request->input('design_pdf_url');
+        } elseif ($request->hasFile('design_pdf_file')) {
+            $pdf = $request->file('design_pdf_file');
+            $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
+        }
+
         $coverImage = 'image.png'; // default placeholder
         if ($request->hasFile('cover_image_file')) {
             $file = $request->file('cover_image_file');
@@ -79,14 +87,8 @@ class AdminController extends Controller
             $coverImage = self::uploadToR2($compressed, 'projects', Str::slug($request->input('title')));
         } elseif ($request->filled('cover_image_url')) {
             $coverImage = $request->input('cover_image_url');
-        }
-
-        $designFile = null;
-        if ($request->filled('design_pdf_url')) {
-            $designFile = $request->input('design_pdf_url');
-        } elseif ($request->hasFile('design_pdf_file')) {
-            $pdf = $request->file('design_pdf_file');
-            $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
+        } elseif ($request->input('category') === 'Design' && !empty($designFile)) {
+            $coverImage = 'pdf-default';
         }
 
         Project::create([
@@ -132,16 +134,6 @@ class AdminController extends Controller
             'design_pdf_url' => 'nullable|string',
         ]);
 
-        $coverImage = $project->cover_image;
-        if ($request->hasFile('cover_image_file')) {
-            $file = $request->file('cover_image_file');
-            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
-            $compressed = self::compressBase64Image($rawBase64);
-            $coverImage = self::uploadToR2($compressed, 'projects', Str::slug($request->input('title')));
-        } elseif ($request->filled('cover_image_url')) {
-            $coverImage = $request->input('cover_image_url');
-        }
-
         $designFile = $project->design_file;
         if ($request->filled('design_pdf_url')) {
             $designFile = $request->input('design_pdf_url');
@@ -150,6 +142,20 @@ class AdminController extends Controller
             $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
         } elseif ($request->has('remove_design_file') && $request->boolean('remove_design_file')) {
             $designFile = null;
+        }
+
+        $coverImage = $project->cover_image;
+        if ($request->hasFile('cover_image_file')) {
+            $file = $request->file('cover_image_file');
+            $rawBase64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+            $compressed = self::compressBase64Image($rawBase64);
+            $coverImage = self::uploadToR2($compressed, 'projects', Str::slug($request->input('title')));
+        } elseif ($request->filled('cover_image_url')) {
+            $coverImage = $request->input('cover_image_url');
+        } elseif ($request->boolean('use_default_pdf_cover')) {
+            $coverImage = 'pdf-default';
+        } elseif ($request->input('category') === 'Design' && !empty($designFile) && in_array($coverImage, ['image.png', 'porto.png', null])) {
+            $coverImage = 'pdf-default';
         }
 
         $project->update([

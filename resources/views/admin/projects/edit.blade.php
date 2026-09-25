@@ -278,21 +278,53 @@
 
             <!-- Cover Image Preview & Replacement -->
             <div class="space-y-4 border-t border-white/5 pt-6" x-data="{ imgSource: 'file' }">
+                <!-- Info note for Design category -->
+                <div x-show="category === 'Design'" class="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3 text-xs text-blue-200">
+                    <svg class="w-5 h-5 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div>
+                        <strong class="font-semibold text-white block mb-0.5">Cover Otomatis Dokumen PDF (Seperti Sertifikat)</strong>
+                        <span>Untuk kategori <strong>Design</strong> dengan dokumen PDF, cover otomatis menggunakan tampilan dokumen PDF interaktif ala sertifikat. Mengganti gambar cover di bawah bersifat opsional.</span>
+                    </div>
+                </div>
                 
-                <!-- Current Thumbnail -->
+                <!-- Current Thumbnail / PDF Preview -->
                 <div class="flex items-center gap-4 bg-white/[0.01] p-4 rounded-xl border border-white/5">
+                    @if($project->has_pdf_cover || Str::endsWith(strtolower($project->cover_image), '.pdf') || ($project->category === 'Design' && $project->design_file && in_array($project->cover_image, ['image.png', 'porto.png', 'pdf-default', 'pdf'])))
+                    <div class="w-24 h-16 rounded-lg overflow-hidden bg-red-500/10 border border-red-500/20 flex flex-col items-center justify-center text-red-400 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                        <span class="text-[9px] font-black uppercase tracking-wider mt-1">DOKUMEN PDF</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h4 class="text-xs font-bold uppercase text-gray-400 tracking-wider">Cover Aktif:</h4>
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Default PDF (Seperti Sertifikat)</span>
+                        </div>
+                        <p class="text-xs text-gray-300 mt-1">Cover project otomatis menampilkan lembar presentasi dokumen PDF interaktif.</p>
+                    </div>
+                    @else
                     <div class="w-24 h-16 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex-shrink-0 relative">
                         <img src="{{ Str::startsWith($project->cover_image, 'http') || Str::startsWith($project->cover_image, 'data:') ? $project->cover_image : asset('img/' . $project->cover_image) }}" 
                              alt="Current cover" class="w-full h-full object-cover">
                     </div>
-                    <div>
+                    <div class="flex-grow">
                         <h4 class="text-xs font-bold uppercase text-gray-500 tracking-wider">Cover Image Saat Ini</h4>
                         <p class="text-xs text-gray-300 mt-1 truncate max-w-[200px] md:max-w-md">{{ Str::startsWith($project->cover_image, 'data:') ? 'Base64 Encoded Image Data' : $project->cover_image }}</p>
+                        @if($project->category === 'Design' && $project->design_file)
+                        <div class="mt-2">
+                            <label class="inline-flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 cursor-pointer">
+                                <input type="checkbox" name="use_default_pdf_cover" value="1" class="rounded border-white/20 bg-black/40 text-blue-600 focus:ring-0">
+                                <span>Ganti ke Cover Default PDF (seperti sertifikat)</span>
+                            </label>
+                        </div>
+                        @endif
                     </div>
+                    @endif
                 </div>
 
                 <div class="flex justify-between items-center mt-4">
-                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Ganti Gambar Cover (Opsional)</span>
+                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                        Ganti Gambar Cover <span x-show="category === 'Design'" class="text-gray-500 font-normal lowercase">(opsional jika ada PDF)</span>
+                    </span>
                     <!-- Tab Toggle -->
                     <div class="flex p-0.5 bg-black/40 rounded-lg border border-white/5">
                         <button type="button" @click="imgSource = 'file'" :class="imgSource === 'file' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Upload File</button>

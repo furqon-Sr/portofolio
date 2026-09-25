@@ -254,8 +254,19 @@
 
             <!-- Cover Image (Base64 or URL) -->
             <div class="space-y-4 border-t border-white/5 pt-6" x-data="{ imgSource: 'file' }">
+                <!-- Info note for Design category -->
+                <div x-show="category === 'Design'" class="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-3 text-xs text-blue-200">
+                    <svg class="w-5 h-5 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div>
+                        <strong class="font-semibold text-white block mb-0.5">Cover Otomatis Dokumen PDF (Seperti Sertifikat)</strong>
+                        <span>Untuk kategori <strong>Design</strong> yang mengunggah dokumen PDF di atas, cover project otomatis menggunakan tampilan halaman dokumen PDF interaktif ala sertifikat. Unggah cover gambar di bawah bersifat <strong>opsional</strong>.</span>
+                    </div>
+                </div>
+
                 <div class="flex justify-between items-center">
-                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">Gambar Cover Project</span>
+                    <span class="block text-xs font-bold uppercase tracking-wider text-gray-400">
+                        Gambar Cover Project <span x-show="category === 'Design'" class="text-gray-500 font-normal lowercase">(opsional jika ada PDF)</span>
+                    </span>
                     <!-- Tab Toggle -->
                     <div class="flex p-0.5 bg-black/40 rounded-lg border border-white/5">
                         <button type="button" @click="imgSource = 'file'" :class="imgSource === 'file' ? 'bg-blue-600 text-white' : 'text-gray-400'" class="px-3 py-1 text-[10px] font-bold rounded-md transition-all">Upload File</button>

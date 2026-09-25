@@ -299,6 +299,7 @@
                         github_link="{{ $project->github_link }}"
                         image="{{ $project->cover_image_url }}"
                         design_url="{{ $project->design_pdf_url }}"
+                        :has_pdf_cover="$project->has_pdf_cover"
                     />
                 </div>
                 @endforeach
@@ -507,7 +508,7 @@
                 expertiseObserver.observe(expertiseSection);
             }
 
-            // Render PDF Thumbnails in Marquee
+            // Render PDF Thumbnails in Marquee & Project Cards
             if (window.pdfjsLib) {
                 try {
                     const workerBlob = new Blob(
@@ -519,30 +520,36 @@
                     pdfjsLib.GlobalWorkerOptions.workerSrc = '';
                 }
 
-                const canvases = document.querySelectorAll('canvas[data-pdf-thumb]');
-                canvases.forEach(async (canvas) => {
-                    const url = canvas.dataset.pdfThumb;
-                    if (!url) return;
-                    try {
-                        const pdf = await pdfjsLib.getDocument(url).promise;
-                        const page = await pdf.getPage(1);
-                        const parentW = canvas.parentElement.clientWidth || 280;
-                        const unscaled = page.getViewport({ scale: 1.0 });
-                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
-                        const scale = (parentW * dpr) / unscaled.width;
-                        const viewport = page.getViewport({ scale: scale });
+                window.renderAllPdfThumbnails = function() {
+                    const canvases = document.querySelectorAll('canvas[data-pdf-thumb]:not([data-rendered="true"])');
+                    canvases.forEach(async (canvas) => {
+                        const url = canvas.dataset.pdfThumb;
+                        if (!url) return;
+                        canvas.dataset.rendered = "true";
+                        try {
+                            const pdf = await pdfjsLib.getDocument(url).promise;
+                            const page = await pdf.getPage(1);
+                            const parentW = Math.max(canvas.parentElement?.clientWidth || 0, 360);
+                            const unscaled = page.getViewport({ scale: 1.0 });
+                            const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
+                            const scale = (parentW * dpr) / unscaled.width;
+                            const viewport = page.getViewport({ scale: scale });
 
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        const ctx = canvas.getContext('2d');
-                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+                            canvas.width = viewport.width;
+                            canvas.height = viewport.height;
+                            const ctx = canvas.getContext('2d');
+                            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-                        const fallback = canvas.parentElement.querySelector('.pdf-welcome-fallback');
-                        if (fallback) fallback.style.display = 'none';
-                    } catch (e) {
-                        console.error('Gagal render thumbnail PDF marquee:', e);
-                    }
-                });
+                            canvas.classList.remove('opacity-0');
+                            const fallback = canvas.parentElement?.querySelector('.pdf-welcome-fallback, .pdf-card-fallback');
+                            if (fallback) fallback.style.display = 'none';
+                        } catch (e) {
+                            console.error('Gagal render thumbnail PDF:', e);
+                        }
+                    });
+                };
+
+                window.renderAllPdfThumbnails();
             }
         });
     </script>

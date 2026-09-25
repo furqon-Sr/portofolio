@@ -33,12 +33,19 @@
                 <tbody class="divide-y divide-white/5">
                     @forelse($projects as $proj)
                     <tr class="hover:bg-white/[0.01] transition-colors group">
-                        <!-- Image -->
+                        <!-- Image / PDF Preview -->
                         <td class="p-5 whitespace-nowrap">
+                            @if($proj->has_pdf_cover || Str::endsWith(strtolower($proj->cover_image_url), '.pdf') || ($proj->category === 'Design' && $proj->design_pdf_url && in_array($proj->cover_image, ['image.png', 'porto.png', 'pdf-default', 'pdf', ''])))
+                            <a href="{{ $proj->design_pdf_url }}" target="_blank" class="w-16 h-10 rounded-lg overflow-hidden bg-red-500/10 border border-red-500/20 flex flex-col items-center justify-center text-red-400 hover:bg-red-500/20 transition-all group/pdf" title="Lihat Dokumen PDF Desain">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                                <span class="text-[8px] font-black uppercase tracking-wider mt-0.5">PDF</span>
+                            </a>
+                            @else
                             <div class="w-16 h-10 rounded-lg overflow-hidden bg-white/5 border border-white/10 relative">
                                 <img src="{{ $proj->cover_image_url }}" 
                                      alt="{{ $proj->title }}" class="w-full h-full object-cover">
                             </div>
+                            @endif
                         </td>
                         <!-- Title -->
                         <td class="p-5">
