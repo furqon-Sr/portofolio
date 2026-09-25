@@ -19,28 +19,24 @@ $kernel = $app->make(\Illuminate\Contracts\Http\Kernel::class);
 $request = Request::capture();
 $response = $kernel->handle($request);
 
-// Attach Vercel Edge Cache headers and strip Set-Cookie on public read-only pages
+// Cache media files at edge, but serve HTML pages fresh so admin changes reflect immediately
 $path = '/' . ltrim($request->path(), '/');
-$isPublicCacheable = $request->isMethodSafe() && $response->isSuccessful() && (
-    $path === '/' || 
-    str_starts_with($path, '/works') || 
-    str_starts_with($path, '/certificates') || 
-    str_starts_with($path, '/blog') || 
-    str_starts_with($path, '/media')
-);
+$isMediaRoute = str_starts_with($path, '/media') && $request->isMethodSafe() && $response->isSuccessful();
 
-if ($isPublicCacheable) {
-    $sMaxAge = str_starts_with($path, '/media') ? 86400 : 3600;
-    $response->headers->set('Cache-Control', "public, max-age=0, s-maxage={$sMaxAge}, stale-while-revalidate=86400");
+if ($isMediaRoute) {
+    $response->headers->set('Cache-Control', "public, max-age=0, s-maxage=86400, stale-while-revalidate=86400");
     foreach ($response->headers->getCookies() as $cookie) {
         $response->headers->removeCookie($cookie->getName(), $cookie->getPath(), $cookie->getDomain());
     }
     $response->headers->remove('Set-Cookie');
     header_remove('Set-Cookie');
+} else {
+    // HTML pages: ensure browser and Vercel edge never cache stale versions of content
+    $response->headers->set('Cache-Control', 'no-cache, private, must-revalidate');
 }
 
 $response->send();
-if ($isPublicCacheable) {
+if ($isMediaRoute) {
     header_remove('Set-Cookie');
 }
 $kernel->terminate($request, $response);
