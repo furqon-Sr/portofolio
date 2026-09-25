@@ -130,6 +130,10 @@ Route::get('/media/projects/{id}/design', function ($id) {
     }
 
     if (str_starts_with($file, 'http')) {
+        if (str_contains($file, '.r2.dev/')) {
+            $path = substr($file, strpos($file, '.r2.dev/') + 8);
+            return redirect(url('/r2/' . $path));
+        }
         return redirect($file);
     }
 
@@ -208,6 +212,8 @@ Route::prefix($adminPath)->middleware(['auth', 'verified'])->group(function () {
     Route::get('/projects/{id}/edit', [AdminController::class, 'editProject'])->name('admin.projects.edit');
     Route::put('/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
     Route::delete('/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
+    Route::post('/upload-chunk', [AdminController::class, 'uploadChunk'])->name('admin.upload.chunk');
+    Route::post('/upload-combine', [AdminController::class, 'combineChunks'])->name('admin.upload.combine');
 
     // Admin Certificate CRUD
     Route::get('/certificates', [AdminController::class, 'certificates'])->name('admin.certificates.index');

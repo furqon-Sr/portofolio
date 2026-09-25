@@ -68,6 +68,7 @@ class AdminController extends Controller
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
             'design_pdf_file' => 'nullable|file|mimes:pdf|max:30720',
+            'design_pdf_url' => 'nullable|string',
         ]);
 
         $coverImage = 'image.png'; // default placeholder
@@ -81,7 +82,9 @@ class AdminController extends Controller
         }
 
         $designFile = null;
-        if ($request->hasFile('design_pdf_file')) {
+        if ($request->filled('design_pdf_url')) {
+            $designFile = $request->input('design_pdf_url');
+        } elseif ($request->hasFile('design_pdf_file')) {
             $pdf = $request->file('design_pdf_file');
             $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
         }
@@ -126,6 +129,7 @@ class AdminController extends Controller
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
             'design_pdf_file' => 'nullable|file|mimes:pdf|max:30720',
+            'design_pdf_url' => 'nullable|string',
         ]);
 
         $coverImage = $project->cover_image;
@@ -139,7 +143,9 @@ class AdminController extends Controller
         }
 
         $designFile = $project->design_file;
-        if ($request->hasFile('design_pdf_file')) {
+        if ($request->filled('design_pdf_url')) {
+            $designFile = $request->input('design_pdf_url');
+        } elseif ($request->hasFile('design_pdf_file')) {
             $pdf = $request->file('design_pdf_file');
             $designFile = self::uploadToR2($pdf, 'designs', 'design-' . Str::slug($request->input('title')));
         } elseif ($request->has('remove_design_file') && $request->boolean('remove_design_file')) {
@@ -1152,5 +1158,80 @@ class AdminController extends Controller
     {
         \App\Models\Client::findOrFail($id)->delete();
         return redirect()->route('admin.clients.index')->with('success', 'Client deleted successfully.');
+    }
+
+    /**
+     * Handle single chunk upload for large files (bypasses Vercel 4.5MB payload limit).
+     */
+    public function uploadChunk(Request $request)
+    {
+        $request->validate([
+            'upload_id' => 'required|string|max:64',
+            'chunk_index' => 'required|integer|min:0',
+            'chunk' => 'required|file|max:4096',
+        ]);
+
+        $uploadId = preg_replace('/[^a-zA-Z0-9_\-]/', '', $request->input('upload_id'));
+        $chunkIndex = (int) $request->input('chunk_index');
+        $chunkFile = $request->file('chunk');
+
+        $chunkPath = "temp/{$uploadId}/part_{$chunkIndex}.bin";
+        $content = file_get_contents($chunkFile->getRealPath());
+
+        Storage::disk('r2')->put($chunkPath, $content);
+
+        return response()->json([
+            'success' => true,
+            'chunk_index' => $chunkIndex,
+        ]);
+    }
+
+    /**
+     * Combine all uploaded chunks on Cloudflare R2 and produce final asset URL.
+     */
+    public function combineChunks(Request $request)
+    {
+        $request->validate([
+            'upload_id' => 'required|string|max:64',
+            'total_chunks' => 'required|integer|min:1',
+            'filename' => 'required|string|max:255',
+            'folder' => 'nullable|string|max:64',
+        ]);
+
+        $uploadId = preg_replace('/[^a-zA-Z0-9_\-]/', '', $request->input('upload_id'));
+        $totalChunks = (int) $request->input('total_chunks');
+        $folder = trim($request->input('folder', 'designs'), '/');
+        $rawFilename = $request->input('filename');
+
+        $ext = strtolower(pathinfo($rawFilename, PATHINFO_EXTENSION)) ?: 'pdf';
+        $nameWithoutExt = pathinfo($rawFilename, PATHINFO_FILENAME);
+        $finalBaseName = Str::slug($nameWithoutExt) . '-' . time() . '-' . Str::random(8);
+        $finalPath = "{$folder}/{$finalBaseName}.{$ext}";
+
+        // Combine parts into temp stream
+        $combinedStream = fopen('php://temp', 'r+');
+        for ($i = 0; $i < $totalChunks; $i++) {
+            $chunkKey = "temp/{$uploadId}/part_{$i}.bin";
+            if (!Storage::disk('r2')->exists($chunkKey)) {
+                fclose($combinedStream);
+                return response()->json(['success' => false, 'message' => "Part {$i} missing."], 400);
+            }
+            $chunkContent = Storage::disk('r2')->get($chunkKey);
+            fwrite($combinedStream, $chunkContent);
+            unset($chunkContent);
+            Storage::disk('r2')->delete($chunkKey);
+        }
+        rewind($combinedStream);
+
+        Storage::disk('r2')->put($finalPath, $combinedStream);
+        fclose($combinedStream);
+
+        $publicUrl = self::getR2PublicUrl($finalPath);
+
+        return response()->json([
+            'success' => true,
+            'url' => $publicUrl,
+            'path' => $finalPath,
+        ]);
     }
 }
