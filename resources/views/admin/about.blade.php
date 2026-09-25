@@ -352,9 +352,9 @@
                     <tr class="hover:bg-white/[0.01] transition-colors group">
                         <td class="p-5 whitespace-nowrap">
                             <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 text-blue-400">
-                                @if(Str::startsWith($box->icon, '<svg'))
+                                @if(str_contains($box->icon ?? '', '<svg'))
                                     {!! $box->icon !!}
-                                @elseif(Str::startsWith($box->icon, 'http') || Str::startsWith($box->icon, 'data:'))
+                                @elseif(Str::startsWith($box->icon ?? '', 'http') || Str::startsWith($box->icon ?? '', 'data:'))
                                     <img src="{{ $box->icon }}" class="w-6 h-6 object-contain">
                                 @else
                                     {!! $svgMap[$box->key] ?? '' !!}

@@ -88,9 +88,9 @@
                     @foreach($aboutBoxes as $box)
                         <div class="about-box p-5 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:border-blue-500/50 transition-colors group">
                             <div class="mb-3 group-hover:scale-110 transition-transform text-blue-500">
-                                @if(Str::startsWith($box->icon, '<svg'))
+                                @if(str_contains($box->icon ?? '', '<svg'))
                                     {!! $box->icon !!}
-                                @elseif(Str::startsWith($box->icon, 'http') || Str::startsWith($box->icon, 'data:'))
+                                @elseif(Str::startsWith($box->icon ?? '', 'http') || Str::startsWith($box->icon ?? '', 'data:'))
                                     <img src="{{ $box->icon }}" class="w-6 h-6 object-contain">
                                 @else
                                     {!! $svgMap[$box->key] ?? '' !!}

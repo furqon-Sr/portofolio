@@ -666,30 +666,48 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'icon_file' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'icon_svg_file' => 'nullable|file|max:2048',
+            'icon_file' => 'nullable|file|max:2048',
             'icon_url' => 'nullable|url',
             'icon_svg' => 'nullable|string',
-            'upload_type' => 'required|string|in:svg,file,url',
+            'upload_type' => 'required|string|in:svg_file,svg,file,url,default',
         ]);
 
         $uploadType = $request->input('upload_type');
         $icon = $box->icon;
 
-        if ($uploadType === 'file') {
+        if ($uploadType === 'svg_file') {
+            if ($request->hasFile('icon_svg_file')) {
+                $file = $request->file('icon_svg_file');
+                $svgContent = file_get_contents($file->getRealPath());
+                $icon = self::sanitizeSvg($svgContent);
+            }
+        } elseif ($uploadType === 'svg') {
+            if ($request->filled('icon_svg')) {
+                $icon = self::sanitizeSvg($request->input('icon_svg'));
+            } else {
+                $icon = null;
+            }
+        } elseif ($uploadType === 'file') {
             if ($request->hasFile('icon_file')) {
                 $file = $request->file('icon_file');
-                $icon = self::uploadToR2($file, 'about-boxes', 'icon-' . $box->id);
+                $ext = strtolower($file->getClientOriginalExtension());
+                $mime = strtolower($file->getMimeType());
+
+                if ($ext === 'svg' || str_contains($mime, 'svg')) {
+                    $svgContent = file_get_contents($file->getRealPath());
+                    $icon = self::sanitizeSvg($svgContent);
+                } else {
+                    $rawBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($file->getRealPath()));
+                    $icon = self::compressBase64Image($rawBase64, 200, 85);
+                }
             }
         } elseif ($uploadType === 'url') {
             if ($request->filled('icon_url')) {
                 $icon = $request->input('icon_url');
             }
-        } elseif ($uploadType === 'svg') {
-            if ($request->filled('icon_svg')) {
-                $icon = $request->input('icon_svg');
-            } else {
-                $icon = null; // Clear to use fallback default svg
-            }
+        } elseif ($uploadType === 'default') {
+            $icon = null;
         }
 
         $box->update([
@@ -698,7 +716,37 @@ class AdminController extends Controller
             'icon' => $icon,
         ]);
 
-        return redirect()->route('admin.about')->with('success', 'Card updated successfully!');
+        return redirect()->route('admin.about')->with('success', 'Highlight card updated successfully!');
+    }
+
+    /**
+     * Sanitize and format SVG content for inline rendering.
+     */
+    public static function sanitizeSvg($svg): string
+    {
+        if (empty($svg)) {
+            return '';
+        }
+
+        // Extract starting from <svg
+        $pos = stripos($svg, '<svg');
+        if ($pos !== false) {
+            $svg = substr($svg, $pos);
+        }
+
+        // Remove unsafe script tags
+        $svg = preg_replace('#<script(.*?)>(.*?)</script>#is', '', $svg);
+
+        // Ensure class contains w-6 h-6 text-blue-500 if missing size classes
+        if (!preg_match('#class=["\'][^"\']*w-\d+[^"\']*["\']#i', $svg)) {
+            if (preg_match('#class=["\']([^"\']*)["\']#i', $svg, $matches)) {
+                $svg = preg_replace('#class=["\'][^"\']*["\']#i', 'class="' . trim($matches[1]) . ' w-6 h-6 text-blue-500"', $svg, 1);
+            } else {
+                $svg = preg_replace('#<svg#i', '<svg class="w-6 h-6 text-blue-500"', $svg, 1);
+            }
+        }
+
+        return $svg;
     }
 
     /**
