@@ -20,7 +20,7 @@ Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 
 // Home Page - Rendered fresh from database
 Route::get('/', function () {
-    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
+    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'design_file', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
         ->orderBy('id', 'asc')
         ->get();
@@ -35,7 +35,7 @@ Route::get('/', function () {
 
 // Works Page - Rendered fresh from database
 Route::get('/works', function () {
-    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'github_link', 'views', 'updated_at')
+    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'design_file', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
         ->orderBy('id', 'asc')
         ->get();

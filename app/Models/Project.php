@@ -68,7 +68,7 @@ class Project extends Model
         if (empty($this->design_file) && empty($this->has_design_file)) {
             return null;
         }
-        if (str_starts_with($this->design_file, 'http')) {
+        if (!empty($this->design_file) && str_starts_with($this->design_file, 'http')) {
             if (str_contains($this->design_file, '.r2.dev/')) {
                 $path = substr($this->design_file, strpos($this->design_file, '.r2.dev/') + 8);
                 return url('/r2/' . $path);
