@@ -969,6 +969,18 @@ class AdminController extends Controller
     }
 
     /**
+     * Get the public URL for an R2 asset, routing via proxy if r2.dev domain is used.
+     */
+    public static function getR2PublicUrl(string $path): string
+    {
+        $publicUrl = config('filesystems.disks.r2.url');
+        if (!empty($publicUrl) && !str_contains($publicUrl, 'r2.dev')) {
+            return rtrim($publicUrl, '/') . '/' . ltrim($path, '/');
+        }
+        return url('/r2/' . ltrim($path, '/'));
+    }
+
+    /**
      * Upload an uploaded file or base64 data URI string to Cloudflare R2.
      * Returns the public CDN URL on success, or falls back to base64 if R2 is unconfigured or fails.
      *
@@ -1011,7 +1023,7 @@ class AdminController extends Controller
                 $content = file_get_contents($fileOrBase64->getRealPath());
 
                 Storage::disk('r2')->put($path, $content);
-                return Storage::disk('r2')->url($path);
+                return self::getR2PublicUrl($path);
             }
 
             if (is_string($fileOrBase64) && str_starts_with($fileOrBase64, 'data:')) {
@@ -1046,7 +1058,7 @@ class AdminController extends Controller
                 $path = "{$folder}/{$baseName}.{$ext}";
 
                 Storage::disk('r2')->put($path, $binary);
-                return Storage::disk('r2')->url($path);
+                return self::getR2PublicUrl($path);
             }
         } catch (\Throwable $e) {
             Log::error('R2 upload failed: ' . $e->getMessage());

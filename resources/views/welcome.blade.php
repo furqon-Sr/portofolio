@@ -129,12 +129,19 @@
             
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center max-w-5xl mx-auto px-4">
                 @foreach($clients as $index => $client)
+                    @php
+                        $clientLogo = $client->logo;
+                        if (str_starts_with($clientLogo, 'https://pub-') && str_contains($clientLogo, '.r2.dev/')) {
+                            $path = substr($clientLogo, strpos($clientLogo, '.r2.dev/') + 8);
+                            $clientLogo = url('/r2/' . $path);
+                        }
+                    @endphp
                     @if($client->url)
                         <a href="{{ $client->url }}" target="_blank" 
                            class="client-logo-wrap block w-full h-12 md:h-16 relative transition-all duration-300 hover:scale-110 transform"
                            :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
                            style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
-                            <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
+                            <img src="{{ Str::startsWith($clientLogo, 'http') || Str::startsWith($clientLogo, 'data:') || Str::startsWith($clientLogo, '<svg') ? (Str::startsWith($clientLogo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($clientLogo) : $clientLogo) : asset('img/logos/' . $clientLogo) }}" 
                                  alt="{{ $client->name }}" 
                                  class="client-logo-item w-full h-full object-contain" title="{{ $client->name }}">
                         </a>
@@ -142,7 +149,7 @@
                         <div class="client-logo-wrap w-full h-12 md:h-16 relative transition-all duration-300 hover:scale-110 transform"
                              :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
                              style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
-                            <img src="{{ Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:') || Str::startsWith($client->logo, '<svg') ? (Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo) : asset('img/logos/' . $client->logo) }}" 
+                            <img src="{{ Str::startsWith($clientLogo, 'http') || Str::startsWith($clientLogo, 'data:') || Str::startsWith($clientLogo, '<svg') ? (Str::startsWith($clientLogo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($clientLogo) : $clientLogo) : asset('img/logos/' . $clientLogo) }}" 
                                  alt="{{ $client->name }}" 
                                  class="client-logo-item w-full h-full object-contain" title="{{ $client->name }}">
                         </div>

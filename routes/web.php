@@ -318,4 +318,34 @@ $incrementProjectViews = function ($id) {
 Route::post('/api/projects/{id}/view', $incrementProjectViews)->middleware('throttle:60,1');
 Route::post('/projects/{id}/view', $incrementProjectViews)->middleware('throttle:60,1');
 
+// Media Proxy for Cloudflare R2 Assets (Bypasses ISP blocking of r2.dev in Indonesia)
+Route::get('/r2/{path}', function ($path) {
+    try {
+        if (!\Illuminate\Support\Facades\Storage::disk('r2')->exists($path)) {
+            abort(404);
+        }
+
+        $mime = \Illuminate\Support\Facades\Storage::disk('r2')->mimeType($path) ?: 'application/octet-stream';
+        $size = \Illuminate\Support\Facades\Storage::disk('r2')->fileSize($path);
+        $stream = \Illuminate\Support\Facades\Storage::disk('r2')->readStream($path);
+
+        $headers = [
+            'Content-Type' => $mime,
+            'Cache-Control' => 'public, max-age=31536000, immutable',
+        ];
+        if ($size) {
+            $headers['Content-Length'] = $size;
+        }
+
+        return response()->stream(function () use ($stream) {
+            if (is_resource($stream)) {
+                fpassthru($stream);
+                fclose($stream);
+            }
+        }, 200, $headers);
+    } catch (\Throwable $e) {
+        abort(404);
+    }
+})->where('path', '.*')->name('r2.proxy');
+
 require __DIR__.'/auth.php';

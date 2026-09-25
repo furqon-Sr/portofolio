@@ -10,8 +10,14 @@
     <h1 class="text-3xl font-bold tracking-tighter text-white">Edit Client</h1>
 </div>
 
-<div class="bg-gray-900 border border-white/10 rounded-2xl p-6 md:p-8 max-w-3xl">
-    <form action="{{ route('admin.clients.update', $client->id) }}" method="POST" x-data="{ logoPreview: '{{ Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo }}' }">
+    @php
+        $editLogoPreview = $client->logo;
+        if (str_starts_with($editLogoPreview, 'https://pub-') && str_contains($editLogoPreview, '.r2.dev/')) {
+            $path = substr($editLogoPreview, strpos($editLogoPreview, '.r2.dev/') + 8);
+            $editLogoPreview = url('/r2/' . $path);
+        }
+    @endphp
+    <form action="{{ route('admin.clients.update', $client->id) }}" method="POST" x-data="{ logoPreview: '{{ Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $editLogoPreview }}' }">
         @csrf
         @method('PUT')
         

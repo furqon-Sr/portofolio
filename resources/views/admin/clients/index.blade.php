@@ -31,14 +31,19 @@
                     <td class="px-6 py-4 font-medium text-gray-300">{{ $client->order_index }}</td>
                     <td class="px-6 py-4">
                         <div class="h-10 w-24 bg-white/5 rounded p-2 flex items-center justify-center">
-                            @if(Str::startsWith($client->logo, '<svg') || Str::startsWith($client->logo, 'data:image'))
-                                @if(strlen($client->logo) > 1000000)
-                                    <span class="text-[10px] text-orange-400">File too large to preview</span>
-                                @else
-                                    <img src="{{ Str::startsWith($client->logo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($client->logo) : $client->logo }}" class="max-h-full max-w-full object-contain">
-                                @endif
+                            @php
+                                $logoSrc = $client->logo;
+                                if (str_starts_with($logoSrc, 'https://pub-') && str_contains($logoSrc, '.r2.dev/')) {
+                                    $path = substr($logoSrc, strpos($logoSrc, '.r2.dev/') + 8);
+                                    $logoSrc = url('/r2/' . $path);
+                                }
+                            @endphp
+                            @if(Str::startsWith($client->logo, '<svg'))
+                                {!! $client->logo !!}
+                            @elseif(Str::startsWith($client->logo, 'http') || Str::startsWith($client->logo, 'data:image'))
+                                <img src="{{ $logoSrc }}" class="max-h-full max-w-full object-contain" alt="{{ $client->name }}">
                             @else
-                                <span class="text-xs">Invalid</span>
+                                <span class="text-xs text-gray-500">No Logo</span>
                             @endif
                         </div>
                     </td>
