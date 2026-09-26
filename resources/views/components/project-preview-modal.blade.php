@@ -1,14 +1,21 @@
 <div x-data="projectPreviewModal()"
+     x-init="init()"
      @open-project-preview.window="
         show = true; 
+        isFullscreen = false;
+        showFullscreenDetails = false;
         project = $event.detail;
         if (project.design_url) {
             $nextTick(() => loadProjectPdf(project.design_url));
         }
      "
-     @keydown.escape.window="closeModal()"
+     @keydown.escape.window="if (isFullscreen) { exitFullscreen(); } else { closeModal(); }"
+     @keydown.f.window="if (show && !['INPUT', 'TEXTAREA'].includes($event.target.tagName)) { toggleFullscreen(); }"
+     @keydown.arrow-left.window="if (show && project.design_url && pdfTotalPages > 1) { goToPage(currentModalPage - 1); }"
+     @keydown.arrow-right.window="if (show && project.design_url && pdfTotalPages > 1) { goToPage(currentModalPage + 1); }"
      x-show="show"
-     class="fixed inset-0 z-50 overflow-y-auto"
+     class="fixed inset-0 z-50 transition-colors duration-300"
+     :class="isFullscreen ? 'overflow-hidden' : 'overflow-y-auto'"
      style="display: none;">
      
     <!-- Backdrop Overlay with blur -->
@@ -20,11 +27,11 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          class="fixed inset-0 bg-black/80 backdrop-blur-md"
-         @click="closeModal()">
+         @click="!isFullscreen && closeModal()">
     </div>
 
     <!-- Modal Box Container -->
-    <div class="flex min-h-screen items-center justify-center p-4 md:p-6 relative">
+    <div :class="isFullscreen ? 'fixed inset-0 p-0 m-0 z-50 flex flex-col h-screen w-screen overflow-hidden' : 'flex min-h-screen items-center justify-center p-4 md:p-6 relative'">
         <div x-show="show"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 scale-95 translate-y-4"
@@ -32,38 +39,62 @@
              x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100 scale-100 translate-y-0"
              x-transition:leave-end="opacity-0 scale-95 translate-y-4"
-             class="relative w-full max-w-4xl bg-zinc-950/95 border border-zinc-800/80 rounded-3xl overflow-hidden shadow-2xl z-10 flex flex-col max-h-[92vh]"
-             @click.away="closeModal()">
+             class="bg-zinc-950/95 overflow-hidden shadow-2xl z-10 flex flex-col transition-all duration-300"
+             :class="isFullscreen ? 'w-full h-full max-w-none max-h-screen rounded-none border-0' : 'relative w-full max-w-4xl border border-zinc-800/80 rounded-3xl max-h-[92vh]'"
+             @click.away="!isFullscreen && closeModal()">
              
-            <!-- Close button absolute top-right -->
-            <button @click="closeModal()" 
-                    class="absolute top-4 right-4 z-30 w-8 h-8 rounded-full bg-black/70 border border-zinc-800/80 flex items-center justify-center text-zinc-400 hover:text-white hover:border-blue-500/40 transition-all duration-300 shadow-lg"
-                    aria-label="Close modal">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+            <!-- Action buttons absolute top-right -->
+            <div class="absolute top-4 right-4 z-30 flex items-center gap-2">
+                <!-- Fullscreen Toggle Button -->
+                <button type="button"
+                        @click="toggleFullscreen()"
+                        class="w-8 h-8 rounded-full bg-black/70 border border-zinc-800/80 flex items-center justify-center text-zinc-400 hover:text-white hover:border-blue-500/40 transition-all duration-300 shadow-lg cursor-pointer"
+                        :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Layar Penuh (F)'"
+                        :aria-label="isFullscreen ? 'Keluar Fullscreen' : 'Layar Penuh'">
+                    <!-- Icon: Enter Fullscreen (Maximize) -->
+                    <svg x-show="!isFullscreen" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                    </svg>
+                    <!-- Icon: Exit Fullscreen (Minimize) -->
+                    <svg x-show="isFullscreen" class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 4v4H5m0 0l5-5M15 4v4h4m0 0l-5-5M9 20v-4H5m0 0l5 5M15 20v-4h4m0 0l-5 5" />
+                    </svg>
+                </button>
 
-            <!-- Header: Category, Views & Page Navigator (if PDF) -->
-            <div class="p-6 pb-4 border-b border-zinc-900 pr-14 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <span class="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider"
+                <!-- Close button -->
+                <button @click="closeModal()" 
+                        class="w-8 h-8 rounded-full bg-black/70 border border-zinc-800/80 flex items-center justify-center text-zinc-400 hover:text-white hover:border-blue-500/40 transition-all duration-300 shadow-lg cursor-pointer"
+                        aria-label="Tutup pratinjau"
+                        title="Tutup (Esc)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Header: Category, Views, Title (in fullscreen) & Page Navigator (if PDF) -->
+            <div class="border-b border-zinc-900 pr-24 flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0 transition-all duration-300"
+                 :class="isFullscreen ? 'py-3.5 px-6 md:px-8 bg-zinc-950' : 'p-6 pb-4'">
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider flex-shrink-0"
                           x-text="project.category === 'Web Dev' ? 'Web Development' : 'Design Project'">
                     </span>
-                    <div class="text-xs text-zinc-400 flex items-center gap-1.5 font-medium">
+                    <div class="text-xs text-zinc-400 flex items-center gap-1.5 font-medium flex-shrink-0">
                         <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         <span x-text="project.views ? project.views.toLocaleString('en-US') : 0"></span> views
                     </div>
+                    <!-- In Fullscreen, show project title in header -->
+                    <span x-show="isFullscreen" class="hidden md:inline-block text-sm font-semibold text-zinc-200 truncate border-l border-zinc-800 pl-3" x-text="project.title"></span>
                 </div>
 
                 <!-- Page Navigator when Multi-Page PDF -->
-                <div x-show="project.design_url && pdfTotalPages > 1" class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-xs self-start sm:self-auto">
+                <div x-show="project.design_url && pdfTotalPages > 1" class="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full text-xs self-start sm:self-auto flex-shrink-0">
                     <span class="text-zinc-400">Halaman <strong class="text-white" x-text="currentModalPage">1</strong> dari <strong class="text-white" x-text="pdfTotalPages">1</strong></span>
                     <div class="flex items-center gap-1 border-l border-white/10 pl-2">
-                        <button type="button" @click="goToPage(currentModalPage - 1)" :disabled="currentModalPage <= 1" class="p-0.5 text-zinc-400 hover:text-white disabled:opacity-30 transition-colors" title="Sebelumnya">
+                        <button type="button" @click="goToPage(currentModalPage - 1)" :disabled="currentModalPage <= 1" class="p-0.5 text-zinc-400 hover:text-white disabled:opacity-30 transition-colors cursor-pointer" title="Sebelumnya (Panah Kiri)">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                         </button>
-                        <button type="button" @click="goToPage(currentModalPage + 1)" :disabled="currentModalPage >= pdfTotalPages" class="p-0.5 text-zinc-400 hover:text-white disabled:opacity-30 transition-colors" title="Berikutnya">
+                        <button type="button" @click="goToPage(currentModalPage + 1)" :disabled="currentModalPage >= pdfTotalPages" class="p-0.5 text-zinc-400 hover:text-white disabled:opacity-30 transition-colors cursor-pointer" title="Berikutnya (Panah Kanan)">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
                     </div>
@@ -71,11 +102,14 @@
             </div>
 
             <!-- Content Area: Multi-Page Scrollable PDF OR Standard Image Banner -->
-            <div class="flex-grow overflow-hidden flex flex-col">
+            <div class="flex-grow overflow-hidden flex flex-col min-h-0">
                 <!-- Case 1: Design Project with PDF Document -->
-                <div x-show="project.design_url" class="w-full h-full flex flex-col p-4 md:p-6 pb-2">
+                <div x-show="project.design_url" 
+                     class="w-full h-full flex flex-col min-h-0 transition-all duration-300"
+                     :class="isFullscreen ? 'p-2 md:p-4 flex-1' : 'p-4 md:p-6 pb-2'">
                     <div id="project-pdf-scroll-container" 
-                         class="w-full flex-grow overflow-y-auto max-h-[58vh] md:max-h-[64vh] flex flex-col items-center gap-6 py-4 px-2 md:px-6 bg-[#0c0c0e] rounded-2xl border border-white/5 scroll-smooth custom-scrollbar">
+                         class="w-full flex-grow overflow-y-auto flex flex-col items-center gap-6 py-4 px-2 md:px-6 bg-[#0c0c0e] scroll-smooth custom-scrollbar transition-all duration-300"
+                         :class="isFullscreen ? 'max-h-none flex-1 rounded-xl border border-white/5' : 'max-h-[58vh] md:max-h-[64vh] rounded-2xl border border-white/5'">
                         
                         <!-- Loading State -->
                         <div x-show="pdfLoading" class="py-24 flex flex-col items-center justify-center text-zinc-400">
@@ -98,23 +132,29 @@
                         </div>
 
                         <!-- Injected PDF Page Canvases -->
-                        <div id="project-pdf-pages-list" class="w-full flex flex-col items-center gap-6"></div>
+                        <div id="project-pdf-pages-list" 
+                             class="w-full flex flex-col items-center gap-6"
+                             :class="isFullscreen ? 'max-w-5xl xl:max-w-6xl' : ''"></div>
                     </div>
                 </div>
 
                 <!-- Case 2: Standard Project (Web Dev or Design without PDF uploaded yet) -->
-                <div x-show="!project.design_url" class="relative w-full aspect-[21/9] md:aspect-[21/8] bg-zinc-900 overflow-hidden border-b border-zinc-900 flex-shrink-0">
+                <div x-show="!project.design_url" 
+                     class="overflow-hidden flex-shrink-0 transition-all duration-300"
+                     :class="isFullscreen ? 'flex-1 min-h-0 w-full bg-[#0c0c0e] flex items-center justify-center p-4 md:p-6' : 'relative w-full aspect-[21/9] md:aspect-[21/8] bg-zinc-900 border-b border-zinc-900'">
                     <img :src="project.image" 
                          :alt="project.title"
-                         class="w-full h-full object-cover opacity-85"
+                         class="transition-all duration-300"
+                         :class="isFullscreen ? 'max-h-full max-w-full object-contain rounded-xl shadow-2xl border border-white/5' : 'w-full h-full object-cover opacity-85'"
                          x-show="project.image">
-                    <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
+                    <div x-show="!isFullscreen" class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
                 </div>
             </div>
 
             <!-- Description & Footer Area -->
-            <div class="p-6 md:p-8 pt-4 space-y-4 border-t border-zinc-900 bg-zinc-950/80">
-                <div>
+            <div :class="isFullscreen ? 'px-6 py-3 border-t border-zinc-900 bg-zinc-950 flex-shrink-0' : 'p-6 md:p-8 pt-4 space-y-4 border-t border-zinc-900 bg-zinc-950/80 flex-shrink-0'">
+                <!-- In Normal Mode: Full Title & Description -->
+                <div x-show="!isFullscreen">
                     <h3 class="text-xl md:text-2xl font-bold text-white tracking-tight leading-snug mb-2" x-text="project.title"></h3>
                     <!-- Description -->
                     <div class="max-h-[16vh] overflow-y-auto pr-2 border-l-2 border-zinc-800 pl-4 py-0.5 text-zinc-400 text-xs md:text-sm leading-relaxed whitespace-pre-wrap" 
@@ -122,8 +162,31 @@
                     </div>
                 </div>
 
+                <!-- In Fullscreen Mode: Collapsible Info Drawer -->
+                <div x-show="isFullscreen && showFullscreenDetails" 
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="mb-3 p-4 bg-zinc-900/95 rounded-2xl border border-zinc-800 text-zinc-300 text-xs leading-relaxed max-h-[22vh] overflow-y-auto shadow-2xl" 
+                     style="display: none;">
+                    <h4 class="font-bold text-white text-sm mb-1.5" x-text="project.title"></h4>
+                    <p class="whitespace-pre-wrap text-zinc-400 leading-relaxed" x-text="project.description"></p>
+                </div>
+
                 <!-- Footer Actions -->
-                <div class="flex flex-wrap items-center gap-3 pt-3 border-t border-zinc-900/80">
+                <div class="flex flex-wrap items-center gap-3" :class="!isFullscreen ? 'pt-3 border-t border-zinc-900/80' : ''">
+                    <!-- In Fullscreen: Info toggle button -->
+                    <button x-show="isFullscreen" 
+                            @click="showFullscreenDetails = !showFullscreenDetails"
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 text-zinc-300 hover:text-white text-xs font-semibold transition-all duration-300 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span x-text="showFullscreenDetails ? 'Tutup Info' : 'Info Project'"></span>
+                    </button>
+
                     <!-- If Web Dev: Visit Website -->
                     <a :href="project.link" 
                        target="_blank" 
@@ -155,9 +218,20 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                     </a>
 
+                    <!-- Fullscreen Toggle button in footer -->
+                    <button @click="toggleFullscreen()"
+                            type="button"
+                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 hover:text-white text-zinc-300 text-xs md:text-sm font-semibold rounded-xl transition-all duration-300 ml-auto cursor-pointer"
+                            :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Layar Penuh (F)'">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="isFullscreen ? 'M9 4v4H5m0 0l5-5M15 4v4h4m0 0l-5-5M9 20v-4H5m0 0l5 5M15 20v-4h4m0 0l-5 5' : 'M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4'" />
+                        </svg>
+                        <span x-text="isFullscreen ? 'Perkecil' : 'Layar Penuh'"></span>
+                    </button>
+
                     <!-- Close Button -->
                     <button @click="closeModal()" 
-                            class="inline-flex items-center justify-center px-5 py-2.5 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-white text-zinc-400 text-sm font-semibold rounded-xl transition-all duration-300 ml-auto">
+                            class="inline-flex items-center justify-center px-5 py-2.5 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-white text-zinc-400 text-sm font-semibold rounded-xl transition-all duration-300 cursor-pointer">
                         Tutup
                     </button>
                 </div>
@@ -170,6 +244,8 @@
     function projectPreviewModal() {
         return {
             show: false,
+            isFullscreen: false,
+            showFullscreenDetails: false,
             project: {
                 title: '',
                 category: '',
@@ -184,6 +260,51 @@
             pdfError: false,
             pdfTotalPages: 1,
             currentModalPage: 1,
+
+            init() {
+                const onFullscreenChange = () => {
+                    this.isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+                };
+                document.addEventListener('fullscreenchange', onFullscreenChange);
+                document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+            },
+
+            toggleFullscreen() {
+                if (!this.isFullscreen) {
+                    this.enterFullscreen();
+                } else {
+                    this.exitFullscreen();
+                }
+            },
+
+            enterFullscreen() {
+                this.isFullscreen = true;
+                const docEl = document.documentElement;
+                try {
+                    if (docEl.requestFullscreen) {
+                        docEl.requestFullscreen().catch(() => {});
+                    } else if (docEl.webkitRequestFullscreen) {
+                        docEl.webkitRequestFullscreen();
+                    }
+                } catch (e) {
+                    // Fallback to CSS fullscreen
+                }
+            },
+
+            exitFullscreen() {
+                this.isFullscreen = false;
+                try {
+                    if (document.fullscreenElement || document.webkitFullscreenElement) {
+                        if (document.exitFullscreen) {
+                            document.exitFullscreen().catch(() => {});
+                        } else if (document.webkitExitFullscreen) {
+                            document.webkitExitFullscreen();
+                        }
+                    }
+                } catch (e) {
+                    // Fallback to CSS fullscreen
+                }
+            },
 
             async loadProjectPdf(url) {
                 if (!url || !window.pdfjsLib) return;
@@ -218,9 +339,9 @@
 
                     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                         const page = await pdf.getPage(pageNum);
-                        const parentW = Math.max(container.clientWidth || 0, 700);
+                        const parentW = Math.max(container.clientWidth || 0, 1000);
                         const unscaled = page.getViewport({ scale: 1.0 });
-                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
+                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2.5);
                         const scale = (parentW * dpr) / unscaled.width;
                         const viewport = page.getViewport({ scale: scale });
 
@@ -283,7 +404,11 @@
             },
 
             closeModal() {
+                if (this.isFullscreen) {
+                    this.exitFullscreen();
+                }
                 this.show = false;
+                this.showFullscreenDetails = false;
                 const container = document.getElementById('project-pdf-pages-list');
                 if (container) container.innerHTML = '';
             }
