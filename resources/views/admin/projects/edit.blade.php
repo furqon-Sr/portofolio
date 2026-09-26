@@ -149,7 +149,7 @@
                              this.progress = 5;
                              this.statusText = 'Mempersiapkan pengunggahan cloud...';
 
-                                                          const chunkSize = 1024 * 1024; // 1MB safe chunks (high reliability, zero timeout)
+                            const chunkSize = 3 * 1024 * 1024; // 3MB safe chunks (minimizes chunk count and avoids WAF rate-limiting)
                              const totalChunks = Math.ceil(file.size / chunkSize);
                              const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
                              
@@ -160,6 +160,10 @@
                              
                              try {
                                  for (let i = 0; i < totalChunks; i++) {
+                                    if (i > 0) {
+                                        // Pacing delay between chunk uploads to prevent Vercel WAF burst rate-limiting (HTTP 403)
+                                        await new Promise(r => setTimeout(r, 600));
+                                    }
                                      const start = i * chunkSize;
                                      const end = Math.min(start + chunkSize, file.size);
                                      const chunk = file.slice(start, end);
@@ -205,14 +209,18 @@
                                                      msg = `HTTP ${res.status} ${res.statusText}`;
                                                  }
                                                  lastErr = new Error(`Bagian ${i + 1}: ${msg}`);
+                                                if (res.status === 403 || res.status === 429 || res.status === 504) {
+                                                    lastErr.isRateLimitOrTimeout = true;
+                                                }
                                              }
                                          } catch (netErr) {
                                              lastErr = netErr;
                                          }
                              
                                          if (attempt < 3) {
-                                             await new Promise(r => setTimeout(r, 1200));
-                                         }
+                                            const retryDelay = lastErr?.isRateLimitOrTimeout ? 2500 : 1200;
+                                            await new Promise(r => setTimeout(r, retryDelay));
+                                        }
                                      }
                              
                                      if (!uploadSuccess) {
@@ -224,6 +232,7 @@
                              
                                  this.statusText = 'Memverifikasi dan memproses dokumen di cloud...';
                                  this.progress = 92;
+                                 await new Promise(r => setTimeout(r, 600));
                              
                                  let combineSuccess = false;
                                  let combineErr = null;
