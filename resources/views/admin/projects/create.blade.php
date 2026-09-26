@@ -19,7 +19,189 @@
 
     <!-- Form Card -->
     <div class="bg-[#111111] rounded-2xl border border-white/5 p-6 md:p-8 shadow-xl">
-        <form method="POST" action="{{ route('admin.projects.store') }}" enctype="multipart/form-data" class="space-y-6" x-data="{ category: 'Web Dev' }">
+        <form method="POST" action="{{ route('admin.projects.store') }}" enctype="multipart/form-data" class="space-y-6"
+      x-data="{
+          category: '{{ old('category', 'Web Dev') }}',
+          uploading: false,
+                     progress: 0,
+                     statusText: '',
+                     uploadedUrl: '{{ old('design_pdf_url') }}',
+                     uploadedFilename: '',
+                     fileSizeText: '',
+                     errorMessage: '',
+                     async handleFileSelect(e) {
+                         const file = e.target.files[0];
+                         if (!file) return;
+
+                         if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                             this.errorMessage = 'Hanya format berkas PDF yang diperbolehkan.';
+                             e.target.value = '';
+                             return;
+                         }
+
+                         if (file.size > 50 * 1024 * 1024) {
+                             this.errorMessage = 'Ukuran berkas melebihi batas maksimal 50MB.';
+                             e.target.value = '';
+                             return;
+                         }
+
+                         this.errorMessage = '';
+                         this.uploadedFilename = file.name;
+                         this.fileSizeText = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                         this.uploading = true;
+                         this.progress = 5;
+                         this.statusText = 'Mempersiapkan pengunggahan cloud...';
+
+                                                  const chunkSize = 3 * 1024 * 1024; // 3MB safe chunks (minimizes chunk count and avoids WAF rate-limiting)
+                         const totalChunks = Math.ceil(file.size / chunkSize);
+                         const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+                         
+                         const getCsrf = () => {
+                             const cookieMatch = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+                             return cookieMatch ? decodeURIComponent(cookieMatch[1]) : (document.querySelector('input[name=_token]')?.value || '');
+                         };
+                         
+                         try {
+                             for (let i = 0; i < totalChunks; i++) {
+                                    if (i > 0) {
+                                        // Pacing delay between chunk uploads to prevent Vercel WAF burst rate-limiting (HTTP 403)
+                                        await new Promise(r => setTimeout(r, 600));
+                                    }
+                                 const start = i * chunkSize;
+                                 const end = Math.min(start + chunkSize, file.size);
+                                 const chunk = file.slice(start, end);
+                         
+                                 let uploadSuccess = false;
+                                 let lastErr = null;
+                         
+                                 for (let attempt = 1; attempt <= 3; attempt++) {
+                                     try {
+                                         const formData = new FormData();
+                                         formData.append('upload_id', uploadId);
+                                         formData.append('chunk_index', i);
+                                         formData.append('chunk', chunk, 'part_' + i + '.bin');
+                         
+                                         const percent = Math.round(((i + 1) / totalChunks) * 85);
+                                         this.statusText = attempt > 1 
+                                             ? `Mencoba ulang bagian ${i + 1} (Percobaan ${attempt}/3)...` 
+                                             : `Mengunggah bagian ${i + 1} dari ${totalChunks} (${percent}%)...`;
+                         
+                                         const res = await fetch('{{ route('admin.upload.chunk') }}', {
+                                             method: 'POST',
+                                             headers: {
+                                                 'X-CSRF-TOKEN': getCsrf(),
+                                                 'Accept': 'application/json'
+                                             },
+                                             body: formData
+                                         });
+                         
+                                         if (res.ok) {
+                                             const json = await res.json();
+                                             if (json && json.success) {
+                                                 uploadSuccess = true;
+                                                 break;
+                                             } else {
+                                                 lastErr = new Error(json?.message || `Gagal menyimpan bagian ${i + 1}`);
+                                             }
+                                         } else {
+                                             let msg = '';
+                                             try {
+                                                 const jsonErr = await res.json();
+                                                 msg = jsonErr?.message || '';
+                                             } catch(_) {
+                                                 msg = `HTTP ${res.status} ${res.statusText}`;
+                                             }
+                                             lastErr = new Error(`Bagian ${i + 1}: ${msg}`);
+                                                if (res.status === 403 || res.status === 429 || res.status === 504) {
+                                                    lastErr.isRateLimitOrTimeout = true;
+                                                }
+                                         }
+                                     } catch (netErr) {
+                                         lastErr = netErr;
+                                     }
+                         
+                                     if (attempt < 3) {
+                                            const retryDelay = lastErr?.isRateLimitOrTimeout ? 2500 : 1200;
+                                            await new Promise(r => setTimeout(r, retryDelay));
+                                        }
+                                 }
+                         
+                                 if (!uploadSuccess) {
+                                     throw (lastErr || new Error(`Gagal mengunggah bagian ${i + 1} setelah 3 kali percobaan.`));
+                                 }
+                         
+                                 this.progress = Math.round(((i + 1) / totalChunks) * 85);
+                             }
+                         
+                             this.statusText = 'Memverifikasi dan memproses dokumen di cloud...';
+                             this.progress = 92;
+                             await new Promise(r => setTimeout(r, 600));
+                         
+                             let combineSuccess = false;
+                             let combineErr = null;
+                         
+                             for (let cAttempt = 1; cAttempt <= 3; cAttempt++) {
+                                 try {
+                                     const combineRes = await fetch('{{ route('admin.upload.combine') }}', {
+                                         method: 'POST',
+                                         headers: {
+                                             'X-CSRF-TOKEN': getCsrf(),
+                                             'Content-Type': 'application/json',
+                                             'Accept': 'application/json'
+                                         },
+                                         body: JSON.stringify({
+                                             upload_id: uploadId,
+                                             total_chunks: totalChunks,
+                                             filename: file.name,
+                                             folder: 'designs'
+                                         })
+                                     });
+                         
+                                     if (combineRes.ok) {
+                                         const result = await combineRes.json();
+                                         if (result && result.success) {
+                                             combineSuccess = true;
+                                             this.progress = 100;
+                                             this.uploadedUrl = result.url;
+                                             this.statusText = 'Selesai diunggah ke cloud storage!';
+                                             this.uploading = false;
+                                             e.target.value = '';
+                                             break;
+                                         } else {
+                                             combineErr = new Error(result?.message || 'Gagal memproses berkas PDF.');
+                                         }
+                                     } else {
+                                         let cMsg = '';
+                                         try {
+                                             const cJson = await combineRes.json();
+                                             cMsg = cJson?.message || '';
+                                         } catch(_) {
+                                             cMsg = `HTTP ${combineRes.status} ${combineRes.statusText}`;
+                                         }
+                                         combineErr = new Error(`Gagal memproses dokumen di cloud: ${cMsg}`);
+                                     }
+                                 } catch (netE) {
+                                     combineErr = netE;
+                                 }
+                         
+                                 if (cAttempt < 3) {
+                                     this.statusText = `Mencoba ulang proses penggabungan dokumen (Percobaan ${cAttempt + 1}/3)...`;
+                                     await new Promise(r => setTimeout(r, 2000));
+                                 }
+                             }
+                         
+                             if (!combineSuccess) {
+                                 throw (combineErr || new Error('Gagal memproses berkas PDF di cloud.'));
+                             }
+                         } catch (err) {
+                             console.error(err);
+                             this.errorMessage = err.message || 'Terjadi kesalahan saat mengunggah PDF.';
+                             this.uploading = false;
+                             e.target.value = '';
+                         }
+                     }
+      }"
+      @submit="if (uploading) { $event.preventDefault(); alert('Mohon tunggu, dokumen PDF sedang diunggah ke cloud storage...'); }">
             @csrf
 
             <!-- Form Grid -->
@@ -376,7 +558,15 @@
             <!-- Submit Buttons -->
             <div class="flex justify-end gap-3 border-t border-white/5 pt-6">
                 <a href="{{ route('admin.projects.index') }}" class="px-5 py-2.5 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 text-sm font-semibold text-gray-400 hover:text-white transition-all">Batal</a>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">Simpan Project</button>
+                <button type="submit" 
+                        :disabled="uploading"
+                        :class="uploading ? 'opacity-60 cursor-not-allowed bg-blue-800' : 'bg-blue-600 hover:bg-blue-500'"
+                        class="flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">
+                    <template x-if="uploading">
+                        <svg class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    </template>
+                    <span x-text="uploading ? 'Mengunggah Dokumen (' + progress + '%)...' : 'Simpan Project'">Simpan Project</span>
+                </button>
             </div>
         </form>
     </div>

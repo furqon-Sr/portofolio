@@ -49,7 +49,10 @@ class AdminController extends Controller
      */
     public function createProject()
     {
-        return view('admin.projects.create');
+        return response()
+            ->view('admin.projects.create')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     /**
@@ -111,7 +114,10 @@ class AdminController extends Controller
     public function editProject($id)
     {
         $project = Project::findOrFail($id);
-        return view('admin.projects.edit', compact('project'));
+        return response()
+            ->view('admin.projects.edit', compact('project'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     /**
@@ -1230,34 +1236,51 @@ class AdminController extends Controller
         $finalBaseName = Str::slug($nameWithoutExt) . '-' . time() . '-' . Str::random(8);
         $finalPath = "{$folder}/{$finalBaseName}.{$ext}";
 
-        // Combine parts into stream efficiently
+        // Combine parts into stream efficiently using concurrent S3 download
         $combinedStream = fopen('php://temp', 'r+');
         $keysToDelete = [];
 
         try {
+            $r2Disk = Storage::disk('r2');
+            $s3Client = $r2Disk->getClient();
+            $bucket = config('filesystems.disks.r2.bucket');
+
+            // Concurrently download all chunk parts using S3 async commands
+            $promises = [];
             for ($i = 0; $i < $totalChunks; $i++) {
                 $chunkKey = "temp/{$uploadId}/part_{$i}.bin";
-                $chunkContent = Storage::disk('r2')->get($chunkKey);
-                if ($chunkContent === null || $chunkContent === false) {
-                    fclose($combinedStream);
-                    return response()->json([
-                        'success' => false,
-                        'message' => "Bagian berkas #{$i} tidak ditemukan di cloud storage.",
-                    ], 400);
-                }
-                fwrite($combinedStream, $chunkContent);
-                unset($chunkContent);
+                $cmd = $s3Client->getCommand('GetObject', [
+                    'Bucket' => $bucket,
+                    'Key' => $chunkKey,
+                ]);
+                $promises[$i] = $s3Client->executeAsync($cmd);
                 $keysToDelete[] = $chunkKey;
+            }
+
+            $results = \GuzzleHttp\Promise\Utils::all($promises)->wait();
+
+            // Write all parts in sequential order
+            for ($i = 0; $i < $totalChunks; $i++) {
+                if (!isset($results[$i]['Body'])) {
+                    throw new \RuntimeException("Bagian berkas #{$i} tidak valid.");
+                }
+                $chunkContent = (string) $results[$i]['Body'];
+                fwrite($combinedStream, $chunkContent);
+                unset($chunkContent, $results[$i]);
             }
             rewind($combinedStream);
 
-            Storage::disk('r2')->put($finalPath, $combinedStream);
+            $putSaved = $r2Disk->put($finalPath, $combinedStream);
             fclose($combinedStream);
+
+            if ($putSaved === false) {
+                throw new \RuntimeException("Gagal menyimpan dokumen akhir ke Cloudflare R2.");
+            }
 
             // Cleanup temp chunk parts in bulk
             if (!empty($keysToDelete)) {
                 try {
-                    Storage::disk('r2')->delete($keysToDelete);
+                    $r2Disk->delete($keysToDelete);
                 } catch (\Throwable $delErr) {
                     // Non-fatal cleanup error
                 }
@@ -1269,7 +1292,7 @@ class AdminController extends Controller
             \Log::error("combineChunks error: " . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => "Gagal menggabungkan berkas PDF: " . $e->getMessage(),
+                'message' => "Gagal memproses dokumen di cloud: " . $e->getMessage(),
             ], 500);
         }
 
