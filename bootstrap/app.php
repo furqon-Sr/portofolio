@@ -19,6 +19,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/projects/*/view',
             'projects/*/view',
+            '*upload-chunk*',
+            '*upload-combine*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

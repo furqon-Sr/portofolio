@@ -120,70 +120,138 @@
                          this.progress = 5;
                          this.statusText = 'Mempersiapkan pengunggahan cloud...';
 
-                         const chunkSize = 2 * 1024 * 1024; // 2MB safe chunks
+                                                  const chunkSize = 1024 * 1024; // 1MB safe chunks (high reliability, zero timeout)
                          const totalChunks = Math.ceil(file.size / chunkSize);
                          const uploadId = 'up_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
-                         const csrfToken = document.querySelector('input[name=_token]').value;
-
+                         
+                         const getCsrf = () => {
+                             const cookieMatch = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+                             return cookieMatch ? decodeURIComponent(cookieMatch[1]) : (document.querySelector('input[name=_token]')?.value || '');
+                         };
+                         
                          try {
                              for (let i = 0; i < totalChunks; i++) {
                                  const start = i * chunkSize;
                                  const end = Math.min(start + chunkSize, file.size);
                                  const chunk = file.slice(start, end);
-
-                                 const formData = new FormData();
-                                 formData.append('upload_id', uploadId);
-                                 formData.append('chunk_index', i);
-                                 formData.append('chunk', chunk, 'part_' + i + '.bin');
-
-                                 this.statusText = `Mengunggah bagian ${i + 1} dari ${totalChunks} (${Math.round(((i + 1) / totalChunks) * 85)}%)...`;
-
-                                 const res = await fetch('{{ route('admin.upload.chunk') }}', {
-                                     method: 'POST',
-                                     headers: {
-                                         'X-CSRF-TOKEN': csrfToken,
-                                         'Accept': 'application/json'
-                                     },
-                                     body: formData
-                                 });
-
-                                 if (!res.ok) {
-                                     throw new Error('Gagal mengunggah bagian ' + (i + 1));
+                         
+                                 let uploadSuccess = false;
+                                 let lastErr = null;
+                         
+                                 for (let attempt = 1; attempt <= 3; attempt++) {
+                                     try {
+                                         const formData = new FormData();
+                                         formData.append('upload_id', uploadId);
+                                         formData.append('chunk_index', i);
+                                         formData.append('chunk', chunk, 'part_' + i + '.bin');
+                         
+                                         const percent = Math.round(((i + 1) / totalChunks) * 85);
+                                         this.statusText = attempt > 1 
+                                             ? `Mencoba ulang bagian ${i + 1} (Percobaan ${attempt}/3)...` 
+                                             : `Mengunggah bagian ${i + 1} dari ${totalChunks} (${percent}%)...`;
+                         
+                                         const res = await fetch('{{ route('admin.upload.chunk') }}', {
+                                             method: 'POST',
+                                             headers: {
+                                                 'X-CSRF-TOKEN': getCsrf(),
+                                                 'Accept': 'application/json'
+                                             },
+                                             body: formData
+                                         });
+                         
+                                         if (res.ok) {
+                                             const json = await res.json();
+                                             if (json && json.success) {
+                                                 uploadSuccess = true;
+                                                 break;
+                                             } else {
+                                                 lastErr = new Error(json?.message || `Gagal menyimpan bagian ${i + 1}`);
+                                             }
+                                         } else {
+                                             let msg = '';
+                                             try {
+                                                 const jsonErr = await res.json();
+                                                 msg = jsonErr?.message || '';
+                                             } catch(_) {
+                                                 msg = `HTTP ${res.status} ${res.statusText}`;
+                                             }
+                                             lastErr = new Error(`Bagian ${i + 1}: ${msg}`);
+                                         }
+                                     } catch (netErr) {
+                                         lastErr = netErr;
+                                     }
+                         
+                                     if (attempt < 3) {
+                                         await new Promise(r => setTimeout(r, 1200));
+                                     }
                                  }
-
+                         
+                                 if (!uploadSuccess) {
+                                     throw (lastErr || new Error(`Gagal mengunggah bagian ${i + 1} setelah 3 kali percobaan.`));
+                                 }
+                         
                                  this.progress = Math.round(((i + 1) / totalChunks) * 85);
                              }
-
+                         
                              this.statusText = 'Memverifikasi dan memproses dokumen di cloud...';
                              this.progress = 92;
-
-                             const combineRes = await fetch('{{ route('admin.upload.combine') }}', {
-                                 method: 'POST',
-                                 headers: {
-                                     'X-CSRF-TOKEN': csrfToken,
-                                     'Content-Type': 'application/json',
-                                     'Accept': 'application/json'
-                                 },
-                                 body: JSON.stringify({
-                                     upload_id: uploadId,
-                                     total_chunks: totalChunks,
-                                     filename: file.name,
-                                     folder: 'designs'
-                                 })
-                             });
-
-                             const result = await combineRes.json();
-                             if (!result.success) {
-                                 throw new Error(result.message || 'Gagal memproses berkas PDF.');
+                         
+                             let combineSuccess = false;
+                             let combineErr = null;
+                         
+                             for (let cAttempt = 1; cAttempt <= 3; cAttempt++) {
+                                 try {
+                                     const combineRes = await fetch('{{ route('admin.upload.combine') }}', {
+                                         method: 'POST',
+                                         headers: {
+                                             'X-CSRF-TOKEN': getCsrf(),
+                                             'Content-Type': 'application/json',
+                                             'Accept': 'application/json'
+                                         },
+                                         body: JSON.stringify({
+                                             upload_id: uploadId,
+                                             total_chunks: totalChunks,
+                                             filename: file.name,
+                                             folder: 'designs'
+                                         })
+                                     });
+                         
+                                     if (combineRes.ok) {
+                                         const result = await combineRes.json();
+                                         if (result && result.success) {
+                                             combineSuccess = true;
+                                             this.progress = 100;
+                                             this.uploadedUrl = result.url;
+                                             this.statusText = 'Selesai diunggah ke cloud storage!';
+                                             this.uploading = false;
+                                             e.target.value = '';
+                                             break;
+                                         } else {
+                                             combineErr = new Error(result?.message || 'Gagal memproses berkas PDF.');
+                                         }
+                                     } else {
+                                         let cMsg = '';
+                                         try {
+                                             const cJson = await combineRes.json();
+                                             cMsg = cJson?.message || '';
+                                         } catch(_) {
+                                             cMsg = `HTTP ${combineRes.status} ${combineRes.statusText}`;
+                                         }
+                                         combineErr = new Error(`Gagal memproses dokumen di cloud: ${cMsg}`);
+                                     }
+                                 } catch (netE) {
+                                     combineErr = netE;
+                                 }
+                         
+                                 if (cAttempt < 3) {
+                                     this.statusText = `Mencoba ulang proses penggabungan dokumen (Percobaan ${cAttempt + 1}/3)...`;
+                                     await new Promise(r => setTimeout(r, 2000));
+                                 }
                              }
-
-                             this.progress = 100;
-                             this.uploadedUrl = result.url;
-                             this.statusText = 'Selesai diunggah ke cloud storage!';
-                             this.uploading = false;
-                             
-                             // Reset file input so form submission doesn't re-upload the large payload
-                             e.target.value = '';
+                         
+                             if (!combineSuccess) {
+                                 throw (combineErr || new Error('Gagal memproses berkas PDF di cloud.'));
+                             }
                          } catch (err) {
                              console.error(err);
                              this.errorMessage = err.message || 'Terjadi kesalahan saat mengunggah PDF.';

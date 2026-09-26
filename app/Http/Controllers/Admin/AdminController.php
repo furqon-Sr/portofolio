@@ -1184,7 +1184,21 @@ class AdminController extends Controller
         $chunkPath = "temp/{$uploadId}/part_{$chunkIndex}.bin";
         $content = file_get_contents($chunkFile->getRealPath());
 
-        Storage::disk('r2')->put($chunkPath, $content);
+        try {
+            $saved = Storage::disk('r2')->put($chunkPath, $content);
+            if ($saved === false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Gagal menulis bagian {$chunkIndex} ke storage cloud.",
+                ], 500);
+            }
+        } catch (\Throwable $e) {
+            \Log::error("uploadChunk error part {$chunkIndex}: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => "Storage error pada bagian {$chunkIndex}: " . $e->getMessage(),
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
@@ -1197,6 +1211,8 @@ class AdminController extends Controller
      */
     public function combineChunks(Request $request)
     {
+        @set_time_limit(120);
+
         $request->validate([
             'upload_id' => 'required|string|max:64',
             'total_chunks' => 'required|integer|min:1',
@@ -1214,23 +1230,48 @@ class AdminController extends Controller
         $finalBaseName = Str::slug($nameWithoutExt) . '-' . time() . '-' . Str::random(8);
         $finalPath = "{$folder}/{$finalBaseName}.{$ext}";
 
-        // Combine parts into temp stream
+        // Combine parts into stream efficiently
         $combinedStream = fopen('php://temp', 'r+');
-        for ($i = 0; $i < $totalChunks; $i++) {
-            $chunkKey = "temp/{$uploadId}/part_{$i}.bin";
-            if (!Storage::disk('r2')->exists($chunkKey)) {
-                fclose($combinedStream);
-                return response()->json(['success' => false, 'message' => "Part {$i} missing."], 400);
-            }
-            $chunkContent = Storage::disk('r2')->get($chunkKey);
-            fwrite($combinedStream, $chunkContent);
-            unset($chunkContent);
-            Storage::disk('r2')->delete($chunkKey);
-        }
-        rewind($combinedStream);
+        $keysToDelete = [];
 
-        Storage::disk('r2')->put($finalPath, $combinedStream);
-        fclose($combinedStream);
+        try {
+            for ($i = 0; $i < $totalChunks; $i++) {
+                $chunkKey = "temp/{$uploadId}/part_{$i}.bin";
+                $chunkContent = Storage::disk('r2')->get($chunkKey);
+                if ($chunkContent === null || $chunkContent === false) {
+                    fclose($combinedStream);
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Bagian berkas #{$i} tidak ditemukan di cloud storage.",
+                    ], 400);
+                }
+                fwrite($combinedStream, $chunkContent);
+                unset($chunkContent);
+                $keysToDelete[] = $chunkKey;
+            }
+            rewind($combinedStream);
+
+            Storage::disk('r2')->put($finalPath, $combinedStream);
+            fclose($combinedStream);
+
+            // Cleanup temp chunk parts in bulk
+            if (!empty($keysToDelete)) {
+                try {
+                    Storage::disk('r2')->delete($keysToDelete);
+                } catch (\Throwable $delErr) {
+                    // Non-fatal cleanup error
+                }
+            }
+        } catch (\Throwable $e) {
+            if (is_resource($combinedStream)) {
+                fclose($combinedStream);
+            }
+            \Log::error("combineChunks error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => "Gagal menggabungkan berkas PDF: " . $e->getMessage(),
+            ], 500);
+        }
 
         $publicUrl = self::getR2PublicUrl($finalPath);
 
