@@ -177,7 +177,9 @@
                 </div>
 
                 <!-- Footer Actions -->
-                <div class="flex flex-wrap items-center gap-3" :class="!isFullscreen ? 'pt-3 border-t border-zinc-900/80' : ''">
+                <div x-show="isFullscreen || (project.category === 'Web Dev' && ((project.link && project.link !== '#') || project.github)) || (project.category === 'Design' && project.link && project.link !== '#')"
+                     class="flex flex-wrap items-center gap-3" 
+                     :class="!isFullscreen ? 'pt-3 border-t border-zinc-900/80' : ''">
                     <!-- In Fullscreen: Info toggle button -->
                     <button x-show="isFullscreen" 
                             @click="showFullscreenDetails = !showFullscreenDetails"
@@ -217,23 +219,6 @@
                         <span>Buka Sumber / Google Drive</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                     </a>
-
-                    <!-- Fullscreen Toggle button in footer -->
-                    <button @click="toggleFullscreen()"
-                            type="button"
-                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800 hover:text-white text-zinc-300 text-xs md:text-sm font-semibold rounded-xl transition-all duration-300 ml-auto cursor-pointer"
-                            :title="isFullscreen ? 'Keluar Layar Penuh (Esc)' : 'Layar Penuh (F)'">
-                        <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="isFullscreen ? 'M9 4v4H5m0 0l5-5M15 4v4h4m0 0l-5-5M9 20v-4H5m0 0l5 5M15 20v-4h4m0 0l-5 5' : 'M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4'" />
-                        </svg>
-                        <span x-text="isFullscreen ? 'Perkecil' : 'Layar Penuh'"></span>
-                    </button>
-
-                    <!-- Close Button -->
-                    <button @click="closeModal()" 
-                            class="inline-flex items-center justify-center px-5 py-2.5 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-white text-zinc-400 text-sm font-semibold rounded-xl transition-all duration-300 cursor-pointer">
-                        Tutup
-                    </button>
                 </div>
             </div>
         </div>
