@@ -49,16 +49,67 @@
           previewSrc: '',
           previewAlt: '',
           previewZoom: 1,
+          panX: 0,
+          panY: 0,
+          isDragging: false,
+          startX: 0,
+          startY: 0,
+          hasMoved: false,
           openPreview(src, alt) {
               this.previewSrc = src;
               this.previewAlt = alt || '';
               this.previewZoom = 1;
+              this.panX = 0;
+              this.panY = 0;
               this.previewModal = true;
               document.body.style.overflow = 'hidden';
           },
           closePreview() {
               this.previewModal = false;
+              this.previewZoom = 1;
+              this.panX = 0;
+              this.panY = 0;
               document.body.style.overflow = '';
+          },
+          zoomIn() {
+              this.previewZoom = Math.min(3, +(this.previewZoom + 0.35).toFixed(2));
+          },
+          zoomOut() {
+              this.previewZoom = Math.max(1, +(this.previewZoom - 0.35).toFixed(2));
+              if (this.previewZoom === 1) {
+                  this.panX = 0;
+                  this.panY = 0;
+              }
+          },
+          handleImageClick(e) {
+              if (this.hasMoved) return;
+              if (this.previewZoom === 1) {
+                  this.previewZoom = 1.8;
+              } else {
+                  this.previewZoom = 1;
+                  this.panX = 0;
+                  this.panY = 0;
+              }
+          },
+          startDrag(e) {
+              if (this.previewZoom <= 1) return;
+              this.isDragging = true;
+              this.hasMoved = false;
+              this.startX = e.clientX - this.panX;
+              this.startY = e.clientY - this.panY;
+          },
+          onDrag(e) {
+              if (!this.isDragging || this.previewZoom <= 1) return;
+              const newX = e.clientX - this.startX;
+              const newY = e.clientY - this.startY;
+              if (Math.abs(newX - this.panX) > 3 || Math.abs(newY - this.panY) > 3) {
+                  this.hasMoved = true;
+              }
+              this.panX = newX;
+              this.panY = newY;
+          },
+          stopDrag() {
+              this.isDragging = false;
           }
       }">
     <!-- Ambient Background Container -->
@@ -117,15 +168,7 @@
                         <div class="relative z-10 w-full flex items-center justify-center p-3 sm:p-5 md:p-8 min-h-[250px] max-h-[620px]">
                             <img src="{{ $article->cover_image }}" 
                                  alt="{{ $article->title }}" 
-                                 class="max-w-full max-h-[560px] w-auto h-auto object-contain rounded-2xl shadow-xl transition-transform duration-300 group-hover:scale-[1.01]">
-                        </div>
-
-                        <!-- Hover Preview Badge -->
-                        <div class="absolute bottom-4 right-4 z-20 opacity-80 group-hover:opacity-100 transition-opacity">
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/75 hover:bg-black/95 backdrop-blur-md border border-white/15 text-xs font-semibold text-white shadow-xl transition-all">
-                                <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
-                                Klik untuk Perbesar
-                            </span>
+                                 class="max-w-full max-h-[560px] w-auto h-auto object-contain rounded-2xl shadow-xl transition-transform duration-300 group-hover:scale-[1.01] cursor-zoom-in">
                         </div>
                     </div>
                     @if($article->cover_image_source || $article->cover_image_source_url)
@@ -185,62 +228,67 @@
 
     <!-- Fullscreen Image Preview Lightbox Modal -->
     <div x-show="previewModal" 
-         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter="transition ease-out duration-200"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
          @keydown.escape.window="closePreview()"
-         class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 md:p-8 bg-black/90 backdrop-blur-2xl"
+         class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl select-none"
          style="display: none;"
          role="dialog"
-         aria-modal="true">
+         aria-modal="true"
+         @mousemove="onDrag($event)"
+         @mouseup="stopDrag()"
+         @mouseleave="stopDrag()">
         
         <!-- Backdrop Click to Close -->
-        <div class="absolute inset-0 cursor-zoom-out" @click="closePreview()"></div>
+        <div class="absolute inset-0 z-10 cursor-zoom-out" @click="closePreview()"></div>
 
-        <!-- Floating Controls Bar (Top) -->
-        <div class="absolute top-4 left-4 right-4 z-50 flex items-center justify-between pointer-events-none">
-            <!-- Image Title / Alt -->
-            <div class="pointer-events-auto bg-black/70 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl max-w-[280px] sm:max-w-md truncate shadow-2xl">
-                <p class="text-xs text-gray-200 font-medium truncate" x-text="previewAlt || 'Pratinjau Gambar'"></p>
-            </div>
+        <!-- Top Right Minimalist Controls (Matches reference modelcontextprotocol.io) -->
+        <div class="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex items-center gap-2.5 pointer-events-auto">
+            <!-- Zoom Out Button -->
+            <button type="button" 
+                    @click.stop="zoomOut()" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 hover:border-white/25 flex items-center justify-center text-white transition-all shadow-xl"
+                    :class="previewZoom <= 1 ? 'opacity-40 cursor-not-allowed' : 'opacity-100 hover:scale-105 active:scale-95 cursor-pointer'"
+                    :disabled="previewZoom <= 1"
+                    aria-label="Perkecil">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+            </button>
 
-            <!-- Controls Action Buttons -->
-            <div class="pointer-events-auto flex items-center gap-2">
-                <!-- Zoom Controls -->
-                <div class="flex items-center bg-black/70 backdrop-blur-md border border-white/10 rounded-2xl p-1 text-xs shadow-2xl">
-                    <button type="button" @click.stop="previewZoom = Math.max(0.5, (previewZoom - 0.25).toFixed(2))" class="p-1.5 text-gray-300 hover:text-white rounded-xl hover:bg-white/10 transition-colors" title="Perkecil (-)">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-                    </button>
-                    <span class="px-2 font-mono text-xs text-blue-400 font-semibold select-none" x-text="Math.round(previewZoom * 100) + '%'"></span>
-                    <button type="button" @click.stop="previewZoom = Math.min(3, (parseFloat(previewZoom) + 0.25).toFixed(2))" class="p-1.5 text-gray-300 hover:text-white rounded-xl hover:bg-white/10 transition-colors" title="Perbesar (+)">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    </button>
-                    <button type="button" @click.stop="previewZoom = 1" class="px-2 py-1 text-[10px] text-gray-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors font-semibold" title="Reset Ukuran">
-                        Reset
-                    </button>
-                </div>
+            <!-- Zoom In Button -->
+            <button type="button" 
+                    @click.stop="zoomIn()" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 hover:border-white/25 flex items-center justify-center text-white transition-all shadow-xl"
+                    :class="previewZoom >= 3 ? 'opacity-40 cursor-not-allowed' : 'opacity-100 hover:scale-105 active:scale-95 cursor-pointer'"
+                    :disabled="previewZoom >= 3"
+                    aria-label="Perbesar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+            </button>
 
-                <!-- Open in New Tab -->
-                <a :href="previewSrc" target="_blank" rel="noopener noreferrer" class="p-2.5 bg-black/70 backdrop-blur-md border border-white/10 text-gray-300 hover:text-white rounded-2xl hover:bg-white/10 transition-colors shadow-2xl flex items-center" title="Buka Gambar Ukuran Penuh di Tab Baru">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                </a>
-
-                <!-- Close Button -->
-                <button type="button" @click="closePreview()" class="p-2.5 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-colors border border-white/15 shadow-2xl flex items-center" title="Tutup (Esc)">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
+            <!-- Close Button -->
+            <button type="button" 
+                    @click.stop="closePreview()" 
+                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-neutral-900/80 hover:bg-neutral-800 border border-white/10 hover:border-white/25 flex items-center justify-center text-white transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
+                    aria-label="Tutup">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
         </div>
 
         <!-- Image Display Area -->
-        <div class="relative z-40 max-w-full max-h-[88vh] overflow-auto flex items-center justify-center p-2">
+        <div class="relative z-20 w-full h-full flex items-center justify-center p-4 sm:p-8 pointer-events-none"
+             @wheel.prevent="if ($event.deltaY < 0) { zoomIn(); } else { zoomOut(); }">
             <img :src="previewSrc" 
                  :alt="previewAlt" 
-                 :style="`transform: scale(${previewZoom}); transform-origin: center center; transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);`"
-                 class="max-w-full max-h-[82vh] w-auto h-auto object-contain rounded-2xl shadow-2xl select-none pointer-events-auto">
+                 @click.stop="handleImageClick($event)"
+                 @mousedown="startDrag($event)"
+                 :class="[
+                     previewZoom > 1 ? (isDragging ? 'cursor-grabbing' : 'cursor-zoom-out') : 'cursor-zoom-in'
+                 ]"
+                 :style="`transform: translate(${panX}px, ${panY}px) scale(${previewZoom}); transform-origin: center center; transition: ${isDragging ? 'none' : 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)'};`"
+                 class="max-w-[92vw] max-h-[88vh] w-auto h-auto object-contain rounded-xl shadow-2xl select-none pointer-events-auto">
         </div>
     </div>
 
