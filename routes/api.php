@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\McpController;
 use App\Http\Controllers\Api\ProjectController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,10 +12,13 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | These routes are loaded by bootstrap/app.php and are prefixed with /api.
-| Protected by the ApiKeyMiddleware which requires a valid X-API-KEY header.
 |
 */
 
+// MCP (Model Context Protocol) Remote Server Endpoint (SSE & JSON-RPC)
+Route::match(['get', 'post', 'options'], '/mcp', [McpController::class, 'handle'])->name('api.mcp');
+
+// Protected REST API Endpoints (Requires X-API-KEY header)
 Route::middleware('api.key')->group(function () {
     // Contacts (Inbox)
     Route::get('/contacts', [ContactController::class, 'index'])->name('api.contacts.index');

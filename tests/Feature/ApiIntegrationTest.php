@@ -210,3 +210,87 @@ it('creates a new certificate successfully', function () {
         'name' => 'Google Cloud Associate Cloud Engineer',
     ]);
 });
+
+it('returns MCP online status via GET /api/mcp', function () {
+    $response = $this->getJson('/api/mcp');
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'online',
+            'server' => 'portfolio-mcp-server',
+            'protocolVersion' => '2024-11-05',
+        ]);
+});
+
+it('handles MCP initialize via POST /api/mcp', function () {
+    $response = $this->postJson('/api/mcp', [
+        'jsonrpc' => '2.0',
+        'id' => 1,
+        'method' => 'initialize',
+        'params' => [],
+    ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'result' => [
+                'protocolVersion' => '2024-11-05',
+                'serverInfo' => [
+                    'name' => 'portfolio-mcp-server',
+                ],
+            ],
+        ]);
+});
+
+it('handles MCP tools/list via POST /api/mcp', function () {
+    $response = $this->postJson('/api/mcp', [
+        'jsonrpc' => '2.0',
+        'id' => 2,
+        'method' => 'tools/list',
+    ]);
+
+    $response->assertStatus(200)
+        ->assertJsonStructure([
+            'jsonrpc',
+            'id',
+            'result' => [
+                'tools' => [
+                    '*' => ['name', 'description', 'inputSchema'],
+                ],
+            ],
+        ]);
+
+    $toolNames = collect($response->json('result.tools'))->pluck('name');
+    expect($toolNames)->toContain('get_contacts', 'get_projects', 'create_project', 'get_certificates', 'create_certificate');
+});
+
+it('executes MCP tool create_project via POST /api/mcp', function () {
+    $response = $this->postJson('/api/mcp', [
+        'jsonrpc' => '2.0',
+        'id' => 3,
+        'method' => 'tools/call',
+        'params' => [
+            'name' => 'create_project',
+            'arguments' => [
+                'title' => 'Project via MCP',
+                'category' => 'Web Dev',
+                'description' => 'Project created through Model Context Protocol.',
+            ],
+        ],
+    ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 3,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('projects', [
+        'title' => 'Project via MCP',
+    ]);
+});
+

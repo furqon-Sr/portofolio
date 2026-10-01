@@ -9,10 +9,6 @@
             "runtime": "vercel-php@0.8.0",
             "regions": ["sin1"],
             "maxDuration": 60
-        },
-        "api/mcp.js": {
-            "regions": ["sin1"],
-            "maxDuration": 60
         }
     },
     "redirects": [
@@ -74,15 +70,6 @@
         {
             "src": "/og-image.jpg",
             "dest": "/public/og-image.jpg"
-        },
-        {
-            "src": "/api/mcp(.*)",
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "*"
-            },
-            "dest": "/api/mcp.js"
         },
         {
             "src": "/(.*)",
