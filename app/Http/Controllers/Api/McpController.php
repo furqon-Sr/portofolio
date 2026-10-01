@@ -129,6 +129,38 @@ class McpController extends BaseApiController
     ];
 
     /**
+     * Validate MCP client authentication against GEMINI_API_KEY / PORTFOLIO_API_KEY
+     * Supports: X-API-KEY header, Authorization: Bearer <key>, or query param ?key=... / ?api_key=...
+     */
+    protected function isAuthorized(Request $request): bool
+    {
+        $serverKey = env('GEMINI_API_KEY') ?: env('PORTFOLIO_API_KEY');
+
+        if (empty($serverKey)) {
+            return false;
+        }
+
+        // 1. Check X-API-KEY header
+        $providedKey = $request->header('X-API-KEY');
+
+        // 2. Check Authorization: Bearer <key>
+        if (empty($providedKey)) {
+            $providedKey = $request->bearerToken();
+        }
+
+        // 3. Check query parameter: ?key=... or ?api_key=...
+        if (empty($providedKey)) {
+            $providedKey = $request->query('key') ?: $request->query('api_key');
+        }
+
+        if (empty($providedKey)) {
+            return false;
+        }
+
+        return hash_equals((string) $serverKey, (string) $providedKey);
+    }
+
+    /**
      * Handle MCP Request (GET, POST, OPTIONS)
      */
     public function handle(Request $request): mixed
@@ -142,7 +174,28 @@ class McpController extends BaseApiController
             ]);
         }
 
-        // 2. GET Request: SSE Transport or status
+        // 2. Enforce Authentication
+        if (!$this->isAuthorized($request)) {
+            if ($request->isMethod('POST')) {
+                $id = $request->json('id');
+                return response()->json([
+                    'jsonrpc' => '2.0',
+                    'id' => $id,
+                    'error' => [
+                        'code' => -32000,
+                        'message' => 'Unauthorized. Kunci autentikasi tidak valid atau tidak disertakan. Sertakan header X-API-KEY, Bearer token, atau parameter URL ?key=.',
+                    ],
+                ], 401, ['Access-Control-Allow-Origin' => '*']);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized. Kunci autentikasi tidak valid atau tidak disertakan. Sertakan header X-API-KEY, Bearer token, atau parameter URL ?key=.',
+                'data' => null,
+            ], 401, ['Access-Control-Allow-Origin' => '*']);
+        }
+
+        // 3. GET Request: SSE Transport or status
         if ($request->isMethod('GET')) {
             $acceptsSse = str_contains($request->header('Accept', ''), 'text/event-stream') ||
                           $request->query('transport') === 'sse';

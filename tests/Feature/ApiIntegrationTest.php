@@ -211,8 +211,20 @@ it('creates a new certificate successfully', function () {
     ]);
 });
 
-it('returns MCP online status via GET /api/mcp', function () {
-    $response = $this->getJson('/api/mcp');
+it('rejects MCP requests without valid key', function () {
+    $getRes = $this->getJson('/api/mcp');
+    $getRes->assertStatus(401);
+
+    $postRes = $this->postJson('/api/mcp', [
+        'jsonrpc' => '2.0',
+        'id' => 1,
+        'method' => 'tools/list',
+    ]);
+    $postRes->assertStatus(401);
+});
+
+it('returns MCP online status via GET /api/mcp with key query param', function () {
+    $response = $this->getJson('/api/mcp?key=' . TEST_API_KEY);
 
     $response->assertStatus(200)
         ->assertJson([
@@ -222,13 +234,14 @@ it('returns MCP online status via GET /api/mcp', function () {
         ]);
 });
 
-it('handles MCP initialize via POST /api/mcp', function () {
-    $response = $this->postJson('/api/mcp', [
-        'jsonrpc' => '2.0',
-        'id' => 1,
-        'method' => 'initialize',
-        'params' => [],
-    ]);
+it('handles MCP initialize via POST /api/mcp with header', function () {
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 1,
+            'method' => 'initialize',
+            'params' => [],
+        ]);
 
     $response->assertStatus(200)
         ->assertJson([
@@ -243,8 +256,8 @@ it('handles MCP initialize via POST /api/mcp', function () {
         ]);
 });
 
-it('handles MCP tools/list via POST /api/mcp', function () {
-    $response = $this->postJson('/api/mcp', [
+it('handles MCP tools/list via POST /api/mcp with URL key param', function () {
+    $response = $this->postJson('/api/mcp?key=' . TEST_API_KEY, [
         'jsonrpc' => '2.0',
         'id' => 2,
         'method' => 'tools/list',
@@ -265,20 +278,21 @@ it('handles MCP tools/list via POST /api/mcp', function () {
     expect($toolNames)->toContain('get_contacts', 'get_projects', 'create_project', 'get_certificates', 'create_certificate');
 });
 
-it('executes MCP tool create_project via POST /api/mcp', function () {
-    $response = $this->postJson('/api/mcp', [
-        'jsonrpc' => '2.0',
-        'id' => 3,
-        'method' => 'tools/call',
-        'params' => [
-            'name' => 'create_project',
-            'arguments' => [
-                'title' => 'Project via MCP',
-                'category' => 'Web Dev',
-                'description' => 'Project created through Model Context Protocol.',
+it('executes MCP tool create_project via POST /api/mcp with auth', function () {
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 3,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'create_project',
+                'arguments' => [
+                    'title' => 'Project via MCP',
+                    'category' => 'Web Dev',
+                    'description' => 'Project created through Model Context Protocol.',
+                ],
             ],
-        ],
-    ]);
+        ]);
 
     $response->assertStatus(200)
         ->assertJson([
