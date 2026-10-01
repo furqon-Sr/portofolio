@@ -45,11 +45,8 @@
                         <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-2 shadow-lg shadow-red-500/5 group-hover:scale-110 transition-transform">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                         </div>
-                        <span class="text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20 mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
                             Dokumen PDF
-                        </span>
-                        <span class="text-[11px] text-gray-400 font-medium line-clamp-1 max-w-[85%]">
-                            Pratinjau Desain
                         </span>
                     </div>
 
@@ -103,10 +100,6 @@
         <!-- Right: Action Links -->
         <div class="flex items-center gap-3">
             @if($category === 'Web Dev')
-                <span class="text-blue-400 group-hover:text-blue-300 flex items-center gap-1 text-xs font-medium transition-colors" title="Pratinjau Project">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    <span>Preview</span>
-                </span>
                 @if($link)
                 <a href="{{ $link }}" target="_blank" @click.stop="if(projectId){ fetch('/api/projects/' + projectId + '/view', { method: 'POST', headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } }).catch(() => {}); views++; }" 
                    class="text-gray-400 hover:text-white flex items-center gap-1.5 text-xs font-medium transition-colors" title="Buka Website">
@@ -121,10 +114,13 @@
                     <span>GitHub</span>
                 </a>
                 @endif
+                @if(!$link && !$github_link)
+                <span class="text-gray-500 group-hover:text-blue-400 flex items-center transition-colors">
+                    <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </span>
+                @endif
             @else
-                <span class="text-blue-400 group-hover:text-blue-300 flex items-center gap-1 text-xs font-medium transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    <span>Lihat Desain</span>
+                <span class="text-gray-500 group-hover:text-blue-400 flex items-center transition-colors">
                     <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </span>
             @endif
