@@ -31,4 +31,9 @@ Route::middleware('api.key')->group(function () {
     // Certificates
     Route::get('/certificates', [CertificateController::class, 'index'])->name('api.certificates.index');
     Route::post('/certificates', [CertificateController::class, 'store'])->name('api.certificates.store');
+
+    // Articles (Blog)
+    Route::get('/articles', [\App\Http\Controllers\Api\ArticleController::class, 'index'])->name('api.articles.index');
+    Route::post('/articles', [\App\Http\Controllers\Api\ArticleController::class, 'store'])->name('api.articles.store');
+    Route::match(['put', 'patch', 'post'], '/articles/{id}', [\App\Http\Controllers\Api\ArticleController::class, 'update'])->name('api.articles.update');
 });

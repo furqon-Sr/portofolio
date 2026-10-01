@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Article;
 use App\Models\Certificate;
 use App\Models\Contact;
 use App\Models\Project;
@@ -380,6 +381,193 @@ it('executes MCP tool update_project via POST /api/mcp', function () {
         'id' => $project->id,
         'title' => 'Updated via MCP Tool',
         'description' => 'Description refreshed by Gemini Spark MCP.',
+    ]);
+});
+
+it('retrieves published articles successfully', function () {
+    Article::create([
+        'title' => 'Belajar Model Context Protocol',
+        'slug' => 'belajar-model-context-protocol-1',
+        'excerpt' => 'Panduan lengkap MCP untuk AI Agent.',
+        'content' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        'cover_image' => 'https://example.com/cover.jpg',
+        'references' => [
+            ['title' => 'Anthropic MCP Spec', 'url' => 'https://modelcontextprotocol.io'],
+        ],
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->getJson('/api/articles');
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Daftar artikel blog berhasil diambil.',
+        ]);
+
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.title'))->toBe('Belajar Model Context Protocol');
+});
+
+it('creates an article successfully via REST API', function () {
+    $payload = [
+        'title' => 'Artikel Baru via REST API',
+        'excerpt' => 'Ringkasan singkat artikel.',
+        'content' => 'Konten lengkap artikel tentang integrasi AI.',
+        'cover_image_url' => 'https://example.com/ai-blog.png',
+        'references' => [
+            ['title' => 'Laravel Documentation', 'url' => 'https://laravel.com/docs'],
+        ],
+    ];
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/articles', $payload);
+
+    $response->assertStatus(201)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Artikel blog berhasil diterbitkan.',
+            'data' => [
+                'title' => 'Artikel Baru via REST API',
+                'excerpt' => 'Ringkasan singkat artikel.',
+            ],
+        ]);
+
+    $this->assertDatabaseHas('articles', [
+        'title' => 'Artikel Baru via REST API',
+    ]);
+});
+
+it('updates an existing article via PUT /api/articles/{id}', function () {
+    $article = Article::create([
+        'title' => 'Judul Awal',
+        'slug' => 'judul-awal',
+        'excerpt' => 'Excerpt lama.',
+        'content' => 'Konten lama.',
+        'cover_image' => 'https://example.com/old.png',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->putJson("/api/articles/{$article->id}", [
+            'title' => 'Judul Artikel Diperbarui',
+            'content' => 'Konten artikel sudah direvisi.',
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Artikel blog berhasil diperbarui.',
+            'data' => [
+                'id' => $article->id,
+                'title' => 'Judul Artikel Diperbarui',
+                'content' => 'Konten artikel sudah direvisi.',
+            ],
+        ]);
+
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'title' => 'Judul Artikel Diperbarui',
+    ]);
+});
+
+it('executes MCP tool get_articles via POST /api/mcp', function () {
+    Article::create([
+        'title' => 'Artikel untuk MCP Test',
+        'slug' => 'artikel-untuk-mcp-test',
+        'excerpt' => 'Excerpt test.',
+        'content' => 'Konten test.',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 5,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'get_articles',
+                'arguments' => ['limit' => 5],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 5,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+});
+
+it('executes MCP tool create_article via POST /api/mcp', function () {
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 6,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'create_article',
+                'arguments' => [
+                    'title' => 'Artikel Dibuat oleh Gemini Spark',
+                    'excerpt' => 'Eksperimen integrasi MCP di website portofolio.',
+                    'content' => 'Halo dunia! Artikel ini ditulis secara otomatis oleh AI Content Creator.',
+                    'cover_image_url' => 'https://example.com/spark.png',
+                    'references' => [
+                        ['title' => 'Google Gemini', 'url' => 'https://ai.google.dev'],
+                    ],
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 6,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('articles', [
+        'title' => 'Artikel Dibuat oleh Gemini Spark',
+    ]);
+});
+
+it('executes MCP tool update_article via POST /api/mcp', function () {
+    $article = Article::create([
+        'title' => 'Draft Artikel',
+        'slug' => 'draft-artikel',
+        'excerpt' => 'Draft excerpt.',
+        'content' => 'Draft content.',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 7,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'update_article',
+                'arguments' => [
+                    'id' => $article->id,
+                    'title' => 'Artikel Telah Direview dan Dipublikasikan',
+                    'content' => 'Versi final dari artikel ini telah diverifikasi.',
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 7,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'title' => 'Artikel Telah Direview dan Dipublikasikan',
     ]);
 });
 

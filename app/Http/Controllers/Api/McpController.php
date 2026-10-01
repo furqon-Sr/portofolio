@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Article;
 use App\Models\Certificate;
 use App\Models\Contact;
 use App\Models\Project;
@@ -162,6 +163,99 @@ class McpController extends BaseApiController
                     ],
                 ],
                 'required' => ['name', 'issuer', 'issued_at'],
+            ],
+        ],
+        [
+            'name' => 'get_articles',
+            'description' => 'Melihat daftar artikel blog yang sudah terbit di website.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'limit' => [
+                        'type' => 'integer',
+                        'description' => 'Jumlah maksimal artikel yang ingin diambil (default: 50).',
+                    ],
+                ],
+            ],
+        ],
+        [
+            'name' => 'create_article',
+            'description' => 'Membuat dan menerbitkan artikel blog baru ke website portofolio.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'title' => [
+                        'type' => 'string',
+                        'description' => 'Judul artikel blog (wajib).',
+                    ],
+                    'content' => [
+                        'type' => 'string',
+                        'description' => 'Isi lengkap teks artikel blog (wajib, mendukung paragraf/teks/HTML).',
+                    ],
+                    'excerpt' => [
+                        'type' => 'string',
+                        'description' => 'Ringkasan singkat artikel untuk preview (1-2 kalimat) (opsional).',
+                    ],
+                    'cover_image_url' => [
+                        'type' => 'string',
+                        'description' => 'URL gambar sampul (cover image) artikel (opsional).',
+                    ],
+                    'references' => [
+                        'type' => 'array',
+                        'description' => 'Daftar referensi/jurnal/tautan sumber rujukan (opsional).',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'title' => ['type' => 'string', 'description' => 'Judul referensi'],
+                                'url' => ['type' => 'string', 'description' => 'URL sumber rujukan'],
+                            ],
+                            'required' => ['title', 'url'],
+                        ],
+                    ],
+                ],
+                'required' => ['title', 'content'],
+            ],
+        ],
+        [
+            'name' => 'update_article',
+            'description' => 'Memperbarui artikel blog yang sudah ada berdasarkan ID.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => [
+                        'type' => 'integer',
+                        'description' => 'ID artikel yang ingin diperbarui (wajib).',
+                    ],
+                    'title' => [
+                        'type' => 'string',
+                        'description' => 'Judul baru artikel blog (opsional).',
+                    ],
+                    'content' => [
+                        'type' => 'string',
+                        'description' => 'Isi teks baru artikel blog (opsional).',
+                    ],
+                    'excerpt' => [
+                        'type' => 'string',
+                        'description' => 'Ringkasan preview baru artikel (opsional).',
+                    ],
+                    'cover_image_url' => [
+                        'type' => 'string',
+                        'description' => 'URL gambar sampul baru artikel (opsional).',
+                    ],
+                    'references' => [
+                        'type' => 'array',
+                        'description' => 'Daftar referensi baru (opsional).',
+                        'items' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'title' => ['type' => 'string', 'description' => 'Judul referensi'],
+                                'url' => ['type' => 'string', 'description' => 'URL sumber rujukan'],
+                            ],
+                            'required' => ['title', 'url'],
+                        ],
+                    ],
+                ],
+                'required' => ['id'],
             ],
         ],
     ];
@@ -468,6 +562,53 @@ class McpController extends BaseApiController
                     'credential_url' => $args['credential_url'] ?? null,
                     'image' => $args['image_url'] ?? 'cert.png',
                 ]);
+
+            case 'get_articles':
+                $limit = min(max((int) ($args['limit'] ?? 50), 1), 100);
+                return Article::latest()->take($limit)->get();
+
+            case 'create_article':
+                $title = $args['title'] ?? 'Untitled Article';
+                $references = $args['references'] ?? [];
+                return Article::create([
+                    'title' => $title,
+                    'excerpt' => $args['excerpt'] ?? null,
+                    'content' => $args['content'] ?? '',
+                    'cover_image' => $args['cover_image_url'] ?? null,
+                    'references' => is_array($references) ? array_values($references) : [],
+                ]);
+
+            case 'update_article':
+                $id = $args['id'] ?? null;
+                if (!$id) {
+                    throw new \InvalidArgumentException("Parameter 'id' wajib disertakan.");
+                }
+
+                $article = Article::find($id);
+                if (!$article) {
+                    throw new \InvalidArgumentException("Artikel blog dengan ID {$id} tidak ditemukan.");
+                }
+
+                $updateData = [];
+                if (isset($args['title'])) {
+                    $updateData['title'] = $args['title'];
+                    $updateData['slug'] = Str::slug($args['title']) . '-' . $article->id;
+                }
+                if (isset($args['excerpt'])) {
+                    $updateData['excerpt'] = $args['excerpt'];
+                }
+                if (isset($args['content'])) {
+                    $updateData['content'] = $args['content'];
+                }
+                if (!empty($args['cover_image_url'])) {
+                    $updateData['cover_image'] = $args['cover_image_url'];
+                }
+                if (isset($args['references']) && is_array($args['references'])) {
+                    $updateData['references'] = array_values($args['references']);
+                }
+
+                $article->update($updateData);
+                return $article->fresh();
 
             default:
                 throw new \InvalidArgumentException("Tool '{$name}' tidak dikenal.");
