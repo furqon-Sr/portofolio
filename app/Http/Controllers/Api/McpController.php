@@ -80,6 +80,44 @@ class McpController extends BaseApiController
             ],
         ],
         [
+            'name' => 'update_project',
+            'description' => 'Memperbarui data proyek portofolio yang sudah ada berdasarkan ID.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => [
+                        'type' => 'integer',
+                        'description' => 'ID proyek portofolio yang ingin diperbarui (wajib).',
+                    ],
+                    'title' => [
+                        'type' => 'string',
+                        'description' => 'Judul baru proyek portofolio (opsional).',
+                    ],
+                    'category' => [
+                        'type' => 'string',
+                        'description' => "Kategori baru proyek (contoh: 'Web Dev', 'Design') (opsional).",
+                    ],
+                    'description' => [
+                        'type' => 'string',
+                        'description' => 'Deskripsi baru mengenai proyek (opsional).',
+                    ],
+                    'live_link' => [
+                        'type' => 'string',
+                        'description' => 'URL demo atau website baru (opsional).',
+                    ],
+                    'github_link' => [
+                        'type' => 'string',
+                        'description' => 'URL repositori GitHub baru (opsional).',
+                    ],
+                    'cover_image_url' => [
+                        'type' => 'string',
+                        'description' => 'URL gambar sampul (cover image) baru (opsional).',
+                    ],
+                ],
+                'required' => ['id'],
+            ],
+        ],
+        [
             'name' => 'get_certificates',
             'description' => 'Mengambil daftar sertifikat yang terdaftar.',
             'inputSchema' => [
@@ -381,6 +419,41 @@ class McpController extends BaseApiController
                     'github_link' => $args['github_link'] ?? null,
                     'cover_image' => $args['cover_image_url'] ?? 'image.png',
                 ]);
+
+            case 'update_project':
+                $id = $args['id'] ?? null;
+                if (!$id) {
+                    throw new \InvalidArgumentException("Parameter 'id' wajib disertakan.");
+                }
+
+                $project = Project::find($id);
+                if (!$project) {
+                    throw new \InvalidArgumentException("Proyek portofolio dengan ID {$id} tidak ditemukan.");
+                }
+
+                $updateData = [];
+                if (isset($args['title'])) {
+                    $updateData['title'] = $args['title'];
+                    $updateData['slug'] = Str::slug($args['title']) . '-' . $project->id;
+                }
+                if (isset($args['category'])) {
+                    $updateData['category'] = $args['category'];
+                }
+                if (isset($args['description'])) {
+                    $updateData['description'] = $args['description'];
+                }
+                if (array_key_exists('live_link', $args)) {
+                    $updateData['live_link'] = $args['live_link'];
+                }
+                if (array_key_exists('github_link', $args)) {
+                    $updateData['github_link'] = $args['github_link'];
+                }
+                if (!empty($args['cover_image_url'])) {
+                    $updateData['cover_image'] = $args['cover_image_url'];
+                }
+
+                $project->update($updateData);
+                return $project->fresh();
 
             case 'get_certificates':
                 $limit = min(max((int) ($args['limit'] ?? 50), 1), 100);

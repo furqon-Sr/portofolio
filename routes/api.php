@@ -26,6 +26,7 @@ Route::middleware('api.key')->group(function () {
     // Projects (Portfolio)
     Route::get('/projects', [ProjectController::class, 'index'])->name('api.projects.index');
     Route::post('/projects', [ProjectController::class, 'store'])->name('api.projects.store');
+    Route::match(['put', 'patch', 'post'], '/projects/{id}', [ProjectController::class, 'update'])->name('api.projects.update');
 
     // Certificates
     Route::get('/certificates', [CertificateController::class, 'index'])->name('api.certificates.index');

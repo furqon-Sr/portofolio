@@ -308,3 +308,78 @@ it('executes MCP tool create_project via POST /api/mcp with auth', function () {
     ]);
 });
 
+it('updates an existing portfolio project via PUT /api/projects/{id}', function () {
+    $project = Project::create([
+        'title' => 'Initial Title',
+        'slug' => 'initial-title',
+        'category' => 'Web Dev',
+        'description' => 'Initial description.',
+        'cover_image' => 'https://example.com/old.png',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->putJson("/api/projects/{$project->id}", [
+            'title' => 'Updated Project Title',
+            'category' => 'Design',
+            'live_link' => 'https://updated.example.com',
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Portofolio berhasil diperbarui.',
+            'data' => [
+                'id' => $project->id,
+                'title' => 'Updated Project Title',
+                'category' => 'Design',
+                'live_link' => 'https://updated.example.com',
+            ],
+        ]);
+
+    $this->assertDatabaseHas('projects', [
+        'id' => $project->id,
+        'title' => 'Updated Project Title',
+        'category' => 'Design',
+    ]);
+});
+
+it('executes MCP tool update_project via POST /api/mcp', function () {
+    $project = Project::create([
+        'title' => 'Pre-MCP Project',
+        'slug' => 'pre-mcp-project',
+        'category' => 'Web Dev',
+        'description' => 'Will be updated via MCP.',
+        'cover_image' => 'https://example.com/cover.png',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 4,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'update_project',
+                'arguments' => [
+                    'id' => $project->id,
+                    'title' => 'Updated via MCP Tool',
+                    'description' => 'Description refreshed by Gemini Spark MCP.',
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 4,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('projects', [
+        'id' => $project->id,
+        'title' => 'Updated via MCP Tool',
+        'description' => 'Description refreshed by Gemini Spark MCP.',
+    ]);
+});
+
