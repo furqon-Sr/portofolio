@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 $app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -15,16 +16,43 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectUsersTo(fn () => route('admin.dashboard'));
         $middleware->alias([
             'edge.cache' => \App\Http\Middleware\EdgeCache::class,
+            'api.key' => \App\Http\Middleware\ApiKeyMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
-            'api/projects/*/view',
+            'api/*',
             'projects/*/view',
             '*upload-chunk*',
             '*upload-combine*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validasi gagal: ' . $e->getMessage(),
+                    'data' => $e->errors(),
+                ], 422);
+            }
+        });
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Resource atau endpoint tidak ditemukan.',
+                    'data' => null,
+                ], 404);
+            }
+        });
+        $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage(),
+                    'data' => null,
+                ], 500);
+            }
+        });
     })->create();
 
 if (getenv('VERCEL') || isset($_SERVER['VERCEL']) || getenv('NOW_PORT') || isset($_SERVER['NOW_PORT'])) {
