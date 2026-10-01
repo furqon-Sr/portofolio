@@ -200,6 +200,14 @@ class McpController extends BaseApiController
                         'type' => 'string',
                         'description' => 'URL gambar sampul (cover image) artikel (opsional).',
                     ],
+                    'cover_image_source' => [
+                        'type' => 'string',
+                        'description' => 'Nama/label sumber kredit gambar (contoh: "Unsplash / SpaceX", "Dokumentasi Resmi") (opsional).',
+                    ],
+                    'cover_image_source_url' => [
+                        'type' => 'string',
+                        'description' => 'URL langsung ke halaman sumber gambar asli (opsional).',
+                    ],
                     'references' => [
                         'type' => 'array',
                         'description' => 'Daftar referensi/jurnal/tautan sumber rujukan (opsional).',
@@ -241,6 +249,14 @@ class McpController extends BaseApiController
                     'cover_image_url' => [
                         'type' => 'string',
                         'description' => 'URL gambar sampul baru artikel (opsional).',
+                    ],
+                    'cover_image_source' => [
+                        'type' => 'string',
+                        'description' => 'Nama/label sumber kredit gambar baru (opsional).',
+                    ],
+                    'cover_image_source_url' => [
+                        'type' => 'string',
+                        'description' => 'URL langsung ke halaman sumber gambar asli yang baru (opsional).',
                     ],
                     'references' => [
                         'type' => 'array',
@@ -575,6 +591,8 @@ class McpController extends BaseApiController
                     'excerpt' => $args['excerpt'] ?? null,
                     'content' => $args['content'] ?? '',
                     'cover_image' => $args['cover_image_url'] ?? null,
+                    'cover_image_source' => $args['cover_image_source'] ?? null,
+                    'cover_image_source_url' => $args['cover_image_source_url'] ?? null,
                     'references' => is_array($references) ? array_values($references) : [],
                 ]);
 
@@ -602,6 +620,12 @@ class McpController extends BaseApiController
                 }
                 if (!empty($args['cover_image_url'])) {
                     $updateData['cover_image'] = $args['cover_image_url'];
+                }
+                if (array_key_exists('cover_image_source', $args)) {
+                    $updateData['cover_image_source'] = $args['cover_image_source'];
+                }
+                if (array_key_exists('cover_image_source_url', $args)) {
+                    $updateData['cover_image_source_url'] = $args['cover_image_source_url'];
                 }
                 if (isset($args['references']) && is_array($args['references'])) {
                     $updateData['references'] = array_values($args['references']);

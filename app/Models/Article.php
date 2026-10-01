@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
-    protected $fillable = ['title', 'slug', 'excerpt', 'content', 'cover_image', 'references'];
+    protected $fillable = [
+        'title',
+        'slug',
+        'excerpt',
+        'content',
+        'cover_image',
+        'cover_image_source',
+        'cover_image_source_url',
+        'references',
+    ];
 
     protected $casts = [
         'references' => 'array',

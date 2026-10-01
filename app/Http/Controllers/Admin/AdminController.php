@@ -338,6 +338,8 @@ class AdminController extends Controller
             'content' => 'required|string',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
+            'cover_image_source' => 'nullable|string|max:255',
+            'cover_image_source_url' => 'nullable|url',
             'references' => 'nullable|array',
             'references.*.title' => 'required_with:references|string',
             'references.*.url' => 'required_with:references|url',
@@ -358,6 +360,8 @@ class AdminController extends Controller
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
             'cover_image' => $image,
+            'cover_image_source' => $request->input('cover_image_source'),
+            'cover_image_source_url' => $request->input('cover_image_source_url'),
             'references' => $request->input('references') ? array_values($request->input('references')) : [],
         ]);
 
@@ -380,6 +384,8 @@ class AdminController extends Controller
             'content' => 'required|string',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
+            'cover_image_source' => 'nullable|string|max:255',
+            'cover_image_source_url' => 'nullable|url',
             'references' => 'nullable|array',
             'references.*.title' => 'required_with:references|string',
             'references.*.url' => 'required_with:references|url',
@@ -400,6 +406,8 @@ class AdminController extends Controller
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
             'cover_image' => $image,
+            'cover_image_source' => $request->input('cover_image_source'),
+            'cover_image_source_url' => $request->input('cover_image_source_url'),
             'references' => $request->input('references') ? array_values($request->input('references')) : [],
         ]);
 

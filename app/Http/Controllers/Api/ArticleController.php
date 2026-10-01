@@ -39,6 +39,8 @@ class ArticleController extends BaseApiController
             'excerpt' => 'nullable|string',
             'content' => 'required|string',
             'cover_image_url' => 'nullable|url',
+            'cover_image_source' => 'nullable|string|max:255',
+            'cover_image_source_url' => 'nullable|url',
             'cover_image' => 'nullable|string',
             'cover_image_file' => 'nullable|image|max:10240',
             'references' => 'nullable|array',
@@ -79,6 +81,8 @@ class ArticleController extends BaseApiController
             'excerpt' => $validated['excerpt'] ?? null,
             'content' => $validated['content'],
             'cover_image' => $coverImage,
+            'cover_image_source' => $validated['cover_image_source'] ?? null,
+            'cover_image_source_url' => $validated['cover_image_source_url'] ?? null,
             'references' => $references,
         ]);
 
@@ -107,6 +111,8 @@ class ArticleController extends BaseApiController
             'excerpt' => 'nullable|string',
             'content' => 'nullable|string',
             'cover_image_url' => 'nullable|url',
+            'cover_image_source' => 'nullable|string|max:255',
+            'cover_image_source_url' => 'nullable|url',
             'cover_image' => 'nullable|string',
             'cover_image_file' => 'nullable|image|max:10240',
             'references' => 'nullable|array',
@@ -127,6 +133,14 @@ class ArticleController extends BaseApiController
 
         if ($request->has('content')) {
             $updateData['content'] = $validated['content'];
+        }
+
+        if ($request->has('cover_image_source')) {
+            $updateData['cover_image_source'] = $validated['cover_image_source'];
+        }
+
+        if ($request->has('cover_image_source_url')) {
+            $updateData['cover_image_source_url'] = $validated['cover_image_source_url'];
         }
 
         if ($request->hasFile('cover_image_file')) {

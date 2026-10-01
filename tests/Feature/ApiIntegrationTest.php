@@ -415,6 +415,8 @@ it('creates an article successfully via REST API', function () {
         'excerpt' => 'Ringkasan singkat artikel.',
         'content' => 'Konten lengkap artikel tentang integrasi AI.',
         'cover_image_url' => 'https://example.com/ai-blog.png',
+        'cover_image_source' => 'Unsplash / Space AI',
+        'cover_image_source_url' => 'https://unsplash.com/photos/space-ai',
         'references' => [
             ['title' => 'Laravel Documentation', 'url' => 'https://laravel.com/docs'],
         ],
@@ -430,11 +432,15 @@ it('creates an article successfully via REST API', function () {
             'data' => [
                 'title' => 'Artikel Baru via REST API',
                 'excerpt' => 'Ringkasan singkat artikel.',
+                'cover_image_source' => 'Unsplash / Space AI',
+                'cover_image_source_url' => 'https://unsplash.com/photos/space-ai',
             ],
         ]);
 
     $this->assertDatabaseHas('articles', [
         'title' => 'Artikel Baru via REST API',
+        'cover_image_source' => 'Unsplash / Space AI',
+        'cover_image_source_url' => 'https://unsplash.com/photos/space-ai',
     ]);
 });
 
@@ -578,12 +584,17 @@ it('renders article detail page with cover image and markdown inline images', fu
         'excerpt' => 'Artikel yang memiliki gambar pendukung.',
         'content' => "Berikut diagram arsitektur sistem:\n\n![Diagram Sistem](https://example.com/diagram.png)\n\nPenjelasan lebih lanjut.",
         'cover_image' => 'https://example.com/cover-art.jpg',
+        'cover_image_source' => 'Unsplash / Tech Explorer',
+        'cover_image_source_url' => 'https://unsplash.com/photos/tech-explorer',
     ]);
 
     $response = $this->get("/blog/{$article->slug}");
 
     $response->assertStatus(200);
     $response->assertSee('https://example.com/cover-art.jpg');
+    $response->assertSee('Sumber Gambar:');
+    $response->assertSee('Unsplash / Tech Explorer');
+    $response->assertSee('https://unsplash.com/photos/tech-explorer');
     $response->assertSee('<img src="https://example.com/diagram.png" alt="Diagram Sistem"', false);
 });
 

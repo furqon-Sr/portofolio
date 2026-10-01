@@ -43,11 +43,117 @@
                 @enderror
             </div>
 
-            <!-- Content -->
-            <div class="space-y-2">
-                <label for="content" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Isi Artikel</label>
-                <textarea name="content" id="content" rows="12" required
-                       class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">{{ old('content', $article->content) }}</textarea>
+            <!-- Content with Rich Markdown Toolbar & Live Preview -->
+            <div class="space-y-2" x-data="{
+                activeTab: 'edit',
+                content: @js(old('content', $article->content)),
+                previewHtml: '',
+                updatePreview() {
+                    if (typeof marked !== 'undefined') {
+                        this.previewHtml = marked.parse(this.content || '');
+                    } else {
+                        this.previewHtml = (this.content || '').replace(/\n/g, '<br>');
+                    }
+                },
+                insertFormat(prefix, suffix, placeholder = 'teks') {
+                    const textarea = this.$refs.contentInput;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const text = textarea.value;
+                    const selected = text.substring(start, end) || placeholder;
+                    const replacement = prefix + selected + suffix;
+                    
+                    textarea.value = text.substring(0, start) + replacement + text.substring(end);
+                    this.content = textarea.value;
+                    textarea.focus();
+                    textarea.setSelectionRange(start + prefix.length, start + prefix.length + selected.length);
+                }
+            }">
+                <div class="flex items-center justify-between">
+                    <label for="content" class="block text-xs font-bold uppercase tracking-wider text-gray-400">Isi Artikel</label>
+                    <!-- Editor Mode Tabs -->
+                    <div class="flex p-0.5 bg-black/40 rounded-lg border border-white/5 text-xs">
+                        <button type="button" @click="activeTab = 'edit'" :class="activeTab === 'edit' ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-white'" class="px-3 py-1 font-semibold rounded-md transition-all flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Tulis (Editor)
+                        </button>
+                        <button type="button" @click="activeTab = 'preview'; updatePreview();" :class="activeTab === 'preview' ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-white'" class="px-3 py-1 font-semibold rounded-md transition-all flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            Pratinjau (Preview)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Toolbar Container -->
+                <div x-show="activeTab === 'edit'" class="flex flex-wrap items-center gap-1 p-2 bg-black/40 border border-white/10 rounded-t-xl border-b-0">
+                    <!-- Bold -->
+                    <button type="button" @click="insertFormat('**', '**', 'teks tebal')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded font-bold text-xs" title="Tebal (Bold)">
+                        <span class="w-4 h-4 flex items-center justify-center font-bold">B</span>
+                    </button>
+                    <!-- Italic -->
+                    <button type="button" @click="insertFormat('*', '*', 'teks miring')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded italic text-xs" title="Miring (Italic)">
+                        <span class="w-4 h-4 flex items-center justify-center italic font-serif">I</span>
+                    </button>
+                    <!-- Strikethrough -->
+                    <button type="button" @click="insertFormat('~~', '~~', 'coret')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs" title="Coret (Strikethrough)">
+                        <span class="w-4 h-4 flex items-center justify-center line-through">S</span>
+                    </button>
+
+                    <div class="h-4 w-px bg-white/10 mx-1"></div>
+
+                    <!-- Heading 2 -->
+                    <button type="button" @click="insertFormat('## ', '\n', 'Judul Bagian')" class="px-2 py-1 text-gray-300 hover:text-white hover:bg-white/10 rounded font-bold text-xs" title="Heading 2">
+                        H2
+                    </button>
+                    <!-- Heading 3 -->
+                    <button type="button" @click="insertFormat('### ', '\n', 'Sub-bagian')" class="px-2 py-1 text-gray-300 hover:text-white hover:bg-white/10 rounded font-semibold text-xs" title="Heading 3">
+                        H3
+                    </button>
+
+                    <div class="h-4 w-px bg-white/10 mx-1"></div>
+
+                    <!-- Quote -->
+                    <button type="button" @click="insertFormat('> ', '\n', 'Kutipan inspiratif')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs" title="Kutipan (Quote)">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                    </button>
+                    <!-- Bullet List -->
+                    <button type="button" @click="insertFormat('- ', '\n', 'Item daftar')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs" title="Daftar Poin (List)">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                    <!-- Numbered List -->
+                    <button type="button" @click="insertFormat('1. ', '\n', 'Item urutan')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs font-mono font-bold" title="Daftar Angka (Numbered List)">
+                        1.
+                    </button>
+
+                    <div class="h-4 w-px bg-white/10 mx-1"></div>
+
+                    <!-- Link -->
+                    <button type="button" @click="insertFormat('[', '](https://url-tujuan.com)', 'Judul Tautan')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs flex items-center gap-1" title="Sisipkan Link">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    </button>
+                    <!-- Image -->
+                    <button type="button" @click="insertFormat('![', '](https://link-gambar.com/gambar.png)', 'Keterangan Gambar')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs flex items-center gap-1" title="Sisipkan Gambar Pendukung (Inline Media)">
+                        <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </button>
+                    <!-- Code Block -->
+                    <button type="button" @click="insertFormat('```\n', '\n```', 'kode program')" class="p-1.5 text-gray-300 hover:text-white hover:bg-white/10 rounded text-xs font-mono" title="Blok Kode (Code Block)">
+                        &lt;/&gt;
+                    </button>
+                </div>
+
+                <!-- Textarea Editor -->
+                <div x-show="activeTab === 'edit'">
+                    <textarea name="content" id="content" x-ref="contentInput" x-model="content" rows="14" required
+                           class="w-full bg-white/[0.02] border border-white/10 rounded-b-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-mono leading-relaxed"
+                           placeholder="Tulis artikel dengan gaya Markdown. Gunakan tombol toolbar di atas untuk memformat teks (tebal, miring, list, gambar pendukung, dll).">{{ old('content', $article->content) }}</textarea>
+                </div>
+
+                <!-- Live Preview -->
+                <div x-show="activeTab === 'preview'" class="w-full min-h-[350px] bg-black/30 border border-white/10 rounded-xl p-6 overflow-y-auto" style="display: none;">
+                    <div class="prose prose-invert max-w-none text-gray-300" x-html="previewHtml"></div>
+                </div>
+
+                <p class="text-[10px] text-gray-500">Mendukung format Markdown: **tebal**, *miring*, heading ##, tautan [link](url), dan gambar ![alt](url).</p>
                 @error('content')
                     <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                 @enderror
@@ -135,6 +241,28 @@
                         <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
                     @enderror
                 </div>
+
+                <!-- Sumber Gambar / Attribution Link -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                    <div class="space-y-1">
+                        <label for="cover_image_source" class="block text-[11px] font-semibold text-gray-400">Label Sumber Gambar (Opsional)</label>
+                        <input type="text" name="cover_image_source" id="cover_image_source" value="{{ old('cover_image_source', $article->cover_image_source) }}"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
+                               placeholder="Contoh: Unsplash / SpaceX atau Dokumentasi">
+                        @error('cover_image_source')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div class="space-y-1">
+                        <label for="cover_image_source_url" class="block text-[11px] font-semibold text-gray-400">Link Sumber Gambar / URL (Opsional)</label>
+                        <input type="url" name="cover_image_source_url" id="cover_image_source_url" value="{{ old('cover_image_source_url', $article->cover_image_source_url) }}"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition-all placeholder:text-gray-600"
+                               placeholder="https://unsplash.com/photos/...">
+                        @error('cover_image_source_url')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
             </div>
 
             <!-- Submit Button -->
@@ -146,4 +274,5 @@
         </form>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 @endsection
