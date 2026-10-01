@@ -571,3 +571,20 @@ it('executes MCP tool update_article via POST /api/mcp', function () {
     ]);
 });
 
+it('renders article detail page with cover image and markdown inline images', function () {
+    $article = Article::create([
+        'title' => 'Artikel dengan Media Gambar',
+        'slug' => 'artikel-dengan-media-gambar',
+        'excerpt' => 'Artikel yang memiliki gambar pendukung.',
+        'content' => "Berikut diagram arsitektur sistem:\n\n![Diagram Sistem](https://example.com/diagram.png)\n\nPenjelasan lebih lanjut.",
+        'cover_image' => 'https://example.com/cover-art.jpg',
+    ]);
+
+    $response = $this->get("/blog/{$article->slug}");
+
+    $response->assertStatus(200);
+    $response->assertSee('https://example.com/cover-art.jpg');
+    $response->assertSee('<img src="https://example.com/diagram.png" alt="Diagram Sistem"', false);
+});
+
+

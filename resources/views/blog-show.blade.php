@@ -35,6 +35,10 @@
         .prose li { margin-bottom: 0.5em; }
         .prose blockquote { border-left: 4px solid #3b82f6; padding-left: 1em; margin-left: 0; font-style: italic; color: #d4d4d8; }
         .prose strong { color: #e4e4e7; font-weight: 600; }
+        .prose img { border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); margin: 2rem auto; max-width: 100%; height: auto; display: block; }
+        .prose pre { background-color: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 0.75rem; padding: 1rem 1.25rem; overflow-x: auto; margin-bottom: 1.5em; }
+        .prose code { color: #60a5fa; font-size: 0.9em; background-color: rgba(255, 255, 255, 0.05); padding: 0.15rem 0.35rem; border-radius: 0.25rem; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
     </style>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -90,7 +94,7 @@
 
                 <!-- Article Content -->
                 <div class="prose prose-lg prose-invert max-w-none text-gray-300">
-                    {!! nl2br(e($article->content)) !!}
+                    {!! \Illuminate\Support\Str::markdown($article->content, ['html_input' => 'allow', 'allow_unsafe_links' => false, 'renderer' => ['soft_break' => "<br>\n"]]) !!}
                 </div>
 
                 <!-- References Section -->
