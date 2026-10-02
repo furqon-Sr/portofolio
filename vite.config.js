@@ -8,4 +8,17 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        rollupOptions: {
+            output: {
+                entryFileNames: (chunkInfo) => {
+                    return chunkInfo.facadeModuleId?.endsWith('.js')
+                        ? 'assets/app.js'
+                        : 'assets/[name].js';
+                },
+                chunkFileNames: 'assets/[name].js',
+                assetFileNames: 'assets/[name].[ext]',
+            },
+        },
+    },
 });
