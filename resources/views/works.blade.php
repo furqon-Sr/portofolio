@@ -62,7 +62,6 @@
             <main class="pt-24 pb-32 animate-slide-up">
             <div class="mb-16 text-center md:text-left">
                 <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">Selected <span class="text-blue-600">Works</span></h1>
-                <p class="text-gray-400 text-sm md:text-lg">A collection of my recent projects in web development and design.</p>
             </div>
 
             <!-- Filter Buttons -->
