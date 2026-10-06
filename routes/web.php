@@ -199,9 +199,9 @@ Route::get('/contact', function () {
     return view('contact'); 
 })->name('contact.show');
 
-// Contact Form Submit with Rate Limiting (max 5 requests per minute)
+// Contact Form Submit with Strict Rate Limiting (max 3 requests per minute per IP)
 Route::post('/contact-submit', [ContactController::class, 'store'])
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:3,1')
     ->name('contact.store');
 
 // Download or View Active CV

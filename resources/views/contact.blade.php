@@ -30,6 +30,8 @@
     @else
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     @endif
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -41,6 +43,9 @@
         }
     </style>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @if(config('services.turnstile.enabled') && config('services.turnstile.site_key'))
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
 </head>
 <body class="relative overflow-x-hidden bg-gray-950 text-white antialiased selection:bg-blue-600 selection:text-white">
     <div class="fixed inset-0 z-[-1] pointer-events-none">
@@ -52,7 +57,7 @@
     <div class="min-h-screen flex flex-col justify-between">
         <!-- Full-Width Navigation (Mentok Kanan Kiri) -->
         <div class="w-full px-6 md:px-10 lg:px-12 pt-2">
-            <x-navigation />
+            <x-navigation :site-setting="$siteSettingsData" />
         </div>
 
         <div class="max-w-6xl mx-auto px-6 lg:px-8 w-full flex-grow flex flex-col justify-center">
@@ -96,23 +101,50 @@
                             <span>{{ session('success') }}</span>
                         </div>
                     @endif
+
+                    @if($errors->any())
+                        <div class="mb-8 p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm font-medium flex items-start gap-3">
+                            <svg class="w-5 h-5 shrink-0 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div class="space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <p>{{ $error }}</p>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <form action="{{ route('contact.store') }}" method="POST" class="space-y-8">
                         @csrf
+
+                        {{-- 1. HONEYPOT ANTI-SPAM (Hidden from human visitors via CSS, targeted by crawler bots) --}}
+                        <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; height: 0; width: 0; overflow: hidden;" aria-hidden="true" tabindex="-1">
+                            <label for="website_url">Do not fill this field</label>
+                            <input type="text" name="website_url" id="website_url" autocomplete="new-password" tabindex="-1" value="">
+                            <input type="hidden" name="form_timestamp" value="{{ time() }}">
+                        </div>
+
                         <div class="relative group">
                             <label for="name" class="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1 group-focus-within:text-blue-500 transition-colors">Name</label>
-                            <input type="text" id="name" name="name" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base" placeholder="Tulis nama Anda">
+                            <input type="text" id="name" name="name" value="{{ old('name') }}" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base" placeholder="Tulis nama Anda">
                         </div>
                         
                         <div class="relative group">
                             <label for="email" class="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1 group-focus-within:text-blue-500 transition-colors">Email</label>
-                            <input type="email" id="email" name="email" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base" placeholder="Tulis email Anda">
+                            <input type="email" id="email" name="email" value="{{ old('email') }}" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base" placeholder="Tulis email Anda">
                         </div>
                         
                         <div class="relative group">
                             <label for="message" class="block text-xs uppercase tracking-widest text-gray-500 font-semibold mb-1 group-focus-within:text-blue-500 transition-colors">Message</label>
-                            <textarea id="message" name="message" rows="4" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base resize-none" placeholder="Tulis pesan Anda"></textarea>
+                            <textarea id="message" name="message" rows="4" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base resize-none" placeholder="Tulis pesan Anda">{{ old('message') }}</textarea>
                         </div>
                         
+                        {{-- 2. PROTEKSI BOT MODERN (Cloudflare Turnstile) --}}
+                        @if(config('services.turnstile.enabled') && config('services.turnstile.site_key'))
+                        <div class="pt-2">
+                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="dark" data-size="flexible"></div>
+                        </div>
+                        @endif
+
                         <div class="pt-2">
                             <button type="submit" class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-gray-950 hover:bg-blue-600 hover:text-white font-semibold text-sm rounded-full transition-all duration-300 shadow-lg shadow-white/5 hover:shadow-blue-500/30 hover:-translate-y-0.5 select-none">
                                 <span>Send Message</span>
@@ -128,7 +160,7 @@
 
         <!-- Full-Width Footer (Mentok Kanan Kiri) -->
         <div class="w-full px-6 md:px-10 lg:px-12">
-            <x-footer :hide-contact="true" />
+            <x-footer :hide-contact="true" :site-setting="$siteSettingsData" />
         </div>
     </div>
 </body>
