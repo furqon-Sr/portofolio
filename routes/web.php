@@ -68,7 +68,7 @@ Route::get('/certificates', function () {
 Route::get('/media/profile-photo', function () {
     $setting = \App\Models\AboutSetting::first();
     if (!$setting || empty($setting->profile_photo)) {
-        return redirect(asset('img/porto.png'));
+        return redirect(asset('img/porto.webp'));
     }
 
     $photo = $setting->profile_photo;

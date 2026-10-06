@@ -52,9 +52,20 @@
 
                 </div>
             @elseif($image)
-                <img src="{{ Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image) }}" 
+                @php
+                    $imgUrl = Str::startsWith($image, 'http') || Str::startsWith($image, 'data:') ? $image : asset('img/' . $image);
+                    $cleanImgPath = basename($image);
+                    $webpName = preg_replace('/\.(png|jpg|jpeg)$/i', '.webp', $cleanImgPath);
+                    if (!Str::startsWith($image, 'http') && !Str::startsWith($image, 'data:') && file_exists(public_path('img/' . $webpName))) {
+                        $imgUrl = asset('img/' . $webpName);
+                    }
+                @endphp
+                <img src="{{ $imgUrl }}" 
                      alt="{{ $title }}" 
+                     width="380"
+                     height="238"
                      loading="lazy"
+                     decoding="async"
                      class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out">
             @else
                 <div class="w-full h-full flex items-center justify-center text-gray-600">

@@ -10,9 +10,14 @@
         $heroTitle = $siteSettingsData->hero_title ?? 'Bridging the gap between optical balance and scalable architecture.';
         $heroSubtitle = $siteSettingsData->hero_subtitle ?? 'Product Designer & Fullstack Dev';
         $aboutText = $siteSettingsData->about_text ?? '';
-        $heroImgSrc = Str::startsWith($siteSettingsData->profile_photo ?? '', 'data:') 
+        $defaultHeroImg = file_exists(public_path('img/porto.webp')) ? asset('img/porto.webp') : asset('img/porto.png');
+        $rawHeroPhoto = $siteSettingsData->profile_photo ?? $defaultHeroImg;
+        if (str_ends_with($rawHeroPhoto, 'porto.png') && file_exists(public_path('img/porto.webp'))) {
+            $rawHeroPhoto = str_replace('porto.png', 'porto.webp', $rawHeroPhoto);
+        }
+        $heroImgSrc = Str::startsWith($rawHeroPhoto, 'data:') 
             ? route('media.profile', ['v' => $siteSettingsData->updated_at?->timestamp ?? 1]) 
-            : ($siteSettingsData->profile_photo ?? asset('img/porto.png'));
+            : $rawHeroPhoto;
     @endphp
     <title>{{ $logoText }} | {{ $heroSubtitle }}</title>
 
@@ -43,9 +48,13 @@
     <link rel="preload" as="image" href="{{ $heroImgSrc }}" fetchpriority="high">
 
     @vite('resources/css/app.css')
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Non-render-blocking font load -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    </noscript>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
         html, body { overflow-x: hidden; }
         @keyframes slide-up {
             0% { opacity: 0; transform: translateY(30px); }
@@ -121,9 +130,20 @@
                 </div>
                 <div id="expertise-grid" class="grid grid-cols-4 gap-4">
                     @foreach($expertises as $tech)
+                        @php
+                            $techLogo = Str::startsWith($tech->logo, 'http') || Str::startsWith($tech->logo, 'data:') 
+                                ? $tech->logo 
+                                : (file_exists(public_path('img/logos/' . preg_replace('/\.(png|jpg|jpeg)$/i', '.webp', $tech->logo))) 
+                                    ? asset('img/logos/' . preg_replace('/\.(png|jpg|jpeg)$/i', '.webp', $tech->logo)) 
+                                    : asset('img/logos/' . $tech->logo));
+                        @endphp
                         <a href="{{ $tech->url }}" target="_blank" class="expertise-card card-tilt-spotlight {{ $tech->bg_class }} {{ $tech->hover_class }} aspect-square rounded-xl flex items-center justify-center border border-gray-800 group transition-all duration-300 overflow-hidden relative">
-                            <img src="{{ Str::startsWith($tech->logo, 'http') || Str::startsWith($tech->logo, 'data:') ? $tech->logo : asset('img/logos/' . $tech->logo) }}" 
+                            <img src="{{ $techLogo }}" 
                                  alt="{{ $tech->name }}" 
+                                 width="64"
+                                 height="64"
+                                 loading="lazy"
+                                 decoding="async"
                                  class="w-full h-full {{ in_array($tech->name, ['JS', 'Java', 'MySQL']) ? 'object-contain p-2' : 'object-cover' }}">
                             <div class="absolute inset-0 opacity-0 group-hover:opacity-20 {{ $tech->bg_class }} transition-opacity"></div>
                         </a>
@@ -136,7 +156,7 @@
         @if($clients && $clients->count() > 0)
         <section class="mt-20 mb-32 relative z-10 content-visibility-auto" x-data="{ shown: false }" x-intersect.once="shown = true">
             <div class="text-center mb-10 transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
-                <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">Trusted By & Collaborated With</p>
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] ...">Trusted By & Collaborated With</p>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center justify-items-center max-w-5xl mx-auto px-4">
@@ -155,6 +175,10 @@
                            style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($clientLogo, 'http') || Str::startsWith($clientLogo, 'data:') || Str::startsWith($clientLogo, '<svg') ? (Str::startsWith($clientLogo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($clientLogo) : $clientLogo) : asset('img/logos/' . $clientLogo) }}" 
                                  alt="{{ $client->name }}" 
+                                 width="120"
+                                 height="48"
+                                 loading="lazy"
+                                 decoding="async"
                                  class="client-logo-item w-full h-full object-contain" title="{{ $client->name }}">
                         </a>
                     @else
@@ -163,6 +187,10 @@
                              style="transition-delay: {{ $index * 100 }}ms, 0ms, 0ms, 0ms;">
                             <img src="{{ Str::startsWith($clientLogo, 'http') || Str::startsWith($clientLogo, 'data:') || Str::startsWith($clientLogo, '<svg') ? (Str::startsWith($clientLogo, '<svg') ? 'data:image/svg+xml;base64,'.base64_encode($clientLogo) : $clientLogo) : asset('img/logos/' . $clientLogo) }}" 
                                  alt="{{ $client->name }}" 
+                                 width="120"
+                                 height="48"
+                                 loading="lazy"
+                                 decoding="async"
                                  class="client-logo-item w-full h-full object-contain" title="{{ $client->name }}">
                         </div>
                     @endif
@@ -206,6 +234,10 @@
                                 @else
                                 <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
+                                     width="280"
+                                     height="158"
+                                     loading="lazy"
+                                     decoding="async"
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
                                 @endif
                                 <!-- Issuer overlay -->
@@ -238,6 +270,10 @@
                                 @else
                                 <img src="{{ $certImg }}" 
                                      alt="{{ $cert->name }}" 
+                                     width="280"
+                                     height="158"
+                                     loading="lazy"
+                                     decoding="async"
                                      class="max-w-full max-h-full object-contain opacity-80 group-hover/cert:opacity-100 group-hover/cert:scale-105 transition-all duration-500">
                                 @endif
                                 <!-- Issuer overlay -->
@@ -350,7 +386,13 @@
                     <!-- Cover Image -->
                     <div class="w-full aspect-video bg-black/50 overflow-hidden relative border-b border-white/5">
                         @if($article->cover_image)
-                            <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                            <img src="{{ $article->cover_image }}" 
+                                 alt="{{ $article->title }}" 
+                                 width="384"
+                                 height="216"
+                                 loading="lazy"
+                                 decoding="async"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         @else
                             <div class="w-full h-full flex items-center justify-center text-gray-600">
                                 <svg class="w-10 h-10 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>

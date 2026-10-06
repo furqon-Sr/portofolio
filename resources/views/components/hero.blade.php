@@ -39,9 +39,14 @@
                 <!-- Profile Photo -->
                 <div class="relative w-full h-full" style="mask-image: linear-gradient(to top, transparent 0%, black 35%); -webkit-mask-image: linear-gradient(to top, transparent 0%, black 35%);">
                     @php
-                        $heroImgSrc = Str::startsWith($siteSetting->profile_photo ?? '', 'data:') 
+                        $defaultHeroImg = file_exists(public_path('img/porto.webp')) ? asset('img/porto.webp') : asset('img/porto.png');
+                        $rawHeroPhoto = $siteSetting->profile_photo ?? $defaultHeroImg;
+                        if (str_ends_with($rawHeroPhoto, 'porto.png') && file_exists(public_path('img/porto.webp'))) {
+                            $rawHeroPhoto = str_replace('porto.png', 'porto.webp', $rawHeroPhoto);
+                        }
+                        $heroImgSrc = Str::startsWith($rawHeroPhoto, 'data:') 
                             ? route('media.profile', ['v' => $siteSetting->updated_at?->timestamp ?? 1]) 
-                            : ($siteSetting->profile_photo ?? asset('img/porto.png'));
+                            : $rawHeroPhoto;
                     @endphp
                     <img id="hero-profile-img" 
                          src="{{ $heroImgSrc }}" 
