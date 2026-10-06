@@ -42,10 +42,6 @@
             100% { opacity: 1; transform: translateY(0); }
         }
     </style>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    @if(config('services.turnstile.enabled') && config('services.turnstile.site_key'))
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    @endif
 </head>
 <body class="relative overflow-x-hidden bg-gray-950 text-white antialiased selection:bg-blue-600 selection:text-white">
     <div class="fixed inset-0 z-[-1] pointer-events-none">
@@ -138,11 +134,6 @@
                             <textarea id="message" name="message" rows="4" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base resize-none" placeholder="Tulis pesan Anda">{{ old('message') }}</textarea>
                         </div>
                         
-                        {{-- 2. PROTEKSI BOT MODERN (Cloudflare Turnstile Invisible) --}}
-                        @if(config('services.turnstile.enabled') && config('services.turnstile.site_key'))
-                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
-                        @endif
-
                         <div class="pt-2">
                             <button type="submit" class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-gray-950 hover:bg-blue-600 hover:text-white font-semibold text-sm rounded-full transition-all duration-300 shadow-lg shadow-white/5 hover:shadow-blue-500/30 hover:-translate-y-0.5 select-none">
                                 <span>Send Message</span>
