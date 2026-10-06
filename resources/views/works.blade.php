@@ -63,18 +63,41 @@
 
         <div class="max-w-6xl mx-auto px-6 lg:px-8 w-full flex-grow">
             <main class="pt-24 pb-32 animate-slide-up">
-            <div class="mb-16 text-center md:text-left">
-                <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">Selected <span class="text-blue-600">Works</span></h1>
+            <div class="mb-12 text-center md:text-left">
+                <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">Selected <span class="text-blue-500">Works</span></h1>
+                <p class="text-zinc-400 text-sm md:text-base max-w-xl mt-2">
+                    A curated collection of web development projects, design systems, and digital experiences engineered for performance and precision.
+                </p>
             </div>
 
-            <!-- Filter Buttons -->
-            <div class="flex gap-6 border-b border-white/5 pb-2 md:pb-0 md:border-none mb-12 justify-center md:justify-start">
-                <button onclick="filterWorks('all')" id="btn-all" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-blue-600 text-white transition-all">All</button>
-                <button onclick="filterWorks('web')" id="btn-web" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Web Dev</button>
-                <button onclick="filterWorks('design')" id="btn-design" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Design</button>
+            @php
+                $totalCount = $projects->count();
+                $webCount = $projects->where('category', 'Web Dev')->count();
+                $designCount = $projects->where('category', 'Design')->count();
+            @endphp
+
+            <!-- 2. Filter Kategori: Segmented Control / Pill Buttons with Badge Counters -->
+            <div class="mb-12 flex justify-center md:justify-start">
+                <div class="inline-flex p-1.5 rounded-2xl bg-zinc-900/90 border border-zinc-800/80 backdrop-blur-md gap-1.5 shadow-inner">
+                    <button onclick="filterWorks('all')" id="btn-all" 
+                            class="filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 bg-zinc-800 text-white border border-zinc-700 shadow-sm">
+                        <span>All</span>
+                        <span class="px-2 py-0.5 text-[11px] rounded-full bg-zinc-700/60 text-zinc-300 font-semibold">{{ $totalCount }}</span>
+                    </button>
+                    <button onclick="filterWorks('web')" id="btn-web" 
+                            class="filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 text-zinc-400 hover:text-white border border-transparent">
+                        <span>Web Dev</span>
+                        <span class="px-2 py-0.5 text-[11px] rounded-full bg-zinc-800/80 text-zinc-400 font-semibold">{{ $webCount }}</span>
+                    </button>
+                    <button onclick="filterWorks('design')" id="btn-design" 
+                            class="filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 text-zinc-400 hover:text-white border border-transparent">
+                        <span>Design</span>
+                        <span class="px-2 py-0.5 text-[11px] rounded-full bg-zinc-800/80 text-zinc-400 font-semibold">{{ $designCount }}</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Works List -->
+            <!-- Works List (Grid 1/2/3 cols, equal height h-full) -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($projects as $index => $project)
                 @php
@@ -92,6 +115,8 @@
                         :image="$project->cover_image_url"
                         :design_url="$project->design_pdf_url"
                         :has_pdf_cover="$project->has_pdf_cover"
+                        :year="$project->year"
+                        :tech-stack="$project->tech_stack"
                     />
                 </div>
                 @endforeach
@@ -109,12 +134,20 @@
         function filterWorks(category) {
             const buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(btn => {
-                btn.classList.remove('border-blue-600', 'text-white');
-                btn.classList.add('border-transparent', 'text-gray-500');
+                btn.className = 'filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 text-zinc-400 hover:text-white border border-transparent';
+                const counter = btn.querySelector('span:last-child');
+                if (counter) {
+                    counter.className = 'px-2 py-0.5 text-[11px] rounded-full bg-zinc-800/80 text-zinc-400 font-semibold';
+                }
             });
             const activeBtn = document.getElementById('btn-' + category);
-            activeBtn.classList.remove('border-transparent', 'text-gray-500');
-            activeBtn.classList.add('border-blue-600', 'text-white');
+            if (activeBtn) {
+                activeBtn.className = 'filter-btn px-4 py-2 text-xs md:text-sm font-medium rounded-xl transition-all duration-200 flex items-center gap-2 bg-zinc-800 text-white border border-zinc-700 shadow-sm';
+                const counter = activeBtn.querySelector('span:last-child');
+                if (counter) {
+                    counter.className = 'px-2 py-0.5 text-[11px] rounded-full bg-zinc-700/60 text-zinc-300 font-semibold';
+                }
+            }
 
             const items = document.querySelectorAll('.work-item');
             items.forEach(item => {
