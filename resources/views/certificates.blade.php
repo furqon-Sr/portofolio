@@ -30,6 +30,9 @@
     @else
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     @endif
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     @vite('resources/css/app.css')
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -57,7 +60,7 @@
             background: rgba(255, 255, 255, 0.4);
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="relative overflow-x-hidden bg-gray-950 text-white antialiased selection:bg-blue-600 selection:text-white"
@@ -73,7 +76,7 @@
     <div class="min-h-screen flex flex-col justify-between">
         <!-- Full-Width Navigation (Mentok Kanan Kiri) -->
         <div class="w-full px-6 md:px-10 lg:px-12 pt-2">
-            <x-navigation />
+            <x-navigation :site-setting="$siteSettingsData" />
         </div>
 
         <div class="max-w-6xl mx-auto px-6 lg:px-8 w-full flex-grow">
@@ -178,7 +181,7 @@
 
         <!-- Full-Width Footer (Mentok Kanan Kiri) -->
         <div class="w-full px-6 md:px-10 lg:px-12">
-            <x-footer />
+            <x-footer :site-setting="$siteSettingsData" />
         </div>
     </div>
 

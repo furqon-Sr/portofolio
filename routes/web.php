@@ -18,8 +18,9 @@ Route::any('/wp-admin', fn () => redirect('/'));
 Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 
 
-// Home Page - Rendered fresh from database
+// Home Page - Optimized query delivery with Edge CDN caching
 Route::get('/', function () {
+    $siteSetting = \App\Models\AboutSetting::first();
     $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'design_file', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
         ->orderBy('id', 'asc')
@@ -30,22 +31,37 @@ Route::get('/', function () {
     $clients = \App\Models\Client::orderBy('order_index', 'asc')->get();
     $latestArticles = \App\Models\Article::orderBy('created_at', 'desc')->take(3)->get();
 
-    return view('welcome', compact('projects', 'aboutBoxes', 'expertises', 'certificates', 'clients', 'latestArticles'));
+    $response = response()->view('welcome', compact('siteSetting', 'projects', 'aboutBoxes', 'expertises', 'certificates', 'clients', 'latestArticles'));
+    
+    if (auth()->check()) {
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+    return $response->header('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
 });
 
-// Works Page - Rendered fresh from database
+// Works Page - Optimized with Edge CDN caching
 Route::get('/works', function () {
+    $siteSetting = \App\Models\AboutSetting::first();
     $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'design_file', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
         ->orderBy('id', 'asc')
         ->get();
-    return view('works', compact('projects'));
+    $response = response()->view('works', compact('siteSetting', 'projects'));
+    if (auth()->check()) {
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+    return $response->header('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
 })->name('works.show');
 
-// Certificates Page - Rendered fresh from database
+// Certificates Page - Optimized with Edge CDN caching
 Route::get('/certificates', function () {
+    $siteSetting = \App\Models\AboutSetting::first();
     $certificates = \App\Models\Certificate::orderBy('id', 'desc')->get();
-    return view('certificates', compact('certificates'));
+    $response = response()->view('certificates', compact('siteSetting', 'certificates'));
+    if (auth()->check()) {
+        return $response->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    }
+    return $response->header('Cache-Control', 'public, max-age=60, s-maxage=3600, stale-while-revalidate=86400');
 })->name('certificates.show');
 
 // Optimized Binary Media Delivery (cached permanently at Edge CDN)

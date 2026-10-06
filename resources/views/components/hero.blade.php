@@ -43,7 +43,15 @@
                             ? route('media.profile', ['v' => $siteSetting->updated_at?->timestamp ?? 1]) 
                             : ($siteSetting->profile_photo ?? asset('img/porto.png'));
                     @endphp
-                    <img id="hero-profile-img" src="{{ $heroImgSrc }}" alt="Hanafi" class="object-cover w-full h-full grayscale transition-all duration-700 group-hover:grayscale-[40%] group-hover:scale-105 select-none pointer-events-none">
+                    <img id="hero-profile-img" 
+                         src="{{ $heroImgSrc }}" 
+                         alt="Hanafi" 
+                         width="330" 
+                         height="412" 
+                         fetchpriority="high" 
+                         loading="eager" 
+                         decoding="async" 
+                         class="object-cover w-full h-full grayscale transition-all duration-700 group-hover:grayscale-[40%] group-hover:scale-105 select-none pointer-events-none">
                 </div>
 
                 <!-- Subtle Card Glare / Reflection Overlay -->
@@ -310,14 +318,24 @@
                     if (isVisible) {
                         cancelAnimationFrame(animationFrameId);
                         animate();
+                    } else {
+                        cancelAnimationFrame(animationFrameId);
                     }
                 });
             }, { threshold: 0.05 });
 
-            observer.observe(canvas);
+            // Defer particle canvas start until main thread is idle (protects FCP & TBT)
+            const startCanvas = () => {
+                observer.observe(canvas);
+                window.addEventListener('resize', resize, { passive: true });
+                resize();
+            };
 
-            window.addEventListener('resize', resize);
-            resize();
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(startCanvas, { timeout: 1000 });
+            } else {
+                setTimeout(startCanvas, 250);
+            }
         }
 
         // --- 4. MAGNETIC BUTTON ---

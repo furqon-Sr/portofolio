@@ -10,6 +10,9 @@
         $heroTitle = $siteSettingsData->hero_title ?? 'Bridging the gap between optical balance and scalable architecture.';
         $heroSubtitle = $siteSettingsData->hero_subtitle ?? 'Product Designer & Fullstack Dev';
         $aboutText = $siteSettingsData->about_text ?? '';
+        $heroImgSrc = Str::startsWith($siteSettingsData->profile_photo ?? '', 'data:') 
+            ? route('media.profile', ['v' => $siteSettingsData->updated_at?->timestamp ?? 1]) 
+            : ($siteSettingsData->profile_photo ?? asset('img/porto.png'));
     @endphp
     <title>{{ $logoText }} | {{ $heroSubtitle }}</title>
 
@@ -33,9 +36,14 @@
     @else
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     @endif
+
+    <!-- High Priority Preconnect & Preload (CWV Optimization) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="image" href="{{ $heroImgSrc }}" fetchpriority="high">
+
     @vite('resources/css/app.css')
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         html, body { overflow-x: hidden; }
@@ -49,8 +57,12 @@
         }
         .animate-slide-up { animation: slide-up 1s ease-out forwards; }
         .animate-fade-in { animation: fade-in 1.5s ease-out forwards; }
+        .content-visibility-auto {
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 700px;
+        }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -62,12 +74,12 @@
 
     <!-- Full-Width Navigation (Mentok Kanan Kiri) -->
     <div class="w-full px-6 md:px-10 lg:px-12 pt-2">
-        <x-navigation />
+        <x-navigation :site-setting="$siteSettingsData" />
     </div>
 
     <div class="max-w-6xl mx-auto px-6 lg:px-8">   
         <x-hero :site-setting="$siteSettingsData" />
-        <section id="about" class="mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+        <section id="about" class="mt-40 grid grid-cols-1 lg:grid-cols-12 gap-16 items-start content-visibility-auto">
             <div class="lg:col-span-6 space-y-8" id="about-content">
                 <div class="space-y-4">
                     <h2 id="about-heading" class="text-5xl font-bold text-white tracking-tight">About <span class="text-blue-600">Me</span></h2>
@@ -122,7 +134,7 @@
 
         <!-- Trusted By / Clients Section -->
         @if($clients && $clients->count() > 0)
-        <section class="mt-20 mb-32 relative z-10" x-data="{ shown: false }" x-intersect.once="shown = true">
+        <section class="mt-20 mb-32 relative z-10 content-visibility-auto" x-data="{ shown: false }" x-intersect.once="shown = true">
             <div class="text-center mb-10 transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                 <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em]">Trusted By & Collaborated With</p>
             </div>
@@ -164,7 +176,7 @@
 
         <!-- Certificates Marquee Section -->
         @if($certificates->count() > 0)
-        <section class="mt-32 mb-16 relative overflow-hidden">
+        <section class="mt-32 mb-16 relative overflow-hidden content-visibility-auto">
             <div class="flex flex-col items-center mb-10 text-center relative z-10">
                 <h3 class="text-xs font-bold tracking-[0.2em] text-blue-500 uppercase mb-3">Insights & Achievements</h3>
                 <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Professional <span class="text-gray-400 font-medium">Certificates</span></h2>
@@ -261,7 +273,7 @@
             });
         </script>
 
-        <section x-data="portfolioSection" class="mt-48 mb-32 relative">
+        <section x-data="portfolioSection" class="mt-48 mb-32 relative content-visibility-auto">
             
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 relative z-10">
@@ -316,7 +328,7 @@
 
         <!-- Insights & Blog Section -->
         @if($latestArticles && $latestArticles->count() > 0)
-        <section class="mt-20 mb-32 relative z-10" x-data="{ shown: false }" x-intersect.once="shown = true">
+        <section class="mt-20 mb-32 relative z-10 content-visibility-auto" x-data="{ shown: false }" x-intersect.once="shown = true">
             <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-all duration-1000 transform" :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'">
                 <div>
                     <h2 class="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mb-2">Latest Insights</h2>
@@ -331,9 +343,9 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($latestArticles as $index => $article)
                 <a href="{{ route('blog.show', $article->slug) }}" 
-                   class="group flex flex-col bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.05] hover:border-white/10 transition-all duration-700 transform hover:-translate-y-2"
-                   :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
-                   style="transition-delay: {{ $index * 150 }}ms, 0ms, 0ms, 0ms;">
+                    class="group flex flex-col bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.05] hover:border-white/10 transition-all duration-700 transform hover:-translate-y-2"
+                    :class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'"
+                    style="transition-delay: {{ $index * 150 }}ms, 0ms, 0ms, 0ms;">
                     
                     <!-- Cover Image -->
                     <div class="w-full aspect-video bg-black/50 overflow-hidden relative border-b border-white/5">
@@ -369,8 +381,8 @@
     </div> 
 
     <!-- Full-Width Footer (Mentok Kanan Kiri) -->
-    <div class="w-full px-6 md:px-10 lg:px-12">
-        <x-footer />
+    <div class="w-full px-6 md:px-10 lg:px-12 content-visibility-auto">
+        <x-footer :site-setting="$siteSettingsData" />
     </div> 
 
     <!-- Project Preview Modal -->
@@ -508,53 +520,104 @@
                 expertiseObserver.observe(expertiseSection);
             }
 
-            // Render PDF Thumbnails in Marquee & Project Cards
-            if (window.pdfjsLib) {
-                try {
-                    const workerBlob = new Blob(
-                        ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
-                        { type: "application/javascript" }
-                    );
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
-                } catch(e) {
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+            // --- 3. HIGH-PERFORMANCE LAZY PDF THUMBNAILS (ZERO RENDER-BLOCKING) ---
+            let pdfJsLoading = false;
+            let pdfJsLoaded = false;
+            const pendingPdfCallbacks = [];
+
+            function loadPdfJsOnDemand(callback) {
+                if (pdfJsLoaded && window.pdfjsLib) {
+                    callback();
+                    return;
                 }
+                pendingPdfCallbacks.push(callback);
+                if (pdfJsLoading) return;
+                pdfJsLoading = true;
 
-                window.renderAllPdfThumbnails = function() {
-                    const canvases = document.querySelectorAll('canvas[data-pdf-thumb]:not([data-rendered="true"])');
-                    canvases.forEach(async (canvas) => {
-                        const url = canvas.dataset.pdfThumb;
-                        if (!url) return;
-                        try {
-                            const pdf = await pdfjsLib.getDocument({
-                                url: url,
-                                cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-                                cMapPacked: true
-                            }).promise;
-                            const page = await pdf.getPage(1);
-                            const parentW = Math.max(canvas.parentElement?.clientWidth || 0, 360);
-                            const unscaled = page.getViewport({ scale: 1.0 });
-                            const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
-                            const scale = (parentW * dpr) / unscaled.width;
-                            const viewport = page.getViewport({ scale: scale });
-
-                            canvas.width = viewport.width;
-                            canvas.height = viewport.height;
-                            const ctx = canvas.getContext('2d');
-                            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-
-                            canvas.dataset.rendered = "true";
-                            canvas.classList.remove('opacity-0');
-                            const fallback = canvas.parentElement?.querySelector('.pdf-welcome-fallback, .pdf-card-fallback');
-                            if (fallback) fallback.style.display = 'none';
-                        } catch (e) {
-                            console.error('Gagal render thumbnail PDF:', e);
-                        }
-                    });
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                script.async = true;
+                script.onload = () => {
+                    pdfJsLoaded = true;
+                    try {
+                        const workerBlob = new Blob(
+                            ['importScripts("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js");'],
+                            { type: "application/javascript" }
+                        );
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+                    } catch(e) {
+                        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+                    }
+                    while (pendingPdfCallbacks.length) {
+                        const cb = pendingPdfCallbacks.shift();
+                        try { cb(); } catch (err) { console.error(err); }
+                    }
                 };
-
-                window.renderAllPdfThumbnails();
+                script.onerror = () => {
+                    pdfJsLoading = false;
+                };
+                document.head.appendChild(script);
             }
+
+            async function renderSinglePdfCanvas(canvas) {
+                if (canvas.dataset.rendered === "true" || canvas.dataset.rendering === "true") return;
+                canvas.dataset.rendering = "true";
+
+                const url = canvas.dataset.pdfThumb;
+                if (!url) return;
+
+                loadPdfJsOnDemand(async () => {
+                    try {
+                        const pdf = await pdfjsLib.getDocument({
+                            url: url,
+                            cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                            cMapPacked: true
+                        }).promise;
+                        const page = await pdf.getPage(1);
+                        const parentW = Math.max(canvas.parentElement?.clientWidth || 0, 360);
+                        const unscaled = page.getViewport({ scale: 1.0 });
+                        const dpr = Math.min(window.devicePixelRatio || 1.5, 2);
+                        const scale = (parentW * dpr) / unscaled.width;
+                        const viewport = page.getViewport({ scale: scale });
+
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const ctx = canvas.getContext('2d');
+                        await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                        canvas.dataset.rendered = "true";
+                        delete canvas.dataset.rendering;
+                        canvas.classList.remove('opacity-0');
+                        const fallback = canvas.parentElement?.querySelector('.pdf-welcome-fallback, .pdf-card-fallback');
+                        if (fallback) fallback.style.display = 'none';
+                    } catch (e) {
+                        console.error('Gagal render thumbnail PDF:', e);
+                        delete canvas.dataset.rendering;
+                    }
+                });
+            }
+
+            window.renderAllPdfThumbnails = function() {
+                const canvases = document.querySelectorAll('canvas[data-pdf-thumb]:not([data-rendered="true"])');
+                if (!canvases.length) return;
+
+                if ('IntersectionObserver' in window) {
+                    const pdfObserver = new IntersectionObserver((entries, obs) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                renderSinglePdfCanvas(entry.target);
+                                obs.unobserve(entry.target);
+                            }
+                        });
+                    }, { rootMargin: '350px 0px' });
+
+                    canvases.forEach(canvas => pdfObserver.observe(canvas));
+                } else {
+                    canvases.forEach(canvas => renderSinglePdfCanvas(canvas));
+                }
+            };
+
+            window.renderAllPdfThumbnails();
         });
     </script>
 </body>
