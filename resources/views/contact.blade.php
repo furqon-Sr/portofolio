@@ -138,11 +138,9 @@
                             <textarea id="message" name="message" rows="4" required class="w-full bg-transparent border-0 border-b border-gray-800 focus:border-blue-500 py-3.5 px-0 text-white placeholder-gray-600 focus:ring-0 focus:outline-none transition-colors text-base resize-none" placeholder="Tulis pesan Anda">{{ old('message') }}</textarea>
                         </div>
                         
-                        {{-- 2. PROTEKSI BOT MODERN (Cloudflare Turnstile) --}}
+                        {{-- 2. PROTEKSI BOT MODERN (Cloudflare Turnstile Invisible) --}}
                         @if(config('services.turnstile.enabled') && config('services.turnstile.site_key'))
-                        <div class="pt-2">
-                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="dark" data-size="flexible"></div>
-                        </div>
+                            <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
                         @endif
 
                         <div class="pt-2">
