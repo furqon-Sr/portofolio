@@ -42,7 +42,7 @@ Route::get('/', function () {
 // Works Page - Optimized with Edge CDN caching
 Route::get('/works', function () {
     $siteSetting = \App\Models\AboutSetting::first();
-    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'design_file', 'github_link', 'views', 'created_at', 'updated_at')
+    $projects = Project::select('id', 'title', 'slug', 'category', 'description', 'live_link', 'cover_image', 'design_file', 'github_link', 'views', 'updated_at')
         ->selectRaw('(design_file IS NOT NULL) as has_design_file')
         ->orderBy('id', 'asc')
         ->get();

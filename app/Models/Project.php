@@ -41,52 +41,6 @@ class Project extends Model
     }
 
     /**
-     * Get release year for project.
-     */
-    public function getYearAttribute(): string
-    {
-        return $this->created_at ? $this->created_at->format('Y') : '2025';
-    }
-
-    /**
-     * Get inferred or custom tech stack list.
-     */
-    public function getTechStackAttribute(): array
-    {
-        $titleLower = strtolower($this->title);
-        $descLower = strtolower($this->description ?? '');
-
-        if ($this->category === 'Web Dev') {
-            if (str_contains($titleLower, 'kristal')) {
-                return ['Laravel', 'Tailwind CSS', 'Alpine.js', 'MySQL'];
-            }
-            if (str_contains($titleLower, 'ppnk')) {
-                return ['Laravel', 'Tailwind CSS', 'Livewire', 'PostgreSQL'];
-            }
-            if (str_contains($titleLower, 'portfolio') || str_contains($descLower, 'portfolio')) {
-                return ['Laravel', 'Tailwind CSS', 'Vite', 'Cloudflare'];
-            }
-            return ['Laravel', 'Tailwind CSS', 'JavaScript'];
-        }
-
-        // Design projects
-        if (str_contains($titleLower, 'system') || str_contains($titleLower, 'pdh')) {
-            return ['Figma', 'Design System', 'UI/UX'];
-        }
-        if (str_contains($titleLower, 'logo') || str_contains($titleLower, 'identitas') || str_contains($titleLower, 'cilacap')) {
-            return ['Illustrator', 'Branding', 'Vector'];
-        }
-        if (str_contains($titleLower, 'fapre')) {
-            return ['Figma', 'Visual Identity', 'Typography'];
-        }
-        if (str_contains($titleLower, 'karsa')) {
-            return ['Illustrator', 'Packaging', 'Branding'];
-        }
-
-        return ['Figma', 'UI/UX', 'Branding'];
-    }
-
-    /**
      * Get the public URL for the project cover image.
      */
     public function getCoverImageUrlAttribute(): string

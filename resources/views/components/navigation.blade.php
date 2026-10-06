@@ -27,11 +27,11 @@
         
         <!-- Desktop Menu -->
         <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <a href="/works" class="relative py-1 transition-colors {{ request()->is('works*') ? 'text-white font-semibold after:content-[\'\'] after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-blue-500 after:rounded-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'hover:text-white' }}">Works</a>
-            <a href="/certificates" class="relative py-1 transition-colors {{ request()->is('certificates*') ? 'text-white font-semibold after:content-[\'\'] after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-blue-500 after:rounded-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'hover:text-white' }}">Certificates</a>
-            <a href="/blog" class="relative py-1 transition-colors {{ request()->is('blog*') ? 'text-white font-semibold after:content-[\'\'] after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-blue-500 after:rounded-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'hover:text-white' }}">Blog</a>
-            <a href="/#about" class="relative py-1 transition-colors hover:text-white">About</a>
-            <a href="/contact" class="relative py-1 transition-colors {{ request()->is('contact*') ? 'text-white font-semibold after:content-[\'\'] after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:h-[2px] after:bg-blue-500 after:rounded-full after:shadow-[0_0_8px_rgba(59,130,246,0.8)]' : 'hover:text-white' }}">Contact</a>
+            <a href="/works" class="hover:text-white transition-colors">Works</a>
+            <a href="/certificates" class="hover:text-white transition-colors">Certificates</a>
+            <a href="/blog" class="hover:text-white transition-colors">Blog</a>
+            <a href="/#about" class="hover:text-white transition-colors">About</a>
+            <a href="/contact" class="hover:text-white transition-colors">Contact</a>
             <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-block backdrop-blur-sm">
                 Download CV
             </a>
@@ -56,23 +56,11 @@
          x-transition:leave-end="opacity-0 -translate-y-2"
          style="display: none;" 
          class="md:hidden absolute top-full left-0 right-0 mt-3 bg-gray-950/90 backdrop-blur-xl border border-gray-800/80 rounded-2xl z-50 flex flex-col items-center py-6 gap-6 shadow-2xl">
-        <a href="/works" @click="open = false" class="font-medium transition-colors flex items-center gap-2 {{ request()->is('works*') ? 'text-blue-400 font-semibold' : 'text-gray-400 hover:text-white' }}">
-            @if(request()->is('works*')) <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> @endif
-            <span>Works</span>
-        </a>
-        <a href="/certificates" @click="open = false" class="font-medium transition-colors flex items-center gap-2 {{ request()->is('certificates*') ? 'text-blue-400 font-semibold' : 'text-gray-400 hover:text-white' }}">
-            @if(request()->is('certificates*')) <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> @endif
-            <span>Certificates</span>
-        </a>
-        <a href="/blog" @click="open = false" class="font-medium transition-colors flex items-center gap-2 {{ request()->is('blog*') ? 'text-blue-400 font-semibold' : 'text-gray-400 hover:text-white' }}">
-            @if(request()->is('blog*')) <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> @endif
-            <span>Blog</span>
-        </a>
+        <a href="/works" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Works</a>
+        <a href="/certificates" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Certificates</a>
+        <a href="/blog" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Blog</a>
         <a href="/#about" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">About</a>
-        <a href="/contact" @click="open = false" class="font-medium transition-colors flex items-center gap-2 {{ request()->is('contact*') ? 'text-blue-400 font-semibold' : 'text-gray-400 hover:text-white' }}">
-            @if(request()->is('contact*')) <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> @endif
-            <span>Contact</span>
-        </a>
+        <a href="/contact" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Contact</a>
         <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="px-6 py-2 mt-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
             Download CV
         </a>
