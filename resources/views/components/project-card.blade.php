@@ -10,7 +10,8 @@
     );
 @endphp
 
-<div @click="
+<div x-data 
+     @click="
          $dispatch('open-project-preview', {
              title: @js($cleanTitle),
              category: @js($category),
