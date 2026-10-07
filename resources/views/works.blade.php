@@ -83,7 +83,6 @@
                 <div class="work-item {{ $catClass }} flex flex-col h-full" data-category="{{ $catClass }}">
                     <x-project-card 
                         :id="$project->id"
-                        :views="$project->views"
                         :title="$project->title" 
                         :category="$project->category"
                         :description="$project->description"

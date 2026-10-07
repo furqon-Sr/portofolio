@@ -79,10 +79,6 @@
                     <span class="px-3 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-wider flex-shrink-0"
                           x-text="project.category === 'Web Dev' ? 'Web Development' : 'Design Project'">
                     </span>
-                    <div class="text-xs text-zinc-400 flex items-center gap-1.5 font-medium flex-shrink-0">
-                        <svg class="w-4 h-4 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                        <span x-text="project.views ? project.views.toLocaleString('en-US') : 0"></span> views
-                    </div>
                     <!-- In Fullscreen, show project title in header -->
                     <span x-show="isFullscreen" class="hidden md:inline-block text-sm font-semibold text-zinc-200 truncate border-l border-zinc-800 pl-3" x-text="project.title"></span>
                 </div>

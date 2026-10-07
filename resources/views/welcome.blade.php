@@ -339,7 +339,6 @@
                      class="flex flex-col h-full">
                     <x-project-card 
                         :id="$project->id"
-                        :views="$project->views"
                         :title="$project->title" 
                         :category="$project->category"
                         :description="$project->description"
