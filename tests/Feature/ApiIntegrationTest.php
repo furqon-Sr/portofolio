@@ -3,6 +3,7 @@
 use App\Models\Article;
 use App\Models\Certificate;
 use App\Models\Contact;
+use App\Models\Expertise;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -597,5 +598,246 @@ it('renders article detail page with cover image and markdown inline images', fu
     $response->assertSee('https://unsplash.com/photos/tech-explorer');
     $response->assertSee('<img src="https://example.com/diagram.png" alt="Diagram Sistem"', false);
 });
+
+it('retrieves expertises successfully via GET /api/expertise', function () {
+    Expertise::create([
+        'name' => 'Vue.js',
+        'url' => 'https://vuejs.org',
+        'logo' => 'vue.png',
+        'bg_class' => 'bg-[#42B883]/10',
+        'hover_class' => 'hover:border-[#42B883]',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->getJson('/api/expertise');
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Daftar keahlian berhasil diambil.',
+        ]);
+
+    expect($response->json('data'))->toHaveCount(1);
+    expect($response->json('data.0.name'))->toBe('Vue.js');
+});
+
+it('creates a new expertise via POST /api/expertise', function () {
+    $payload = [
+        'name' => 'Docker',
+        'url' => 'https://www.docker.com',
+        'logo' => 'docker.svg',
+        'bg_class' => 'bg-[#2496ED]/10',
+        'hover_class' => 'hover:border-[#2496ED]',
+    ];
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/expertise', $payload);
+
+    $response->assertStatus(201)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Data keahlian berhasil ditambahkan.',
+            'data' => [
+                'name' => 'Docker',
+                'url' => 'https://www.docker.com',
+                'logo' => 'docker.svg',
+            ],
+        ]);
+
+    $this->assertDatabaseHas('expertises', [
+        'name' => 'Docker',
+    ]);
+});
+
+it('updates an existing expertise via PUT /api/expertise/{id}', function () {
+    $expertise = Expertise::create([
+        'name' => 'React Initial',
+        'url' => 'https://react.dev',
+        'logo' => 'react.png',
+        'bg_class' => 'bg-white',
+        'hover_class' => 'hover:border-blue-500',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->putJson("/api/expertise/{$expertise->id}", [
+            'name' => 'React 19',
+            'hover_class' => 'hover:border-[#61DAFB]',
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'success',
+            'message' => 'Data keahlian berhasil diperbarui.',
+            'data' => [
+                'id' => $expertise->id,
+                'name' => 'React 19',
+                'hover_class' => 'hover:border-[#61DAFB]',
+            ],
+        ]);
+
+    $this->assertDatabaseHas('expertises', [
+        'id' => $expertise->id,
+        'name' => 'React 19',
+    ]);
+});
+
+it('deletes an existing expertise via DELETE /api/expertise/{id}', function () {
+    $expertise = Expertise::create([
+        'name' => 'Temporary Skill',
+        'url' => 'https://example.com',
+        'logo' => 'temp.png',
+        'bg_class' => 'bg-white',
+        'hover_class' => 'hover:border-blue-500',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->deleteJson("/api/expertise/{$expertise->id}");
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'status' => 'success',
+        ]);
+
+    $this->assertDatabaseMissing('expertises', [
+        'id' => $expertise->id,
+    ]);
+});
+
+it('executes MCP tool get_expertise via POST /api/mcp', function () {
+    Expertise::create([
+        'name' => 'TypeScript',
+        'url' => 'https://www.typescriptlang.org',
+        'logo' => 'ts.png',
+        'bg_class' => 'bg-[#3178C6]/10',
+        'hover_class' => 'hover:border-[#3178C6]',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 10,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'get_expertise',
+                'arguments' => ['limit' => 5],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 10,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+});
+
+it('executes MCP tool create_expertise via POST /api/mcp', function () {
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 11,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'create_expertise',
+                'arguments' => [
+                    'name' => 'GraphQL',
+                    'url' => 'https://graphql.org',
+                    'logo' => 'graphql.svg',
+                    'bg_class' => 'bg-[#E10098]/10',
+                    'hover_class' => 'hover:border-[#E10098]',
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 11,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('expertises', [
+        'name' => 'GraphQL',
+    ]);
+});
+
+it('executes MCP tool update_expertise via POST /api/mcp', function () {
+    $expertise = Expertise::create([
+        'name' => 'Rust Lang',
+        'url' => 'https://www.rust-lang.org',
+        'logo' => 'rust.png',
+        'bg_class' => 'bg-white',
+        'hover_class' => 'hover:border-black',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 12,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'update_expertise',
+                'arguments' => [
+                    'id' => $expertise->id,
+                    'name' => 'Rust 2026 Edition',
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 12,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('expertises', [
+        'id' => $expertise->id,
+        'name' => 'Rust 2026 Edition',
+    ]);
+});
+
+it('executes MCP tool delete_expertise via POST /api/mcp', function () {
+    $expertise = Expertise::create([
+        'name' => 'Old Skill to Delete',
+        'url' => 'https://example.com',
+        'logo' => 'old.png',
+        'bg_class' => 'bg-white',
+        'hover_class' => 'hover:border-black',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 13,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'delete_expertise',
+                'arguments' => [
+                    'id' => $expertise->id,
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 13,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseMissing('expertises', [
+        'id' => $expertise->id,
+    ]);
+});
+
 
 

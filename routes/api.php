@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ExpertiseController;
 use App\Http\Controllers\Api\McpController;
 use App\Http\Controllers\Api\ProjectController;
 use Illuminate\Support\Facades\Route;
@@ -36,4 +37,10 @@ Route::middleware('api.key')->group(function () {
     Route::get('/articles', [\App\Http\Controllers\Api\ArticleController::class, 'index'])->name('api.articles.index');
     Route::post('/articles', [\App\Http\Controllers\Api\ArticleController::class, 'store'])->name('api.articles.store');
     Route::match(['put', 'patch', 'post'], '/articles/{id}', [\App\Http\Controllers\Api\ArticleController::class, 'update'])->name('api.articles.update');
+
+    // Expertise
+    Route::get('/expertise', [ExpertiseController::class, 'index'])->name('api.expertise.index');
+    Route::post('/expertise', [ExpertiseController::class, 'store'])->name('api.expertise.store');
+    Route::match(['put', 'patch', 'post'], '/expertise/{id}', [ExpertiseController::class, 'update'])->name('api.expertise.update');
+    Route::delete('/expertise/{id}', [ExpertiseController::class, 'destroy'])->name('api.expertise.destroy');
 });

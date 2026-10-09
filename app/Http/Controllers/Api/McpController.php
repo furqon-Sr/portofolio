@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Article;
 use App\Models\Certificate;
 use App\Models\Contact;
+use App\Models\Expertise;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -269,6 +270,97 @@ class McpController extends BaseApiController
                             ],
                             'required' => ['title', 'url'],
                         ],
+                    ],
+                ],
+                'required' => ['id'],
+            ],
+        ],
+        [
+            'name' => 'get_expertise',
+            'description' => 'Mengambil daftar keahlian/expertise teknologi dan tools yang ada di website portofolio.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'limit' => [
+                        'type' => 'integer',
+                        'description' => 'Jumlah maksimal data keahlian yang ingin diambil (opsional).',
+                    ],
+                ],
+            ],
+        ],
+        [
+            'name' => 'create_expertise',
+            'description' => 'Menambahkan data keahlian/expertise baru ke website portofolio.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'name' => [
+                        'type' => 'string',
+                        'description' => 'Nama keahlian atau teknologi (wajib, contoh: "React", "Docker", "Python").',
+                    ],
+                    'url' => [
+                        'type' => 'string',
+                        'description' => 'Tautan URL resmi teknologi (opsional).',
+                    ],
+                    'logo' => [
+                        'type' => 'string',
+                        'description' => 'Nama berkas logo (misal: "react.png") atau URL gambar logo (opsional, default: "code.svg").',
+                    ],
+                    'bg_class' => [
+                        'type' => 'string',
+                        'description' => 'Class warna latar belakang Tailwind (opsional, contoh: "bg-[#61DAFB]/10", default: "bg-white").',
+                    ],
+                    'hover_class' => [
+                        'type' => 'string',
+                        'description' => 'Class warna border saat hover Tailwind (opsional, contoh: "hover:border-[#61DAFB]", default: "hover:border-blue-500").',
+                    ],
+                ],
+                'required' => ['name'],
+            ],
+        ],
+        [
+            'name' => 'update_expertise',
+            'description' => 'Memperbarui data keahlian/expertise yang sudah ada berdasarkan ID.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => [
+                        'type' => 'integer',
+                        'description' => 'ID data keahlian yang ingin diperbarui (wajib).',
+                    ],
+                    'name' => [
+                        'type' => 'string',
+                        'description' => 'Nama keahlian atau teknologi baru (opsional).',
+                    ],
+                    'url' => [
+                        'type' => 'string',
+                        'description' => 'Tautan URL resmi baru (opsional).',
+                    ],
+                    'logo' => [
+                        'type' => 'string',
+                        'description' => 'Nama berkas logo atau URL gambar baru (opsional).',
+                    ],
+                    'bg_class' => [
+                        'type' => 'string',
+                        'description' => 'Class latar belakang Tailwind baru (opsional).',
+                    ],
+                    'hover_class' => [
+                        'type' => 'string',
+                        'description' => 'Class border hover Tailwind baru (opsional).',
+                    ],
+                ],
+                'required' => ['id'],
+            ],
+        ],
+        [
+            'name' => 'delete_expertise',
+            'description' => 'Menghapus data keahlian/expertise dari website berdasarkan ID.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => [
+                        'type' => 'integer',
+                        'description' => 'ID data keahlian yang ingin dihapus (wajib).',
                     ],
                 ],
                 'required' => ['id'],
@@ -633,6 +725,68 @@ class McpController extends BaseApiController
 
                 $article->update($updateData);
                 return $article->fresh();
+
+            case 'get_expertise':
+                $query = Expertise::orderBy('id', 'asc');
+                if (!empty($args['limit'])) {
+                    $limit = min(max((int) $args['limit'], 1), 100);
+                    $query->take($limit);
+                }
+                return $query->get();
+
+            case 'create_expertise':
+                return Expertise::create([
+                    'name' => $args['name'],
+                    'url' => $args['url'] ?? null,
+                    'logo' => $args['logo'] ?? 'code.svg',
+                    'bg_class' => $args['bg_class'] ?? 'bg-white',
+                    'hover_class' => $args['hover_class'] ?? 'hover:border-blue-500',
+                ]);
+
+            case 'update_expertise':
+                $id = $args['id'] ?? null;
+                if (!$id) {
+                    throw new \InvalidArgumentException("Parameter 'id' wajib disertakan.");
+                }
+
+                $expertise = Expertise::find($id);
+                if (!$expertise) {
+                    throw new \InvalidArgumentException("Data keahlian dengan ID {$id} tidak ditemukan.");
+                }
+
+                $updateData = [];
+                if (isset($args['name'])) {
+                    $updateData['name'] = $args['name'];
+                }
+                if (array_key_exists('url', $args)) {
+                    $updateData['url'] = $args['url'];
+                }
+                if (isset($args['logo'])) {
+                    $updateData['logo'] = $args['logo'];
+                }
+                if (isset($args['bg_class'])) {
+                    $updateData['bg_class'] = $args['bg_class'];
+                }
+                if (isset($args['hover_class'])) {
+                    $updateData['hover_class'] = $args['hover_class'];
+                }
+
+                $expertise->update($updateData);
+                return $expertise->fresh();
+
+            case 'delete_expertise':
+                $id = $args['id'] ?? null;
+                if (!$id) {
+                    throw new \InvalidArgumentException("Parameter 'id' wajib disertakan.");
+                }
+
+                $expertise = Expertise::find($id);
+                if (!$expertise) {
+                    throw new \InvalidArgumentException("Data keahlian dengan ID {$id} tidak ditemukan.");
+                }
+
+                $expertise->delete();
+                return ['id' => (int) $id, 'message' => "Data keahlian dengan ID {$id} berhasil dihapus."];
 
             default:
                 throw new \InvalidArgumentException("Tool '{$name}' tidak dikenal.");
