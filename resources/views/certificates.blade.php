@@ -143,13 +143,6 @@
                             <img src="{{ $imgUrl }}" alt="{{ $cert->name }}" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity z-10 pointer-events-none"></div>
                             @endif
-                            
-                            <!-- Zoom Icon Overlay (unified blue magnifying glass) -->
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20">
-                                <div class="p-3 bg-blue-600 shadow-blue-500/30 rounded-full text-white shadow-lg scale-90 group-hover:scale-100 transition-transform">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Details & Info -->
@@ -163,19 +156,15 @@
                         </div>
                     </div>
 
+                    @if($cert->credential_url)
                     <!-- Actions -->
-                    <div class="flex items-center justify-between pt-3 mt-4 text-xs font-semibold">
-                        <span class="text-blue-400 group-hover:text-blue-300 flex items-center gap-1.5 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                            <span>Pratinjau</span>
-                        </span>
-                        @if($cert->credential_url)
+                    <div class="flex items-center justify-end pt-3 mt-4 text-xs font-semibold">
                         <a href="{{ $cert->credential_url }}" target="_blank" @click.stop class="text-gray-400 hover:text-white flex items-center gap-1.5 transition-colors">
                             <span>Verifikasi</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                         </a>
-                        @endif
                     </div>
+                    @endif
 
                 </div>
                 @empty
