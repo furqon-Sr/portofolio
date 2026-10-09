@@ -8,8 +8,11 @@
 @endphp
 
 <main class="relative mt-16 lg:mt-32 flex flex-col-reverse md:flex-row md:items-center md:justify-between gap-8 md:gap-12">
-    <!-- Interactive Background Canvas -->
-    <canvas id="hero-particles" class="absolute pointer-events-none z-0" style="top: -40px; left: -40px; width: calc(100% + 80px); height: calc(100% + 80px);"></canvas>
+    <!-- Point-light scene (three.js). Screen-blended so only the light shows on top of the page background. -->
+    <div id="hero-lights" aria-hidden="true" class="absolute pointer-events-none z-0 opacity-0 transition-opacity duration-1000"
+         style="left: 50%; width: 100vw; margin-left: -50vw; top: -7rem; bottom: -9rem; mix-blend-mode: screen; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 78%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 16%, #000 78%, transparent);">
+        <canvas class="block w-full h-full"></canvas>
+    </div>
 
     <!-- Left Column: Kinetic Typography -->
     <div class="w-full md:w-1/2 flex flex-col items-center text-center md:items-start md:text-left gap-6 z-10">
@@ -26,12 +29,9 @@
         </div>
     </div>
 
-    <!-- Right Column: Profile Card with SVG Border Draw & 3D Tilt -->
+    <!-- Right Column: Profile Card (layout anchor + fallback; the lit version is drawn by hero-lights.js) -->
     <div class="w-full md:w-1/2 flex justify-center md:justify-end z-10" style="perspective: 1200px;">
-        <div id="hero-card-wrapper" class="relative group cursor-pointer" style="transform-style: preserve-3d;">
-            
-            <!-- Ambient Dynamic Glow Backing -->
-            <div id="hero-card-glow" class="absolute -inset-3 bg-gradient-to-tr from-blue-600/30 via-cyan-500/20 to-blue-400/30 rounded-3xl blur-2xl opacity-0 transition-opacity duration-1000 pointer-events-none"></div>
+        <div id="hero-card-wrapper" class="relative group" style="transform-style: preserve-3d;">
 
             <!-- Main Profile Card Container (Clean without border) -->
             <div id="hero-profile-card" class="relative w-[220px] sm:w-[260px] md:w-[290px] lg:w-[330px] aspect-[4/5] rounded-2xl overflow-hidden will-change-transform shadow-2xl shadow-black/90" style="transform-style: preserve-3d;">
@@ -58,9 +58,6 @@
                          decoding="async" 
                          class="object-cover w-full h-full grayscale transition-all duration-700 group-hover:grayscale-[40%] group-hover:scale-105 select-none pointer-events-none">
                 </div>
-
-                <!-- Subtle Card Glare / Reflection Overlay -->
-                <div id="hero-card-glare" class="absolute inset-0 rounded-2xl pointer-events-none z-10 opacity-0 transition-opacity duration-300" style="background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.15), transparent 70%);"></div>
             </div>
         </div>
     </div>
@@ -73,8 +70,6 @@
         const subtitleEl = document.getElementById('hero-subtitle');
         const ctaEl = document.getElementById('hero-cta');
         const cardWrapper = document.getElementById('hero-card-wrapper');
-        const cardGlow = document.getElementById('hero-card-glow');
-        const cardGlare = document.getElementById('hero-card-glare');
 
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -135,215 +130,12 @@
                     opacity: [0, 1],
                     duration: 1200,
                     easing: 'cubicBezier(0.16, 1, 0.3, 1)',
-                    delay: 350,
-                    complete: () => {
-                        if (cardGlow) cardGlow.classList.remove('opacity-0');
-                    }
-                });
-            }
-
-            // --- 2. INTERACTIVE 3D TILT WITH PHYSICS SMOOTHING ---
-            const heroSection = document.querySelector('main');
-            if (heroSection && cardWrapper && window.matchMedia('(hover: hover)').matches) {
-                heroSection.addEventListener('mousemove', (e) => {
-                    const rect = cardWrapper.getBoundingClientRect();
-                    const cardCenterX = rect.left + rect.width / 2;
-                    const cardCenterY = rect.top + rect.height / 2;
-
-                    const deltaX = (e.clientX - cardCenterX) / (window.innerWidth / 2);
-                    const deltaY = (e.clientY - cardCenterY) / (window.innerHeight / 2);
-
-                    const tiltX = -deltaY * 9;
-                    const tiltY = deltaX * 9;
-
-                    anime({
-                        targets: cardWrapper,
-                        rotateX: tiltX,
-                        rotateY: tiltY,
-                        duration: 350,
-                        easing: 'easeOutQuad'
-                    });
-
-                    if (cardGlare) {
-                        cardGlare.style.opacity = '1';
-                        const glareX = ((e.clientX - rect.left) / rect.width) * 100;
-                        const glareY = ((e.clientY - rect.top) / rect.height) * 100;
-                        cardGlare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255, 255, 255, 0.16), transparent 60%)`;
-                    }
-                });
-
-                heroSection.addEventListener('mouseleave', () => {
-                    if (cardGlare) cardGlare.style.opacity = '0';
-                    anime({
-                        targets: cardWrapper,
-                        rotateX: 0,
-                        rotateY: 0,
-                        duration: 850,
-                        easing: 'cubicBezier(0.16, 1, 0.3, 1)'
-                    });
+                    delay: 350
                 });
             }
         }
 
-        // --- 3. BACKGROUND PARTICLES CANVAS ---
-        const canvas = document.getElementById('hero-particles');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            const container = canvas.parentElement;
-
-            let particles = [];
-            let mouse = { x: null, y: null, radius: 140 };
-            let animationFrameId;
-            let isVisible = true;
-
-            function resize() {
-                const rect = container.getBoundingClientRect();
-                const extraX = 80;
-                const extraY = 80;
-                
-                canvas.width = (rect.width + extraX) * window.devicePixelRatio;
-                canvas.height = (rect.height + extraY) * window.devicePixelRatio;
-                ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-                
-                canvas.style.width = `${rect.width + extraX}px`;
-                canvas.style.height = `${rect.height + extraY}px`;
-                
-                initParticles();
-            }
-
-            class Particle {
-                constructor(x, y) {
-                    this.x = x;
-                    this.y = y;
-                    this.vx = (Math.random() - 0.5) * 0.35;
-                    this.vy = (Math.random() - 0.5) * 0.35;
-                    this.radius = Math.random() * 1.5 + 1;
-                }
-
-                update(width, height) {
-                    if (this.x < 0 || this.x > width) this.vx *= -1;
-                    if (this.y < 0 || this.y > height) this.vy *= -1;
-
-                    this.x += this.vx;
-                    this.y += this.vy;
-
-                    if (mouse.x !== null && mouse.y !== null) {
-                        const dx = mouse.x - this.x;
-                        const dy = mouse.y - this.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < mouse.radius) {
-                            const force = (mouse.radius - dist) / mouse.radius;
-                            this.x += (dx / dist) * force * 0.25;
-                            this.y += (dy / dist) * force * 0.25;
-                        }
-                    }
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(59, 130, 246, 0.25)';
-                    ctx.fill();
-                }
-            }
-
-            function initParticles() {
-                particles = [];
-                const rect = canvas.getBoundingClientRect();
-                const count = window.innerWidth < 768 ? 20 : 45;
-                
-                for (let i = 0; i < count; i++) {
-                    const x = Math.random() * rect.width;
-                    const y = Math.random() * rect.height;
-                    particles.push(new Particle(x, y));
-                }
-            }
-
-            function animate() {
-                if (!isVisible) return;
-                
-                const rect = canvas.getBoundingClientRect();
-                ctx.clearRect(0, 0, rect.width, rect.height);
-
-                for (let i = 0; i < particles.length; i++) {
-                    particles[i].update(rect.width, rect.height);
-                    particles[i].draw();
-                }
-
-                for (let i = 0; i < particles.length; i++) {
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-
-                        if (dist < 100) {
-                            const alpha = ((100 - dist) / 100) * 0.08;
-                            ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
-                            ctx.lineWidth = 0.5;
-                            ctx.beginPath();
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
-                        }
-                    }
-
-                    if (mouse.x !== null && mouse.y !== null) {
-                        const dx = particles[i].x - mouse.x;
-                        const dy = particles[i].y - mouse.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        if (dist < mouse.radius) {
-                            const alpha = ((mouse.radius - dist) / mouse.radius) * 0.12;
-                            ctx.strokeStyle = `rgba(59, 130, 246, ${alpha})`;
-                            ctx.lineWidth = 0.5;
-                            ctx.beginPath();
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(mouse.x, mouse.y);
-                            ctx.stroke();
-                        }
-                    }
-                }
-
-                animationFrameId = requestAnimationFrame(animate);
-            }
-
-            container.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                mouse.x = e.clientX - rect.left;
-                mouse.y = e.clientY - rect.top;
-            });
-
-            container.addEventListener('mouseleave', () => {
-                mouse.x = null;
-                mouse.y = null;
-            });
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    isVisible = entry.isIntersecting;
-                    if (isVisible) {
-                        cancelAnimationFrame(animationFrameId);
-                        animate();
-                    } else {
-                        cancelAnimationFrame(animationFrameId);
-                    }
-                });
-            }, { threshold: 0.05 });
-
-            // Defer particle canvas start until main thread is idle (protects FCP & TBT)
-            const startCanvas = () => {
-                observer.observe(canvas);
-                window.addEventListener('resize', resize, { passive: true });
-                resize();
-            };
-
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(startCanvas, { timeout: 1000 });
-            } else {
-                setTimeout(startCanvas, 250);
-            }
-        }
-
-        // --- 4. MAGNETIC BUTTON ---
+        // --- 2. MAGNETIC BUTTON ---
         document.querySelectorAll('.magnetic-btn').forEach(btn => {
             btn.addEventListener('mousemove', (e) => {
                 const rect = btn.getBoundingClientRect();
@@ -361,3 +153,5 @@
         });
     });
 </script>
+
+<script type="module" src="{{ asset('js/hero-lights.js') }}?v={{ \@filemtime(public_path('js/hero-lights.js')) }}"></script>
