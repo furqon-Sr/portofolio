@@ -2,9 +2,8 @@
     <!-- Session Status -->
     <x-auth-session-status class="mb-4 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2.5 rounded-xl" :status="session('status')" />
 
-    <div class="mb-6">
+    <div class="mb-6 text-center">
         <h1 class="text-base font-semibold text-white tracking-tight">Masuk ke Akun</h1>
-        <p class="text-xs text-zinc-400 mt-1">Gunakan kredensial admin Anda untuk melanjutkan.</p>
     </div>
 
     <form method="POST" action="{{ route('login') }}" class="space-y-4">
@@ -53,7 +52,7 @@
 
         <div class="pt-2">
             <button type="submit" class="w-full py-2.5 px-4 bg-white hover:bg-zinc-200 active:scale-[0.99] text-zinc-950 font-semibold text-sm rounded-xl transition-all duration-150 shadow-sm cursor-pointer flex items-center justify-center gap-2">
-                <span>Masuk ke Console</span>
+                <span>Masuk ke Akun</span>
                 <svg class="w-4 h-4 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </button>
         </div>

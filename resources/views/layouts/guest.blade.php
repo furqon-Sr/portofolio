@@ -58,11 +58,11 @@
         <div class="admin-login-box relative z-10 w-full flex flex-col items-center">
             <!-- Brand & Icon Header (Integrated with Admin Dashboard Settings) -->
             <div class="mb-7 text-center">
-                <a href="/" class="group inline-flex flex-col items-center gap-3 transition-transform duration-200 hover:scale-[1.02]">
-                    <!-- Admin Icon / Logo Container -->
-                    <div class="w-12 h-12 rounded-2xl bg-zinc-900/90 border border-white/10 flex items-center justify-center p-2.5 shadow-xl shadow-black/40 group-hover:border-white/25 transition-all">
+                <a href="/" class="group inline-flex flex-col items-center gap-2.5 transition-transform duration-200 hover:scale-[1.02]">
+                    <!-- Admin Icon / Logo (Frameless) -->
+                    <div class="h-10 w-10 flex items-center justify-center transition-transform duration-200 group-hover:scale-105">
                         @if(!empty($siteSetting->favicon))
-                            <img src="{{ $siteSetting->favicon }}" alt="{{ $brandTitle }}" class="w-full h-full object-contain rounded-lg">
+                            <img src="{{ $siteSetting->favicon }}" alt="{{ $brandTitle }}" class="w-full h-full object-contain">
                         @elseif(($siteSetting->logo_type ?? '') === 'svg' && !empty($siteSetting->logo_value))
                             <div class="w-full h-full flex items-center justify-center text-white [&_svg]:w-full [&_svg]:h-full [&_svg]:object-contain">
                                 {!! $siteSetting->logo_value !!}
@@ -70,22 +70,19 @@
                         @elseif(in_array($siteSetting->logo_type ?? '', ['file', 'url']) && !empty($siteSetting->logo_value))
                             <img src="{{ $siteSetting->logo_value }}" alt="{{ $brandTitle }}" class="w-full h-full object-contain">
                         @else
-                            <!-- Sleek Minimalist Terminal / Console Emblem -->
-                            <svg class="w-5 h-5 text-zinc-300 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <!-- Sleek Minimalist Terminal Emblem -->
+                            <svg class="w-7 h-7 text-zinc-300 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 9l3 3-3 3m5 0h3M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                             </svg>
                         @endif
                     </div>
                     
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-semibold tracking-tight text-white">{{ $brandTitle }}</span>
-                        <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-zinc-400">Console</span>
-                    </div>
+                    <span class="text-sm font-semibold tracking-tight text-white">{{ $brandTitle }}</span>
                 </a>
             </div>
 
-            <!-- Login Card -->
-            <div class="w-full bg-[#111114]/80 backdrop-blur-xl border border-white/[0.08] p-6 sm:p-8 rounded-2xl shadow-2xl shadow-black/80">
+            <!-- Login Card (Ultra-subtle hairline border) -->
+            <div class="w-full bg-[#111114]/80 backdrop-blur-xl border border-white/[0.04] p-6 sm:p-8 rounded-2xl shadow-2xl shadow-black/80">
                 {{ $slot }}
             </div>
 
