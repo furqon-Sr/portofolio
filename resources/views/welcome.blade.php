@@ -223,8 +223,13 @@
                         <div class="w-full rounded-lg overflow-hidden relative">
                             @if($isCertPdf)
                             <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-auto object-contain rounded-lg opacity-85 group-hover:opacity-100 transition-opacity duration-300 aspect-[1.414/1]"></canvas>
-                            <div class="pdf-welcome-fallback absolute inset-0 flex items-center justify-center text-gray-600">
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                            <div class="pdf-welcome-fallback absolute inset-0 flex flex-col items-center justify-center bg-[#111114] overflow-hidden rounded-lg transition-opacity duration-500">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer pointer-events-none"></div>
+                                <div class="relative w-8 h-8 flex items-center justify-center z-10">
+                                    <div class="absolute inset-0 rounded-full bg-blue-500/15 blur-sm animate-pulse"></div>
+                                    <div class="w-6 h-6 rounded-full border border-white/10"></div>
+                                    <div class="absolute inset-0 w-6 h-6 m-auto rounded-full border-2 border-transparent border-t-blue-500 animate-spin"></div>
+                                </div>
                             </div>
                             @else
                             <img src="{{ $certImg }}"
@@ -579,10 +584,23 @@
                         delete canvas.dataset.rendering;
                         canvas.classList.remove('opacity-0');
                         const fallback = canvas.parentElement?.querySelector('.pdf-welcome-fallback, .pdf-card-fallback');
-                        if (fallback) fallback.style.display = 'none';
+                        if (fallback) {
+                            fallback.style.transition = 'opacity 0.4s ease-out';
+                            fallback.style.opacity = '0';
+                            setTimeout(() => { fallback.style.display = 'none'; }, 400);
+                        }
                     } catch (e) {
                         console.error('Gagal render thumbnail PDF:', e);
                         delete canvas.dataset.rendering;
+                        const fallback = canvas.parentElement?.querySelector('.pdf-welcome-fallback, .pdf-card-fallback');
+                        if (fallback) {
+                            fallback.innerHTML = `
+                                <div class="relative flex flex-col items-center justify-center gap-2 z-10 text-zinc-500">
+                                    <svg class="w-8 h-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <span class="text-[10px] font-mono tracking-wider text-zinc-500 uppercase">Dokumen PDF</span>
+                                </div>
+                            `;
+                        }
                     }
                 });
             }

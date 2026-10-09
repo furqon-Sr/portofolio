@@ -27,18 +27,34 @@
     <!-- Cover Image Container (Frameless with rounded corners, 16:10 aspect ratio) -->
     <div class="w-full aspect-[16/10] bg-[#18181b] rounded-xl overflow-hidden relative">
         @if($resolvedHasPdfCover)
-            <!-- Interactive / Dynamic PDF Document Card (Certificate Style) -->
+            <!-- Interactive / Dynamic PDF Document Card -->
             <div class="pdf-card-wrapper w-full h-full relative overflow-hidden bg-[#121215]" data-pdf-thumb="{{ $design_url }}">
                 <canvas data-pdf-thumb="{{ $design_url }}" class="pdf-card-canvas w-full h-full object-cover opacity-0 transition-opacity duration-500 relative z-10"></canvas>
                 
-                <!-- Certificate-Style PDF Document Fallback & Loading Placeholder -->
-                <div class="pdf-card-fallback absolute inset-0 flex flex-col items-center justify-center p-4 bg-gradient-to-b from-[#18181c] to-[#0f0f12] text-center">
-                    <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-2 shadow-lg shadow-red-500/5 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+                <!-- Elegant & Professional PDF Loading Skeleton Placeholder -->
+                <div class="pdf-card-fallback absolute inset-0 flex flex-col items-center justify-center p-4 bg-[#111114] overflow-hidden select-none transition-opacity duration-500">
+                    <!-- Subtle Ambient Shimmer Background -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer pointer-events-none"></div>
+
+                    <!-- Glowing Orbit Loader -->
+                    <div class="relative flex flex-col items-center justify-center gap-3.5 z-10">
+                        <div class="relative w-10 h-10 flex items-center justify-center">
+                            <!-- Soft ambient pulse glow -->
+                            <div class="absolute inset-0 rounded-full bg-blue-500/15 blur-md animate-pulse"></div>
+                            <!-- Subtle track ring -->
+                            <div class="w-8 h-8 rounded-full border border-white/10"></div>
+                            <!-- Elegant spinning arc -->
+                            <div class="absolute inset-0 w-8 h-8 m-auto rounded-full border-2 border-transparent border-t-blue-500 border-r-blue-400/60 animate-spin"></div>
+                            <!-- Center luminous dot -->
+                            <div class="w-1.5 h-1.5 rounded-full bg-blue-400/90 shadow-sm shadow-blue-400"></div>
+                        </div>
+
+                        <!-- Minimalist status label -->
+                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/5 backdrop-blur-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-ping"></span>
+                            <span class="text-[10px] font-medium tracking-widest uppercase text-zinc-400 font-mono">Memuat Dokumen</span>
+                        </div>
                     </div>
-                    <span class="text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-500/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
-                        Dokumen PDF
-                    </span>
                 </div>
 
             </div>

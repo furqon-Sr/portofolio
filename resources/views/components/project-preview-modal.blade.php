@@ -109,9 +109,14 @@
                         
                         <!-- Loading State -->
                         <div x-show="pdfLoading" class="py-24 flex flex-col items-center justify-center text-zinc-400">
-                            <div class="w-10 h-10 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-3"></div>
-                            <p class="text-sm font-medium text-white">Memuat dokumen desain...</p>
-                            <p class="text-xs text-zinc-500 mt-1">Menyiapkan lembaran presentasi</p>
+                            <div class="relative w-12 h-12 flex items-center justify-center mb-4">
+                                <div class="absolute inset-0 rounded-full bg-blue-500/20 blur-md animate-pulse"></div>
+                                <div class="w-10 h-10 rounded-full border border-white/10"></div>
+                                <div class="absolute inset-0 w-10 h-10 m-auto rounded-full border-2 border-transparent border-t-blue-500 border-r-blue-400/60 animate-spin"></div>
+                                <div class="w-2 h-2 rounded-full bg-blue-400/90 shadow-sm shadow-blue-400"></div>
+                            </div>
+                            <p class="text-sm font-medium text-white tracking-wide">Memuat dokumen desain...</p>
+                            <p class="text-xs text-zinc-500 mt-1 font-mono">Menyiapkan lembaran presentasi</p>
                         </div>
 
                         <!-- Error State -->

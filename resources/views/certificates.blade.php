@@ -108,8 +108,17 @@
                                 
                                 <canvas class="pdf-card-canvas w-full h-full object-cover opacity-0 transition-opacity duration-300"></canvas>
                                 
-                                <!-- Clean placeholder while canvas renders (no loading graphic or text) -->
-                                <div class="pdf-card-fallback absolute inset-0 w-full h-full bg-[#151518]"></div>
+                                <!-- Clean placeholder while canvas renders -->
+                                <div class="pdf-card-fallback absolute inset-0 w-full h-full bg-[#111114] overflow-hidden transition-opacity duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent -translate-x-full animate-shimmer pointer-events-none"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="relative w-8 h-8 flex items-center justify-center">
+                                            <div class="absolute inset-0 rounded-full bg-blue-500/15 blur-sm animate-pulse"></div>
+                                            <div class="w-6 h-6 rounded-full border border-white/10"></div>
+                                            <div class="absolute inset-0 w-6 h-6 m-auto rounded-full border-2 border-transparent border-t-blue-500 animate-spin"></div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <!-- Page indicator badge (only if multi-page e.g. "1 / 3", hidden for single page) -->
                                 <div class="pdf-card-badge absolute top-2.5 right-2.5 bg-black/75 backdrop-blur border border-white/10 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-lg z-10 pointer-events-none hidden">
@@ -440,7 +449,11 @@
                         await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
                         canvas.classList.remove('opacity-0');
-                        if (fallback) fallback.style.display = 'none';
+                        if (fallback) {
+                            fallback.style.transition = 'opacity 0.4s ease-out';
+                            fallback.style.opacity = '0';
+                            setTimeout(() => { fallback.style.display = 'none'; }, 400);
+                        }
 
                         if (indicator) {
                             if (numPages > 1) {
