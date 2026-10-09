@@ -213,7 +213,7 @@
                 <a href="{{ route('certificates.show') }}" class="shrink-0 text-sm text-gray-400 hover:text-white transition-colors">View all &rarr;</a>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-14">
+            <div class="grid grid-cols-2 gap-x-6 gap-y-14">
                 @foreach($certificates->take(4) as $cert)
                     @php
                         $isCertPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
