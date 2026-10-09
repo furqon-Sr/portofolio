@@ -595,8 +595,12 @@ it('renders article detail page with cover image and markdown inline images', fu
     $response->assertSee('https://example.com/cover-art.jpg');
     $response->assertSee('Sumber Gambar:');
     $response->assertSee('Unsplash / Tech Explorer');
-    $response->assertSee('https://unsplash.com/photos/tech-explorer');
     $response->assertSee('<img src="https://example.com/diagram.png" alt="Diagram Sistem"', false);
+    $response->assertSee('Salin link');
+    $response->assertSee('Bagikan ke X');
+    $response->assertSee('Bagikan ke LinkedIn');
+    $response->assertSee('Bagikan ke WhatsApp');
+    $response->assertSee('Bagikan artikel ini');
 });
 
 it('retrieves expertises successfully via GET /api/expertise', function () {

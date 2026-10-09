@@ -137,11 +137,16 @@
 
                 <!-- Header -->
                 <header class="mb-12">
-                    <div class="flex items-center gap-3 mb-6">
-                        <span class="text-xs uppercase tracking-widest font-bold text-blue-500 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
-                            {{ $article->created_at->format('M d, Y') }}
-                        </span>
-                        <span class="text-sm text-gray-500 font-medium">&bull; {{ ceil(str_word_count(strip_tags($article->content)) / 200) }} min read</span>
+                    <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs uppercase tracking-widest font-bold text-blue-500 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                                {{ $article->created_at->format('M d, Y') }}
+                            </span>
+                            <span class="text-sm text-gray-500 font-medium">&bull; {{ ceil(str_word_count(strip_tags($article->content)) / 200) }} min read</span>
+                        </div>
+                        
+                        <!-- Share Article Header (Minimalist Icons, No Textbox) -->
+                        <x-article-share :url="url('/blog/' . $article->slug)" :title="$article->title" />
                     </div>
                     <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.1] mb-6">
                         {{ $article->title }}
@@ -191,6 +196,17 @@
                 <!-- Article Content -->
                 <div class="prose prose-lg prose-invert max-w-none text-gray-300">
                     {!! \Illuminate\Support\Str::markdown($article->content, ['html_input' => 'allow', 'allow_unsafe_links' => false, 'renderer' => ['soft_break' => "<br>\n"]]) !!}
+                </div>
+
+                <!-- Share Article Footer Section -->
+                <div class="mt-14 pt-8 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-2.5 text-sm font-medium text-gray-400">
+                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        <span>Bagikan artikel ini</span>
+                    </div>
+                    <x-article-share :url="url('/blog/' . $article->slug)" :title="$article->title" />
                 </div>
 
                 <!-- References Section -->
