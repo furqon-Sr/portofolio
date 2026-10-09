@@ -258,6 +258,117 @@
                 </div>
             </div>
 
+            <!-- SEO & Google SERP Preview Section (Collapsible) -->
+            <div class="space-y-4 border-t border-white/5 pt-6" x-data="{
+                open: {{ old('meta_title') || old('meta_description') || old('meta_keywords') ? 'true' : 'false' }},
+                metaTitle: @js(old('meta_title', '')),
+                metaDesc: @js(old('meta_description', '')),
+                metaKeywords: @js(old('meta_keywords', '')),
+                mainTitle: '',
+                mainExcerpt: '',
+                init() {
+                    const titleInput = document.getElementById('title');
+                    const excerptInput = document.getElementById('excerpt');
+                    if (titleInput) {
+                        this.mainTitle = titleInput.value;
+                        titleInput.addEventListener('input', (e) => this.mainTitle = e.target.value);
+                    }
+                    if (excerptInput) {
+                        this.mainExcerpt = excerptInput.value;
+                        excerptInput.addEventListener('input', (e) => this.mainExcerpt = e.target.value);
+                    }
+                },
+                get previewTitle() {
+                    if (this.metaTitle && this.metaTitle.trim() !== '') return this.metaTitle;
+                    if (this.mainTitle && this.mainTitle.trim() !== '') return this.mainTitle + ' | {{ $siteSetting->footer_name ?? "Hanafi" }} Blog';
+                    return 'Judul Artikel Anda | {{ $siteSetting->footer_name ?? "Hanafi" }} Blog';
+                },
+                get previewDesc() {
+                    if (this.metaDesc && this.metaDesc.trim() !== '') return this.metaDesc;
+                    if (this.mainExcerpt && this.mainExcerpt.trim() !== '') return this.mainExcerpt;
+                    return 'Ringkasan cuplikan artikel akan tampil di sini saat dicari di mesin pencari Google dan dibagikan ke media sosial...';
+                },
+                get previewSlug() {
+                    if (!this.mainTitle || this.mainTitle.trim() === '') return 'judul-artikel';
+                    return this.mainTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') || 'judul-artikel';
+                }
+            }">
+                <!-- Toggle Header -->
+                <div class="flex items-center justify-between cursor-pointer select-none p-4 rounded-xl bg-black/30 border border-white/5 hover:border-white/10 transition-all" @click="open = !open">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-white">Pengaturan SEO & Pratinjau Google</span>
+                                <span class="px-2 py-0.5 text-[9px] font-semibold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Opsional</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-0.5">Kustomisasi judul, deskripsi pencarian Google, dan kata kunci artikel.</p>
+                        </div>
+                    </div>
+                    <button type="button" class="p-1.5 text-gray-400 hover:text-white rounded-lg bg-white/5 border border-white/5 transition-all">
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                </div>
+
+                <!-- Collapsible Content -->
+                <div x-show="open" x-transition class="space-y-5 pt-2">
+                    <!-- Google Search Result Preview Card -->
+                    <div class="bg-black/40 border border-white/10 rounded-xl p-4 sm:p-5 space-y-2">
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5 mb-1">
+                            <span>Pratinjau Hasil Pencarian Google</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-[11px] text-gray-400">
+                            <div class="w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">G</div>
+                            <span class="text-gray-300 font-mono text-[11px]">{{ url('/blog') }}/<span x-text="previewSlug" class="text-gray-500"></span></span>
+                        </div>
+                        <h4 class="text-base sm:text-lg font-medium text-[#8ab4f8] hover:underline cursor-pointer leading-snug line-clamp-1" x-text="previewTitle"></h4>
+                        <p class="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2" x-text="previewDesc"></p>
+                    </div>
+
+                    <!-- Meta Title Input -->
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label for="meta_title" class="block text-xs font-semibold text-gray-400">Meta Title (Judul SEO)</label>
+                            <span class="text-[10px] font-mono" :class="metaTitle.length > 60 ? 'text-amber-400' : 'text-gray-500'" x-text="`${metaTitle.length}/60 karakter (disarankan ~60)`"></span>
+                        </div>
+                        <input type="text" name="meta_title" id="meta_title" x-model="metaTitle"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-600"
+                               placeholder="Jika dikosongkan, menggunakan judul artikel otomatis">
+                        @error('meta_title')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Meta Description Input -->
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <label for="meta_description" class="block text-xs font-semibold text-gray-400">Meta Description (Deskripsi Cuplikan)</label>
+                            <span class="text-[10px] font-mono" :class="metaDesc.length > 160 ? 'text-amber-400' : 'text-gray-500'" x-text="`${metaDesc.length}/160 karakter (disarankan ~160)`"></span>
+                        </div>
+                        <textarea name="meta_description" id="meta_description" rows="2" x-model="metaDesc"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-600"
+                               placeholder="Jika dikosongkan, menggunakan cuplikan ringkasan artikel otomatis"></textarea>
+                        @error('meta_description')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Meta Keywords Input -->
+                    <div class="space-y-1.5">
+                        <label for="meta_keywords" class="block text-xs font-semibold text-gray-400">Meta Keywords (Kata Kunci)</label>
+                        <input type="text" name="meta_keywords" id="meta_keywords" x-model="metaKeywords"
+                               class="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-gray-600"
+                               placeholder="Contoh: laravel, vue, tips coding, portfolio (pisahkan dengan koma)">
+                        <p class="text-[10px] text-gray-500">Membantu klasifikasi topik dan tag meta artikel.</p>
+                        @error('meta_keywords')
+                            <p class="text-xs text-red-500 font-medium">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Button -->
             <div class="pt-6 border-t border-white/5 flex justify-end">
                 <button type="submit" class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-sm text-white transition-all shadow-lg shadow-blue-500/20">

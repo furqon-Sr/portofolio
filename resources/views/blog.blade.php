@@ -27,6 +27,10 @@
     <meta name="twitter:description" content="{{ $metaDescription }}" />
     <meta name="twitter:image" content="https://fahrurihanafi.site/og-image.jpg" />
 
+    @if(!empty($siteSettingsData?->google_site_verification))
+    <meta name="google-site-verification" content="{{ $siteSettingsData->google_site_verification }}" />
+    @endif
+
     @if($siteSettingsData && $siteSettingsData->favicon)
     <link rel="icon" type="image/png" href="{{ $siteSettingsData->favicon }}">
     @else

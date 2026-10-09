@@ -356,6 +356,9 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'excerpt' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string|max:255',
             'content' => 'required|string',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
@@ -379,6 +382,9 @@ class AdminController extends Controller
         \App\Models\Article::create([
             'title' => $request->input('title'),
             'excerpt' => $request->input('excerpt'),
+            'meta_title' => $request->input('meta_title'),
+            'meta_description' => $request->input('meta_description'),
+            'meta_keywords' => $request->input('meta_keywords'),
             'content' => $request->input('content'),
             'cover_image' => $image,
             'cover_image_source' => $request->input('cover_image_source'),
@@ -402,6 +408,9 @@ class AdminController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'excerpt' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string|max:255',
             'content' => 'required|string',
             'cover_image_file' => 'nullable|image|max:2048',
             'cover_image_url' => 'nullable|url',
@@ -425,6 +434,9 @@ class AdminController extends Controller
         $article->update([
             'title' => $request->input('title'),
             'excerpt' => $request->input('excerpt'),
+            'meta_title' => $request->input('meta_title'),
+            'meta_description' => $request->input('meta_description'),
+            'meta_keywords' => $request->input('meta_keywords'),
             'content' => $request->input('content'),
             'cover_image' => $image,
             'cover_image_source' => $request->input('cover_image_source'),
@@ -570,6 +582,32 @@ class AdminController extends Controller
         ]);
 
         return redirect()->route('admin.about')->with('success', 'Hero settings & Resume updated successfully!');
+    }
+
+    /**
+     * Update global SEO verification and Web Analytics settings.
+     */
+    public function updateSeoSettings(Request $request)
+    {
+        $request->validate([
+            'google_site_verification' => 'nullable|string|max:255',
+            'cloudflare_analytics_token' => 'nullable|string|max:255',
+            'google_analytics_id' => 'nullable|string|max:50',
+        ]);
+
+        $aboutSetting = AboutSetting::first();
+        if (!$aboutSetting) {
+            AboutSetting::seedIfEmpty();
+            $aboutSetting = AboutSetting::first();
+        }
+
+        $aboutSetting->update([
+            'google_site_verification' => $request->input('google_site_verification'),
+            'cloudflare_analytics_token' => $request->input('cloudflare_analytics_token'),
+            'google_analytics_id' => $request->input('google_analytics_id'),
+        ]);
+
+        return redirect()->route('admin.about')->with('success', 'Pengaturan SEO Global & Web Analytics berhasil diperbarui!');
     }
 
     /**

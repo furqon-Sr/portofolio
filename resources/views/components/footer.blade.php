@@ -90,3 +90,20 @@
         </div>
     </div>
 </footer>
+
+@if(!empty($siteSetting?->cloudflare_analytics_token))
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "{{ $siteSetting->cloudflare_analytics_token }}"}'></script>
+<!-- End Cloudflare Web Analytics -->
+@endif
+
+@if(!empty($siteSetting?->google_analytics_id))
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ $siteSetting->google_analytics_id }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', '{{ $siteSetting->google_analytics_id }}');
+</script>
+@endif

@@ -7,18 +7,25 @@
     @php 
         $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
-        $metaDescription = Str::limit(strip_tags($article->excerpt ?: $article->content), 155);
+        $metaDescription = $article->seo_description ?: Str::limit(strip_tags($article->excerpt ?: $article->content), 155);
+        $pageTitle = $article->meta_title ? $article->meta_title : ($article->title . ' | ' . $logoText . ' Blog');
         $articleCover = $article->cover_image 
             ? (Str::startsWith($article->cover_image, 'http') ? $article->cover_image : url($article->cover_image)) 
             : asset('og-image.jpg');
     @endphp
-    <title>{{ $article->title }} | {{ $logoText }} Blog</title>
+    <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ $metaDescription }}">
+    @if(!empty($article->seo_keywords))
+    <meta name="keywords" content="{{ $article->seo_keywords }}">
+    @endif
+    @if(!empty($siteSettingsData?->google_site_verification))
+    <meta name="google-site-verification" content="{{ $siteSettingsData->google_site_verification }}" />
+    @endif
 
     <!-- Open Graph / WhatsApp & LinkedIn -->
     <meta property="og:type" content="article" />
     <meta property="og:url" content="{{ url('/blog/' . $article->slug) }}" />
-    <meta property="og:title" content="{{ $article->title }}" />
+    <meta property="og:title" content="{{ $article->seo_title }}" />
     <meta property="og:description" content="{{ $metaDescription }}" />
     <meta property="og:image" content="{{ $articleCover }}" />
     <meta property="article:published_time" content="{{ $article->created_at->toIso8601String() }}" />
@@ -27,17 +34,18 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $article->title }}" />
+    <meta name="twitter:title" content="{{ $article->seo_title }}" />
     <meta name="twitter:description" content="{{ $metaDescription }}" />
     <meta name="twitter:image" content="{{ $articleCover }}" />
 
     <!-- JSON-LD Structured Data (Schema.org / BlogPosting) -->
     <script type="application/ld+json">
-    {!! json_encode([
+    {!! json_encode(array_filter([
         '@context' => 'https://schema.org',
         '@type' => 'BlogPosting',
-        'headline' => $article->title,
+        'headline' => $article->seo_title,
         'description' => $metaDescription,
+        'keywords' => $article->seo_keywords,
         'image' => $articleCover,
         'datePublished' => $article->created_at->toIso8601String(),
         'dateModified' => $article->updated_at->toIso8601String(),
@@ -55,7 +63,7 @@
             'name' => $logoText,
             'url' => url('/'),
         ],
-    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!}
+    ]), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!}
     </script>
 
     @if($siteSettingsData && $siteSettingsData->favicon)

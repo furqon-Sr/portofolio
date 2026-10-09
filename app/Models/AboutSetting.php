@@ -21,6 +21,9 @@ class AboutSetting extends Model
         'design_portfolio_pdf_path',
         'design_portfolio_pdf_name',
         'design_portfolio_pdf_size',
+        'google_site_verification',
+        'cloudflare_analytics_token',
+        'google_analytics_id',
     ];
 
     /**

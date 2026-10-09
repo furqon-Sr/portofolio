@@ -261,6 +261,7 @@ Route::prefix($adminPath)->middleware(['auth', 'verified'])->group(function () {
     Route::put('/about/text', [AdminController::class, 'updateAboutText'])->name('admin.about.text.update');
     Route::put('/about/identity', [AdminController::class, 'updateSiteIdentity'])->name('admin.about.identity.update');
     Route::put('/about/hero', [AdminController::class, 'updateHeroText'])->name('admin.about.hero.update');
+    Route::put('/about/seo', [AdminController::class, 'updateSeoSettings'])->name('admin.about.seo.update');
     
     // About Boxes text edit
     Route::get('/about/boxes/{id}/edit', [AdminController::class, 'editAboutBox'])->name('admin.about.box.edit');
