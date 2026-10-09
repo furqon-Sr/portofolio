@@ -30,7 +30,11 @@
     </div>
 
     <!-- Right Column: Profile Card (layout anchor + fallback; the lit version is drawn by hero-lights.js) -->
-    <div class="w-full md:w-1/2 flex justify-center z-10" style="perspective: 1200px;">
+    <style>
+        /* Lift the photo slightly so its visual weight matches the text block (desktop only). */
+        @media (min-width: 768px) { #hero-photo-col { transform: translateY(-2.75rem); } }
+    </style>
+    <div id="hero-photo-col" class="w-full md:w-1/2 flex justify-center z-10" style="perspective: 1200px;">
         <div id="hero-card-wrapper" class="relative group" style="transform-style: preserve-3d;">
 
             <!-- Main Profile Card Container (Clean without border) -->
