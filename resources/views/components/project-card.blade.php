@@ -22,11 +22,11 @@
              design_url: @js($design_url)
          })
      "
-     class="cursor-pointer group flex flex-col justify-between h-full bg-[#111113] hover:bg-[#151518] border border-white/10 hover:border-blue-500/40 rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/5 hover:-translate-y-1">
+     class="cursor-pointer group flex flex-col justify-between h-full transition-all duration-300">
      
     <div>
-        <!-- Cover Image Container (Flush to top, 16:10 aspect ratio, category badge removed) -->
-        <div class="w-full aspect-[16/10] bg-[#18181b] overflow-hidden relative border-b border-white/5">
+        <!-- Cover Image Container (Frameless with rounded corners, 16:10 aspect ratio) -->
+        <div class="w-full aspect-[16/10] bg-[#18181b] rounded-xl overflow-hidden relative">
             @if($resolvedHasPdfCover)
                 <!-- Interactive / Dynamic PDF Document Card (Certificate Style) -->
                 <div class="pdf-card-wrapper w-full h-full relative overflow-hidden bg-[#121215]" data-pdf-thumb="{{ $design_url }}">
@@ -69,7 +69,7 @@
         </div>
 
         <!-- Content Area -->
-        <div class="p-4 sm:p-5">
+        <div class="mt-4">
             <!-- Title -->
             <h3 class="text-base sm:text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors mb-1.5 leading-snug line-clamp-1">
                 {{ $cleanTitle }}
@@ -82,8 +82,8 @@
         </div>
     </div>
 
-    <!-- Bottom Info & Action Bar (Views counter removed, Action links aligned to the right) -->
-    <div class="px-4 sm:px-5 pb-4 sm:pb-5 pt-3 border-t border-white/5 mt-auto flex items-center justify-end text-xs font-semibold">
+    <!-- Bottom Info & Action Bar -->
+    <div class="mt-4 flex items-center justify-end text-xs font-semibold">
         <!-- Action Links -->
         <div class="flex items-center gap-3">
             @if($category === 'Web Dev')
@@ -91,7 +91,7 @@
                 <a href="{{ $link }}" target="_blank" @click.stop 
                    class="text-gray-400 hover:text-white flex items-center gap-1.5 text-xs font-medium transition-colors" title="Buka Website">
                     <span>Website</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                 </a>
                 @endif
                 @if($github_link)

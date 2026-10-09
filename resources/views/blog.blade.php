@@ -51,9 +51,9 @@
             <!-- Blog List Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @forelse($articles as $article)
-                <a href="{{ route('blog.show', $article->slug) }}" class="group flex flex-col bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 transform hover:-translate-y-1">
+                <a href="{{ route('blog.show', $article->slug) }}" class="group flex flex-col transition-all duration-300 transform hover:-translate-y-1">
                     <!-- Cover Image -->
-                    <div class="w-full aspect-video bg-black/50 overflow-hidden relative border-b border-white/5">
+                    <div class="w-full aspect-video rounded-xl bg-black/50 overflow-hidden relative">
                         @if($article->cover_image)
                             <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
                         @else
@@ -65,14 +65,14 @@
                     </div>
                     
                     <!-- Content -->
-                    <div class="p-6 flex flex-col flex-grow">
-                        <div class="flex items-center gap-2 mb-3">
+                    <div class="mt-4 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 mb-2">
                             <span class="text-[10px] uppercase tracking-widest font-bold text-blue-500">{{ $article->created_at->format('M d, Y') }}</span>
                         </div>
-                        <h2 class="text-xl font-bold text-white mb-2 leading-tight group-hover:text-blue-400 transition-colors">{{ $article->title }}</h2>
-                        <p class="text-sm text-gray-400 line-clamp-3 mb-6">{{ $article->excerpt ?? Str::limit($article->content, 120) }}</p>
+                        <h2 class="text-lg md:text-xl font-bold text-white mb-2 leading-tight group-hover:text-blue-400 transition-colors">{{ $article->title }}</h2>
+                        <p class="text-xs sm:text-sm text-gray-400 line-clamp-3 mb-4 leading-relaxed">{{ $article->excerpt ?? Str::limit($article->content, 120) }}</p>
                         
-                        <div class="mt-auto flex items-center gap-2 text-sm font-semibold text-white group-hover:text-blue-400 transition-colors">
+                        <div class="mt-auto flex items-center gap-2 text-xs sm:text-sm font-semibold text-white group-hover:text-blue-400 transition-colors">
                             Read Article 
                             <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                         </div>
