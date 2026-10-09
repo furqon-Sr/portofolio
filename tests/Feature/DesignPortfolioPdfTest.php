@@ -92,7 +92,7 @@ it('renders design portfolio download button dynamically on works page when file
 
     $response = $this->get('/works');
     $response->assertStatus(200)
-        ->assertSee('Unduh Portfolio Desain (PDF)')
+        ->assertSee('Unduh Portfolio Desain')
         ->assertSee(route('portfolio.design.download'));
 });
 
@@ -106,5 +106,5 @@ it('does not render design portfolio download button when file is absent', funct
 
     $response = $this->get('/works');
     $response->assertStatus(200)
-        ->assertDontSee('Unduh Portfolio Desain (PDF)');
+        ->assertDontSee('Unduh Portfolio Desain');
 });
