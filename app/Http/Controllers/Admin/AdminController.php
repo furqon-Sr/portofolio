@@ -28,7 +28,23 @@ class AdminController extends Controller
         $recentProjects = Project::select('id', 'title', 'category', 'cover_image', 'updated_at')->latest()->take(5)->get();
         $recentCertificates = Certificate::select('id', 'name', 'issuer', 'image', 'updated_at')->latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('projectCount', 'messageCount', 'certificateCount', 'recentMessages', 'recentProjects', 'recentCertificates'));
+        // Interaction stats: last 14 days, grouped per day.
+        $days = collect(range(13, 0))->map(fn ($i) => now()->subDays($i)->startOfDay());
+        $perDay = fn ($model) => $model::where('created_at', '>=', $days->first())
+            ->get(['created_at'])
+            ->countBy(fn ($row) => $row->created_at->format('Y-m-d'));
+
+        $messagesPerDay = $perDay(Contact::class);
+        $projectsPerDay = $perDay(Project::class);
+        $certificatesPerDay = $perDay(Certificate::class);
+
+        $chartData = [
+            'labels' => $days->map(fn ($d) => $d->translatedFormat('d M'))->all(),
+            'messages' => $days->map(fn ($d) => $messagesPerDay[$d->format('Y-m-d')] ?? 0)->all(),
+            'content' => $days->map(fn ($d) => ($projectsPerDay[$d->format('Y-m-d')] ?? 0) + ($certificatesPerDay[$d->format('Y-m-d')] ?? 0))->all(),
+        ];
+
+        return view('admin.dashboard', compact('projectCount', 'messageCount', 'certificateCount', 'recentMessages', 'recentProjects', 'recentCertificates', 'chartData'));
     }
 
     /**
