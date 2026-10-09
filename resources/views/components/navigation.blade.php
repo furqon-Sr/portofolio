@@ -5,6 +5,8 @@
         'footer_name' => 'FAHRURI HANAFI',
         'footer_copyright' => '© 2026 Fahruri Hanafi. All rights reserved.'
     ]);
+    $hasResume = !empty($siteSetting->resume_link);
+    $hasDesignPdf = !empty($siteSetting->design_portfolio_pdf_path);
 @endphp
 <nav x-data="{ open: false, scrolled: false }" 
      x-init="window.addEventListener('scroll', () => { scrolled = window.scrollY > 15 })"
@@ -32,7 +34,7 @@
             <a href="/blog" class="hover:text-white transition-colors">Blog</a>
             <a href="/#about" class="hover:text-white transition-colors">About</a>
             <a href="/contact" class="hover:text-white transition-colors">Contact</a>
-            @if(!empty($siteSetting->design_portfolio_pdf_path))
+            @if($hasResume && $hasDesignPdf)
                 <div x-data="{ dropOpen: false }" class="relative" @click.outside="dropOpen = false">
                     <button @click="dropOpen = !dropOpen" type="button" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-1.5 backdrop-blur-sm">
                         <span>Download</span>
@@ -59,9 +61,13 @@
                         </a>
                     </div>
                 </div>
-            @else
+            @elseif($hasResume)
                 <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-block backdrop-blur-sm">
                     Download CV
+                </a>
+            @elseif($hasDesignPdf)
+                <a href="{{ route('portfolio.design.download') }}" download target="_blank" class="px-5 py-2 text-sm font-semibold bg-blue-600/20 border border-blue-500/40 text-blue-300 rounded-full hover:bg-blue-600/30 transition-all duration-300 inline-block backdrop-blur-sm">
+                    Portfolio Desain
                 </a>
             @endif
         </div>
@@ -90,16 +96,20 @@
         <a href="/blog" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Blog</a>
         <a href="/#about" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">About</a>
         <a href="/contact" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Contact</a>
-        <div class="flex flex-col items-center gap-2 w-full px-6 mt-2">
-            <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="w-full text-center px-6 py-2.5 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
-                Download CV
-            </a>
-            @if(!empty($siteSetting->design_portfolio_pdf_path))
-                <a href="{{ route('portfolio.design.download') }}" download target="_blank" class="w-full text-center px-6 py-2.5 text-xs font-semibold bg-blue-600/20 border border-blue-500/40 text-blue-300 rounded-full hover:bg-blue-600/30 transition-all duration-300 backdrop-blur-sm">
-                    Download Portfolio Desain
-                </a>
-            @endif
-        </div>
+        @if($hasResume || $hasDesignPdf)
+            <div class="flex flex-col items-center gap-2 w-full px-6 mt-2">
+                @if($hasResume)
+                    <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="w-full text-center px-6 py-2.5 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
+                        Download CV
+                    </a>
+                @endif
+                @if($hasDesignPdf)
+                    <a href="{{ route('portfolio.design.download') }}" download target="_blank" class="w-full text-center px-6 py-2.5 text-xs font-semibold bg-blue-600/20 border border-blue-500/40 text-blue-300 rounded-full hover:bg-blue-600/30 transition-all duration-300 backdrop-blur-sm">
+                        Download Portfolio Desain
+                    </a>
+                @endif
+            </div>
+        @endif
     </div>
 </nav>
 

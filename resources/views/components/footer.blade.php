@@ -40,7 +40,12 @@
                 <li><a href="/" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Home</a></li>
                 <li><a href="/works" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Selected Works</a></li>
                 <li><a href="/#about" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">About Me</a></li>
-                <li><a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Download CV</a></li>
+                @if(!empty($siteSetting->resume_link))
+                    <li><a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Download CV</a></li>
+                @endif
+                @if(!empty($siteSetting->design_portfolio_pdf_path))
+                    <li><a href="{{ route('portfolio.design.download') }}" download target="_blank" class="text-gray-400 text-sm font-medium hover:text-blue-500 transition-colors">Portfolio Desain</a></li>
+                @endif
             </ul>
         </div>
 

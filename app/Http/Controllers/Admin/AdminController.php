@@ -555,22 +555,24 @@ class AdminController extends Controller
 
         $resumeLink = $aboutSetting->resume_link;
         if ($request->has('remove_resume')) {
+            if (!empty($aboutSetting->resume_link)) {
+                self::deleteFromStorage($aboutSetting->resume_link);
+            }
+            $fallback = public_path('assets/cv-hanafi.pdf');
+            if (file_exists($fallback)) {
+                @unlink($fallback);
+            }
             $resumeLink = null;
         } elseif ($request->hasFile('resume_file')) {
+            if (!empty($aboutSetting->resume_link)) {
+                self::deleteFromStorage($aboutSetting->resume_link);
+            }
             $file = $request->file('resume_file');
             $resumeLink = self::uploadToR2($file, 'resume', 'cv-hanafi');
-
-            // Attempt to keep static fallback file in sync if filesystem is writable
-            try {
-                $assetDir = public_path('assets');
-                if (!is_dir($assetDir)) {
-                    @mkdir($assetDir, 0755, true);
-                }
-                @file_put_contents(public_path('assets/cv-hanafi.pdf'), file_get_contents($file->getRealPath()));
-            } catch (\Throwable $e) {
-                // Ignore in read-only environments like Vercel
-            }
         } elseif ($request->filled('resume_url')) {
+            if (!empty($aboutSetting->resume_link) && $aboutSetting->resume_link !== $request->input('resume_url')) {
+                self::deleteFromStorage($aboutSetting->resume_link);
+            }
             $resumeLink = $request->input('resume_url');
         }
 
@@ -618,9 +620,13 @@ class AdminController extends Controller
         $aboutSetting = AboutSetting::first();
         $resumeLink = $aboutSetting->resume_link ?? null;
 
-        if ($resumeLink) {
+        if (!empty($resumeLink)) {
             // If it's an external URL (Google Drive, Dropbox, etc.)
             if (str_starts_with($resumeLink, 'http://') || str_starts_with($resumeLink, 'https://')) {
+                if (str_contains($resumeLink, '.r2.dev/')) {
+                    $path = substr($resumeLink, strpos($resumeLink, '.r2.dev/') + 8);
+                    return redirect(url('/r2/' . $path));
+                }
                 return redirect()->away($resumeLink);
             }
 
@@ -640,21 +646,24 @@ class AdminController extends Controller
                     'Content-Type' => $mimeType,
                     'Content-Disposition' => $disposition . '; filename="CV_Hanafi.pdf"',
                     'Content-Length' => strlen($binary),
-                    'Cache-Control' => 'public, max-age=3600',
+                    'Cache-Control' => 'no-cache, private, must-revalidate',
+                ]);
+            }
+
+            // If stored in public storage disk
+            if (Storage::disk('public')->exists($resumeLink)) {
+                if ($request->has('download')) {
+                    return Storage::disk('public')->download($resumeLink, 'CV_Hanafi.pdf');
+                }
+                return response()->file(Storage::disk('public')->path($resumeLink), [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="CV_Hanafi.pdf"',
+                    'Cache-Control' => 'no-cache, private, must-revalidate',
                 ]);
             }
         }
 
-        // Fallback to static asset if available
-        $fallbackPath = public_path('assets/cv-hanafi.pdf');
-        if (file_exists($fallbackPath)) {
-            return response()->file($fallbackPath, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => ($request->has('download') ? 'attachment' : 'inline') . '; filename="CV_Hanafi.pdf"',
-            ]);
-        }
-
-        abort(404, 'CV belum tersedia.');
+        abort(404, 'CV belum tersedia atau telah dihapus.');
     }
 
     /**
@@ -708,15 +717,7 @@ class AdminController extends Controller
             }
         }
 
-        // Fallback to static asset if available
-        $fallbackPath = public_path('assets/portfolio-graphic-design.pdf');
-        if (file_exists($fallbackPath)) {
-            return response()->file($fallbackPath, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => ($request->has('download') ? 'attachment' : 'inline') . '; filename="' . $filename . '"',
-            ]);
-        }
-
+        // Fallback or not found
         return redirect()->route('works')->with('error', 'File PDF Portfolio Graphic Design belum tersedia.');
     }
 
@@ -760,17 +761,6 @@ class AdminController extends Controller
 
             // Upload via R2 (with base64 fallback)
             $pdfPath = self::uploadToR2($file, 'portfolios', 'portfolio-graphic-design-hanafi');
-
-            // Also keep local fallback copy in assets/ if writable
-            try {
-                $assetDir = public_path('assets');
-                if (!is_dir($assetDir)) {
-                    @mkdir($assetDir, 0755, true);
-                }
-                @file_put_contents(public_path('assets/portfolio-graphic-design.pdf'), file_get_contents($file->getRealPath()));
-            } catch (\Throwable $e) {
-                // Ignore in read-only environments
-            }
         } elseif ($request->filled('design_pdf_url')) {
             $pdfPath = $request->input('design_pdf_url');
             $pdfName = basename(parse_url($pdfPath, PHP_URL_PATH) ?: 'Portfolio_Graphic_Design.pdf');
@@ -822,16 +812,18 @@ class AdminController extends Controller
 
         try {
             if (str_starts_with($path, 'http')) {
-                if (str_contains($path, '.r2.dev/')) {
+                $r2PublicUrl = config('filesystems.disks.r2.url');
+                $r2Path = null;
+                if (!empty($r2PublicUrl) && str_starts_with($path, rtrim($r2PublicUrl, '/'))) {
+                    $r2Path = ltrim(substr($path, strlen(rtrim($r2PublicUrl, '/'))), '/');
+                } elseif (str_contains($path, '.r2.dev/')) {
                     $r2Path = substr($path, strpos($path, '.r2.dev/') + 8);
-                    if (Storage::disk('r2')->exists($r2Path)) {
-                        Storage::disk('r2')->delete($r2Path);
-                    }
                 } elseif (str_contains($path, '/r2/')) {
                     $r2Path = substr($path, strpos($path, '/r2/') + 4);
-                    if (Storage::disk('r2')->exists($r2Path)) {
-                        Storage::disk('r2')->delete($r2Path);
-                    }
+                }
+
+                if ($r2Path && Storage::disk('r2')->exists($r2Path)) {
+                    Storage::disk('r2')->delete($r2Path);
                 }
             } else {
                 if (Storage::disk('public')->exists($path)) {
