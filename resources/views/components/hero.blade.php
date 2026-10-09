@@ -154,4 +154,4 @@
     });
 </script>
 
-<script type="module" src="{{ asset('js/hero-lights.js') }}?v={{ \@filemtime(public_path('js/hero-lights.js')) }}"></script>
+<script type="module" src="{{ asset('js/hero-lights.js') }}"></script>
