@@ -9,6 +9,7 @@
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>{{ $logoText }} | Selected Works</title>
+    <meta name="description" content="Koleksi karya digital dan proyek web development oleh {{ $logoText }}. Membangun pengalaman digital interaktif, arsitektur skalabel, dan desain visual presisi.">
 
     <!-- Open Graph / WhatsApp & LinkedIn -->
     <meta property="og:type" content="website" />

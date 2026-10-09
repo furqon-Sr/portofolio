@@ -20,6 +20,7 @@
             : $rawHeroPhoto;
     @endphp
     <title>{{ $logoText }} | {{ $heroSubtitle }}</title>
+    <meta name="description" content="{{ $heroTitle }} {{ $heroSubtitle }} by {{ $logoText }}. Bridging optical balance and scalable web architectures.">
 
     <!-- Open Graph / WhatsApp & LinkedIn -->
     <meta property="og:type" content="website" />
@@ -41,6 +42,39 @@
     @else
     <link rel="icon" type="image/png" href="{{ asset('favicon.ico') }}">
     @endif
+
+    <!-- JSON-LD Structured Data (Schema.org / Person & WebSite) -->
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@graph' => [
+            [
+                '@type' => 'Person',
+                '@id' => 'https://fahrurihanafi.site/#person',
+                'name' => $logoText,
+                'alternateName' => 'Fahruri Hanafi',
+                'jobTitle' => $heroSubtitle,
+                'description' => $heroTitle,
+                'url' => 'https://fahrurihanafi.site/',
+                'image' => $heroImgSrc,
+                'sameAs' => [
+                    'https://github.com/furqon-Sr',
+                    'https://linkedin.com/in/fahrurihanafi',
+                ],
+            ],
+            [
+                '@type' => 'WebSite',
+                '@id' => 'https://fahrurihanafi.site/#website',
+                'url' => 'https://fahrurihanafi.site/',
+                'name' => "{$logoText} Portfolio",
+                'description' => $heroTitle,
+                'publisher' => [
+                    '@id' => 'https://fahrurihanafi.site/#person',
+                ],
+            ],
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!}
+    </script>
 
     <!-- High Priority Preconnect & Preload (CWV Optimization) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

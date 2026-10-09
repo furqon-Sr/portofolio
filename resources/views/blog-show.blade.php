@@ -7,8 +7,57 @@
     @php 
         $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
+        $metaDescription = Str::limit(strip_tags($article->excerpt ?: $article->content), 155);
+        $articleCover = $article->cover_image 
+            ? (Str::startsWith($article->cover_image, 'http') ? $article->cover_image : url($article->cover_image)) 
+            : asset('og-image.jpg');
     @endphp
     <title>{{ $article->title }} | {{ $logoText }} Blog</title>
+    <meta name="description" content="{{ $metaDescription }}">
+
+    <!-- Open Graph / WhatsApp & LinkedIn -->
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="{{ url('/blog/' . $article->slug) }}" />
+    <meta property="og:title" content="{{ $article->title }}" />
+    <meta property="og:description" content="{{ $metaDescription }}" />
+    <meta property="og:image" content="{{ $articleCover }}" />
+    <meta property="article:published_time" content="{{ $article->created_at->toIso8601String() }}" />
+    <meta property="article:modified_time" content="{{ $article->updated_at->toIso8601String() }}" />
+    <meta property="article:author" content="{{ $logoText }}" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $article->title }}" />
+    <meta name="twitter:description" content="{{ $metaDescription }}" />
+    <meta name="twitter:image" content="{{ $articleCover }}" />
+
+    <!-- JSON-LD Structured Data (Schema.org / BlogPosting) -->
+    <script type="application/ld+json">
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BlogPosting',
+        'headline' => $article->title,
+        'description' => $metaDescription,
+        'image' => $articleCover,
+        'datePublished' => $article->created_at->toIso8601String(),
+        'dateModified' => $article->updated_at->toIso8601String(),
+        'mainEntityOfPage' => [
+            '@type' => 'WebPage',
+            '@id' => url('/blog/' . $article->slug),
+        ],
+        'author' => [
+            '@type' => 'Person',
+            'name' => $logoText,
+            'url' => url('/'),
+        ],
+        'publisher' => [
+            '@type' => 'Person',
+            'name' => $logoText,
+            'url' => url('/'),
+        ],
+    ], JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+
     @if($siteSettingsData && $siteSettingsData->favicon)
     <link rel="icon" type="image/png" href="{{ $siteSettingsData->favicon }}">
     @else

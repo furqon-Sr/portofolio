@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\SitemapController;
 use App\Models\Project;
 
 // Secret Admin Path (default: console-fh927, customizable via ADMIN_SECRET_PATH in .env)
@@ -209,6 +210,9 @@ Route::get('/cv', [AdminController::class, 'downloadCv'])->name('cv.download');
 
 // Download or View Graphic Design Portfolio PDF
 Route::get('/portfolio/design-pdf', [AdminController::class, 'downloadDesignPortfolioPdf'])->name('portfolio.design.download');
+
+// Dynamic XML Sitemap for SEO Crawlers
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // PROTECTED ADMIN ROUTES (Under the secret path)
 Route::prefix($adminPath)->middleware(['auth', 'verified'])->group(function () {

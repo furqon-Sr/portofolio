@@ -7,8 +7,26 @@
     @php 
         $siteSettingsData = $siteSetting ?? \App\Models\AboutSetting::first(); 
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
+        $metaDescription = "Kumpulan artikel, catatan teknis, dan pemikiran seputar UI/UX design, web development, dan arsitektur sistem oleh {$logoText}.";
     @endphp
     <title>{{ $logoText }} | Blog & Notes</title>
+    <meta name="description" content="{{ $metaDescription }}">
+
+    <!-- Open Graph / WhatsApp & LinkedIn -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fahrurihanafi.site/blog" />
+    <meta property="og:title" content="{{ $logoText }} | Blog & Notes" />
+    <meta property="og:description" content="{{ $metaDescription }}" />
+    <meta property="og:image" content="https://fahrurihanafi.site/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $logoText }} | Blog & Notes" />
+    <meta name="twitter:description" content="{{ $metaDescription }}" />
+    <meta name="twitter:image" content="https://fahrurihanafi.site/og-image.jpg" />
+
     @if($siteSettingsData && $siteSettingsData->favicon)
     <link rel="icon" type="image/png" href="{{ $siteSettingsData->favicon }}">
     @else

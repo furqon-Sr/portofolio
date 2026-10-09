@@ -9,6 +9,7 @@
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>Certificates | {{ $logoText }}</title>
+    <meta name="description" content="Sertifikasi profesional, lisensi keahlian, dan pencapaian kompetensi {{ $logoText }} di bidang software development, arsitektur cloud, dan desain.">
 
     <!-- Open Graph / WhatsApp & LinkedIn -->
     <meta property="og:type" content="website" />

@@ -9,6 +9,7 @@
         $logoText = $siteSettingsData->footer_name ?? 'Hanafi';
     @endphp
     <title>Contact | {{ $logoText }}</title>
+    <meta name="description" content="Hubungi {{ $logoText }} untuk peluang kolaborasi proyek, konsultasi pengembangan aplikasi web, atau diskusi seputar product design.">
 
     <!-- Open Graph / WhatsApp & LinkedIn -->
     <meta property="og:type" content="website" />
