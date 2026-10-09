@@ -32,9 +32,38 @@
             <a href="/blog" class="hover:text-white transition-colors">Blog</a>
             <a href="/#about" class="hover:text-white transition-colors">About</a>
             <a href="/contact" class="hover:text-white transition-colors">Contact</a>
-            <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-block backdrop-blur-sm">
-                Download CV
-            </a>
+            @if(!empty($siteSetting->design_portfolio_pdf_path))
+                <div x-data="{ dropOpen: false }" class="relative" @click.outside="dropOpen = false">
+                    <button @click="dropOpen = !dropOpen" type="button" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-flex items-center gap-1.5 backdrop-blur-sm">
+                        <span>Download</span>
+                        <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="dropOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="dropOpen"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                         x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                         style="display: none;"
+                         class="absolute right-0 mt-2 w-56 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-xl shadow-2xl p-1.5 z-50 flex flex-col gap-1">
+                        <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" @click="dropOpen = false" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-all">
+                            <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Download CV (PDF)</span>
+                        </a>
+                        <a href="{{ route('portfolio.design.download') }}" download target="_blank" @click="dropOpen = false" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded-lg transition-all">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Portfolio Desain (PDF)</span>
+                        </a>
+                    </div>
+                </div>
+            @else
+                <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="px-5 py-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 inline-block backdrop-blur-sm">
+                    Download CV
+                </a>
+            @endif
         </div>
 
         <!-- Hamburger Icon -->
@@ -61,9 +90,16 @@
         <a href="/blog" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Blog</a>
         <a href="/#about" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">About</a>
         <a href="/contact" @click="open = false" class="text-gray-400 hover:text-white font-medium transition-colors">Contact</a>
-        <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="px-6 py-2 mt-2 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
-            Download CV
-        </a>
+        <div class="flex flex-col items-center gap-2 w-full px-6 mt-2">
+            <a href="{{ route('cv.download') }}" download="CV_Hanafi.pdf" target="_blank" class="w-full text-center px-6 py-2.5 text-sm font-semibold bg-transparent border border-white text-white rounded-full hover:bg-white/20 transition-all duration-300 backdrop-blur-sm">
+                Download CV
+            </a>
+            @if(!empty($siteSetting->design_portfolio_pdf_path))
+                <a href="{{ route('portfolio.design.download') }}" download target="_blank" class="w-full text-center px-6 py-2.5 text-xs font-semibold bg-blue-600/20 border border-blue-500/40 text-blue-300 rounded-full hover:bg-blue-600/30 transition-all duration-300 backdrop-blur-sm">
+                    Download Portfolio Desain (PDF)
+                </a>
+            @endif
+        </div>
     </div>
 </nav>
 

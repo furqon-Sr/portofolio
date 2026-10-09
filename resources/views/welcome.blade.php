@@ -272,11 +272,21 @@
                     <p class="text-gray-400 text-sm md:text-base max-w-md leading-relaxed">A curated collection of digital experiences and design systems, built with precision and intent.</p>
                 </div>
                 
-                <!-- Filter Buttons -->
-                <div class="flex gap-6 border-b border-white/5 pb-2 md:pb-0 md:border-none">
-                    <button @click="category = 'all'" :class="category === 'all' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">All</button>
-                    <button @click="category = 'web'" :class="category === 'web' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">Web Dev</button>
-                    <button @click="category = 'design'" :class="category === 'design' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">Design</button>
+                <!-- Filter Buttons & PDF Download -->
+                <div class="flex flex-wrap items-center gap-6 border-b border-white/5 pb-2 md:pb-0 md:border-none">
+                    <div class="flex gap-6">
+                        <button @click="category = 'all'" :class="category === 'all' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">All</button>
+                        <button @click="category = 'web'" :class="category === 'web' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">Web Dev</button>
+                        <button @click="category = 'design'" :class="category === 'design' ? 'text-blue-500 border-blue-500' : 'text-gray-500 border-transparent hover:text-white'" class="pb-2 text-sm font-medium tracking-tight border-b-2 transition-all duration-300">Design</button>
+                    </div>
+
+                    @if(!empty($siteSettingsData?->design_portfolio_pdf_path))
+                    <a href="{{ route('portfolio.design.download') }}" target="_blank" 
+                       class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/5 hover:bg-blue-600 border border-white/10 hover:border-blue-500 text-gray-300 hover:text-white transition-all shadow-sm group">
+                        <svg class="w-3.5 h-3.5 text-blue-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>PDF Portfolio Desain</span>
+                    </a>
+                    @endif
                 </div>
             </div>
 

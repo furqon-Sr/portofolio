@@ -67,11 +67,26 @@
                 <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">Selected <span class="text-blue-600">Works</span></h1>
             </div>
 
-            <!-- Filter Buttons -->
-            <div class="flex gap-6 border-b border-white/5 pb-2 md:pb-0 md:border-none mb-12 justify-center md:justify-start">
-                <button onclick="filterWorks('all')" id="btn-all" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-blue-600 text-white transition-all">All</button>
-                <button onclick="filterWorks('web')" id="btn-web" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Web Dev</button>
-                <button onclick="filterWorks('design')" id="btn-design" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Design</button>
+            <!-- Filter Buttons & PDF Download -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-3 md:pb-2 mb-12">
+                <div class="flex gap-6 justify-center md:justify-start">
+                    <button onclick="filterWorks('all')" id="btn-all" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-blue-600 text-white transition-all">All</button>
+                    <button onclick="filterWorks('web')" id="btn-web" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Web Dev</button>
+                    <button onclick="filterWorks('design')" id="btn-design" class="filter-btn pb-2 text-sm font-medium tracking-tight border-b-2 border-transparent text-gray-500 hover:text-white transition-all">Design</button>
+                </div>
+
+                @if(!empty($siteSettingsData?->design_portfolio_pdf_path))
+                <div class="flex items-center justify-center md:justify-end pb-2 sm:pb-0">
+                    <a href="{{ route('portfolio.design.download') }}" target="_blank" 
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold bg-white/[0.04] hover:bg-blue-600 border border-white/10 hover:border-blue-500 text-gray-300 hover:text-white transition-all duration-300 shadow-lg group hover:-translate-y-0.5">
+                        <svg class="w-4 h-4 text-blue-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>Unduh Portfolio Desain (PDF)</span>
+                        @if(!empty($siteSettingsData->design_portfolio_pdf_size_formatted))
+                            <span class="text-[10px] text-gray-500 group-hover:text-blue-100 font-mono">({{ $siteSettingsData->design_portfolio_pdf_size_formatted }})</span>
+                        @endif
+                    </a>
+                </div>
+                @endif
             </div>
 
             <!-- Works List -->

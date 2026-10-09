@@ -207,6 +207,9 @@ Route::post('/contact-submit', [ContactController::class, 'store'])
 // Download or View Active CV
 Route::get('/cv', [AdminController::class, 'downloadCv'])->name('cv.download');
 
+// Download or View Graphic Design Portfolio PDF
+Route::get('/portfolio/design-pdf', [AdminController::class, 'downloadDesignPortfolioPdf'])->name('portfolio.design.download');
+
 // PROTECTED ADMIN ROUTES (Under the secret path)
 Route::prefix($adminPath)->middleware(['auth', 'verified'])->group(function () {
     
@@ -221,13 +224,15 @@ Route::prefix($adminPath)->middleware(['auth', 'verified'])->group(function () {
     Route::delete('/messages/{id}', [AdminController::class, 'deleteMessage'])->name('admin.messages.delete');
     Route::delete('/messages-clear-all', [AdminController::class, 'clearAllMessages'])->name('admin.messages.clearAll');
     
-    // Admin Project CRUD
+    // Admin Project CRUD & Graphic Design Portfolio PDF
     Route::get('/projects', [AdminController::class, 'projects'])->name('admin.projects.index');
     Route::get('/projects/create', [AdminController::class, 'createProject'])->name('admin.projects.create');
     Route::post('/projects', [AdminController::class, 'storeProject'])->name('admin.projects.store');
     Route::get('/projects/{id}/edit', [AdminController::class, 'editProject'])->name('admin.projects.edit');
     Route::put('/projects/{id}', [AdminController::class, 'updateProject'])->name('admin.projects.update');
     Route::delete('/projects/{id}', [AdminController::class, 'deleteProject'])->name('admin.projects.delete');
+    Route::post('/portfolio/design-pdf', [AdminController::class, 'uploadDesignPortfolioPdf'])->name('admin.portfolio.design-pdf.upload');
+    Route::delete('/portfolio/design-pdf', [AdminController::class, 'deleteDesignPortfolioPdf'])->name('admin.portfolio.design-pdf.delete');
     Route::post('/upload-chunk', [AdminController::class, 'uploadChunk'])->name('admin.upload.chunk');
     Route::post('/upload-combine', [AdminController::class, 'combineChunks'])->name('admin.upload.combine');
 

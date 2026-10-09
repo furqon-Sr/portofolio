@@ -57,7 +57,12 @@ class AdminController extends Controller
             ->selectRaw('(design_file IS NOT NULL) as has_design_file')
             ->orderBy('id', 'desc')
             ->get();
-        return view('admin.projects.index', compact('projects'));
+        $aboutSetting = AboutSetting::first();
+        if (!$aboutSetting) {
+            AboutSetting::seedIfEmpty();
+            $aboutSetting = AboutSetting::first();
+        }
+        return view('admin.projects.index', compact('projects', 'aboutSetting'));
     }
 
     /**
@@ -612,6 +617,192 @@ class AdminController extends Controller
         }
 
         abort(404, 'CV belum tersedia.');
+    }
+
+    /**
+     * Download or view the active Graphic Design Portfolio PDF.
+     */
+    public function downloadDesignPortfolioPdf(Request $request)
+    {
+        $aboutSetting = AboutSetting::first();
+        $pdfPath = $aboutSetting->design_portfolio_pdf_path ?? null;
+        $filename = $aboutSetting->design_portfolio_pdf_name ?? 'Portfolio_Graphic_Design_Hanafi.pdf';
+
+        if ($pdfPath) {
+            // If stored in Cloudflare R2 or external URL
+            if (str_starts_with($pdfPath, 'http://') || str_starts_with($pdfPath, 'https://')) {
+                if (str_contains($pdfPath, '.r2.dev/')) {
+                    $path = substr($pdfPath, strpos($pdfPath, '.r2.dev/') + 8);
+                    return redirect(url('/r2/' . $path));
+                }
+                return redirect()->away($pdfPath);
+            }
+
+            // If stored as base64 data URI
+            if (str_starts_with($pdfPath, 'data:')) {
+                $commaPos = strpos($pdfPath, ',');
+                $metadata = substr($pdfPath, 0, $commaPos);
+                $base64Data = substr($pdfPath, $commaPos + 1);
+
+                preg_match('/data:([^;]+);base64/', $metadata, $matches);
+                $mimeType = $matches[1] ?? 'application/pdf';
+
+                $binary = base64_decode($base64Data);
+                $disposition = $request->has('download') ? 'attachment' : 'inline';
+
+                return response($binary, 200, [
+                    'Content-Type' => $mimeType,
+                    'Content-Disposition' => $disposition . '; filename="' . $filename . '"',
+                    'Content-Length' => strlen($binary),
+                    'Cache-Control' => 'public, max-age=3600',
+                ]);
+            }
+
+            // If stored in public storage disk
+            if (Storage::disk('public')->exists($pdfPath)) {
+                if ($request->has('download')) {
+                    return Storage::disk('public')->download($pdfPath, $filename);
+                }
+                return response()->file(Storage::disk('public')->path($pdfPath), [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $filename . '"',
+                ]);
+            }
+        }
+
+        // Fallback to static asset if available
+        $fallbackPath = public_path('assets/portfolio-graphic-design.pdf');
+        if (file_exists($fallbackPath)) {
+            return response()->file($fallbackPath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => ($request->has('download') ? 'attachment' : 'inline') . '; filename="' . $filename . '"',
+            ]);
+        }
+
+        return redirect()->route('works')->with('error', 'File PDF Portfolio Graphic Design belum tersedia.');
+    }
+
+    /**
+     * Upload or update the Graphic Design Portfolio PDF.
+     */
+    public function uploadDesignPortfolioPdf(Request $request)
+    {
+        $request->validate([
+            'design_pdf_file' => 'nullable|file|mimes:pdf|max:30720', // Max 30MB
+            'design_pdf_url' => 'nullable|url',
+        ], [
+            'design_pdf_file.mimes' => 'File harus berupa dokumen dengan format PDF (.pdf).',
+            'design_pdf_file.max' => 'Ukuran file PDF tidak boleh melebihi 30 MB.',
+            'design_pdf_url.url' => 'Format URL PDF tidak valid.',
+        ]);
+
+        if (!$request->hasFile('design_pdf_file') && !$request->filled('design_pdf_url')) {
+            return back()->with('error', 'Silakan pilih file PDF atau masukkan URL PDF yang valid.');
+        }
+
+        $aboutSetting = AboutSetting::first();
+        if (!$aboutSetting) {
+            AboutSetting::seedIfEmpty();
+            $aboutSetting = AboutSetting::first();
+        }
+
+        // Delete old PDF file if replacing
+        if (!empty($aboutSetting->design_portfolio_pdf_path)) {
+            self::deleteFromStorage($aboutSetting->design_portfolio_pdf_path);
+        }
+
+        $pdfPath = null;
+        $pdfName = null;
+        $pdfSize = null;
+
+        if ($request->hasFile('design_pdf_file')) {
+            $file = $request->file('design_pdf_file');
+            $pdfName = $file->getClientOriginalName();
+            $pdfSize = $file->getSize();
+
+            // Upload via R2 (with base64 fallback)
+            $pdfPath = self::uploadToR2($file, 'portfolios', 'portfolio-graphic-design-hanafi');
+
+            // Also keep local fallback copy in assets/ if writable
+            try {
+                $assetDir = public_path('assets');
+                if (!is_dir($assetDir)) {
+                    @mkdir($assetDir, 0755, true);
+                }
+                @file_put_contents(public_path('assets/portfolio-graphic-design.pdf'), file_get_contents($file->getRealPath()));
+            } catch (\Throwable $e) {
+                // Ignore in read-only environments
+            }
+        } elseif ($request->filled('design_pdf_url')) {
+            $pdfPath = $request->input('design_pdf_url');
+            $pdfName = basename(parse_url($pdfPath, PHP_URL_PATH) ?: 'Portfolio_Graphic_Design.pdf');
+            $pdfSize = null;
+        }
+
+        $aboutSetting->update([
+            'design_portfolio_pdf_path' => $pdfPath,
+            'design_portfolio_pdf_name' => $pdfName,
+            'design_portfolio_pdf_size' => $pdfSize,
+        ]);
+
+        return back()->with('success', 'File PDF Portfolio Graphic Design berhasil disimpan!');
+    }
+
+    /**
+     * Delete the Graphic Design Portfolio PDF.
+     */
+    public function deleteDesignPortfolioPdf()
+    {
+        $aboutSetting = AboutSetting::first();
+        if ($aboutSetting && !empty($aboutSetting->design_portfolio_pdf_path)) {
+            self::deleteFromStorage($aboutSetting->design_portfolio_pdf_path);
+
+            // Clean up static fallback if present
+            $fallback = public_path('assets/portfolio-graphic-design.pdf');
+            if (file_exists($fallback)) {
+                @unlink($fallback);
+            }
+
+            $aboutSetting->update([
+                'design_portfolio_pdf_path' => null,
+                'design_portfolio_pdf_name' => null,
+                'design_portfolio_pdf_size' => null,
+            ]);
+        }
+
+        return back()->with('success', 'File PDF Portfolio Graphic Design berhasil dihapus.');
+    }
+
+    /**
+     * Delete asset from Cloudflare R2 or local public disk.
+     */
+    public static function deleteFromStorage(?string $path): void
+    {
+        if (empty($path)) {
+            return;
+        }
+
+        try {
+            if (str_starts_with($path, 'http')) {
+                if (str_contains($path, '.r2.dev/')) {
+                    $r2Path = substr($path, strpos($path, '.r2.dev/') + 8);
+                    if (Storage::disk('r2')->exists($r2Path)) {
+                        Storage::disk('r2')->delete($r2Path);
+                    }
+                } elseif (str_contains($path, '/r2/')) {
+                    $r2Path = substr($path, strpos($path, '/r2/') + 4);
+                    if (Storage::disk('r2')->exists($r2Path)) {
+                        Storage::disk('r2')->delete($r2Path);
+                    }
+                }
+            } else {
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal menghapus file dari storage: ' . $e->getMessage());
+        }
     }
 
     /**
