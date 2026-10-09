@@ -220,20 +220,20 @@
                         $certImg = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image));
                     @endphp
                     <a href="{{ route('certificates.show') }}" class="group block">
-                        <div class="aspect-video w-full rounded-lg bg-white/[0.03] overflow-hidden relative flex items-center justify-center">
+                        <div class="w-full rounded-lg overflow-hidden relative">
                             @if($isCertPdf)
-                            <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"></canvas>
+                            <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-auto object-contain rounded-lg opacity-85 group-hover:opacity-100 transition-opacity duration-300 aspect-[1.414/1]"></canvas>
                             <div class="pdf-welcome-fallback absolute inset-0 flex items-center justify-center text-gray-600">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                             </div>
                             @else
                             <img src="{{ $certImg }}"
                                  alt="{{ $cert->name }}"
-                                 width="280"
-                                 height="158"
+                                 width="600"
+                                 height="424"
                                  loading="lazy"
                                  decoding="async"
-                                 class="max-w-full max-h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                                 class="w-full h-auto object-contain rounded-lg opacity-85 group-hover:opacity-100 transition-opacity duration-300">
                             @endif
                         </div>
                         <h3 class="text-sm text-gray-200 mt-4 truncate">{{ $cert->name }}</h3>
