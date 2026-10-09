@@ -38,6 +38,9 @@ class ArticleController extends BaseApiController
             'title' => 'required|string|max:255',
             'excerpt' => 'nullable|string',
             'content' => 'required|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:255',
             'cover_image_url' => 'nullable|url',
             'cover_image_source' => 'nullable|string|max:255',
             'cover_image_source_url' => 'nullable|url',
@@ -80,6 +83,9 @@ class ArticleController extends BaseApiController
             'slug' => Str::slug($title) . '-' . time(),
             'excerpt' => $validated['excerpt'] ?? null,
             'content' => $validated['content'],
+            'meta_title' => $validated['meta_title'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
+            'meta_keywords' => $validated['meta_keywords'] ?? null,
             'cover_image' => $coverImage,
             'cover_image_source' => $validated['cover_image_source'] ?? null,
             'cover_image_source_url' => $validated['cover_image_source_url'] ?? null,
@@ -110,6 +116,9 @@ class ArticleController extends BaseApiController
             'title' => 'nullable|string|max:255',
             'excerpt' => 'nullable|string',
             'content' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:255',
             'cover_image_url' => 'nullable|url',
             'cover_image_source' => 'nullable|string|max:255',
             'cover_image_source_url' => 'nullable|url',
@@ -133,6 +142,18 @@ class ArticleController extends BaseApiController
 
         if ($request->has('content')) {
             $updateData['content'] = $validated['content'];
+        }
+
+        if ($request->has('meta_title')) {
+            $updateData['meta_title'] = $validated['meta_title'];
+        }
+
+        if ($request->has('meta_description')) {
+            $updateData['meta_description'] = $validated['meta_description'];
+        }
+
+        if ($request->has('meta_keywords')) {
+            $updateData['meta_keywords'] = $validated['meta_keywords'];
         }
 
         if ($request->has('cover_image_source')) {

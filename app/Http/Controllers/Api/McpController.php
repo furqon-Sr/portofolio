@@ -181,7 +181,7 @@ class McpController extends BaseApiController
         ],
         [
             'name' => 'create_article',
-            'description' => 'Membuat dan menerbitkan artikel blog baru ke website portofolio.',
+            'description' => 'Membuat dan menerbitkan artikel blog baru ke website portofolio, lengkap dengan konten, gambar cover, referensi, dan metadata SEO.',
             'inputSchema' => [
                 'type' => 'object',
                 'properties' => [
@@ -191,11 +191,23 @@ class McpController extends BaseApiController
                     ],
                     'content' => [
                         'type' => 'string',
-                        'description' => 'Isi lengkap teks artikel blog (wajib, mendukung paragraf/teks/HTML).',
+                        'description' => 'Isi lengkap teks artikel blog (wajib, mendukung paragraf/teks/Markdown/HTML).',
                     ],
                     'excerpt' => [
                         'type' => 'string',
                         'description' => 'Ringkasan singkat artikel untuk preview (1-2 kalimat) (opsional).',
+                    ],
+                    'meta_title' => [
+                        'type' => 'string',
+                        'description' => 'Judul kustom khusus SEO untuk hasil pencarian Google (~60 karakter) (opsional).',
+                    ],
+                    'meta_description' => [
+                        'type' => 'string',
+                        'description' => 'Deskripsi ringkasan cuplikan khusus SEO Google (~160 karakter) (opsional).',
+                    ],
+                    'meta_keywords' => [
+                        'type' => 'string',
+                        'description' => 'Kata kunci SEO relevan dipisahkan koma, misal: "laravel, web development, ui design" (opsional).',
                     ],
                     'cover_image_url' => [
                         'type' => 'string',
@@ -227,7 +239,7 @@ class McpController extends BaseApiController
         ],
         [
             'name' => 'update_article',
-            'description' => 'Memperbarui artikel blog yang sudah ada berdasarkan ID.',
+            'description' => 'Memperbarui artikel blog yang sudah ada berdasarkan ID, termasuk konten dan metadata SEO.',
             'inputSchema' => [
                 'type' => 'object',
                 'properties' => [
@@ -246,6 +258,18 @@ class McpController extends BaseApiController
                     'excerpt' => [
                         'type' => 'string',
                         'description' => 'Ringkasan preview baru artikel (opsional).',
+                    ],
+                    'meta_title' => [
+                        'type' => 'string',
+                        'description' => 'Judul kustom baru khusus SEO Google (~60 karakter) (opsional).',
+                    ],
+                    'meta_description' => [
+                        'type' => 'string',
+                        'description' => 'Deskripsi ringkasan cuplikan baru khusus SEO Google (~160 karakter) (opsional).',
+                    ],
+                    'meta_keywords' => [
+                        'type' => 'string',
+                        'description' => 'Kata kunci SEO baru dipisahkan koma (opsional).',
                     ],
                     'cover_image_url' => [
                         'type' => 'string',
@@ -270,6 +294,32 @@ class McpController extends BaseApiController
                             ],
                             'required' => ['title', 'url'],
                         ],
+                    ],
+                ],
+                'required' => ['id'],
+            ],
+        ],
+        [
+            'name' => 'update_article_seo',
+            'description' => 'Mengoptimalkan atau memperbarui metadata SEO (meta_title, meta_description, meta_keywords) untuk artikel blog berdasarkan ID.',
+            'inputSchema' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => [
+                        'type' => 'integer',
+                        'description' => 'ID artikel blog yang ingin dioptimasi SEO-nya (wajib).',
+                    ],
+                    'meta_title' => [
+                        'type' => 'string',
+                        'description' => 'Judul kustom khusus SEO Google (~60 karakter) (opsional).',
+                    ],
+                    'meta_description' => [
+                        'type' => 'string',
+                        'description' => 'Deskripsi ringkasan cuplikan khusus SEO Google (~160 karakter) (opsional).',
+                    ],
+                    'meta_keywords' => [
+                        'type' => 'string',
+                        'description' => 'Kata kunci SEO relevan dipisahkan koma (contoh: "web design, laravel, ui/ux") (opsional).',
                     ],
                 ],
                 'required' => ['id'],
@@ -686,6 +736,9 @@ class McpController extends BaseApiController
                     'cover_image_source' => $args['cover_image_source'] ?? null,
                     'cover_image_source_url' => $args['cover_image_source_url'] ?? null,
                     'references' => is_array($references) ? array_values($references) : [],
+                    'meta_title' => $args['meta_title'] ?? null,
+                    'meta_description' => $args['meta_description'] ?? null,
+                    'meta_keywords' => $args['meta_keywords'] ?? null,
                 ]);
 
             case 'update_article':
@@ -721,6 +774,40 @@ class McpController extends BaseApiController
                 }
                 if (isset($args['references']) && is_array($args['references'])) {
                     $updateData['references'] = array_values($args['references']);
+                }
+                if (array_key_exists('meta_title', $args)) {
+                    $updateData['meta_title'] = $args['meta_title'];
+                }
+                if (array_key_exists('meta_description', $args)) {
+                    $updateData['meta_description'] = $args['meta_description'];
+                }
+                if (array_key_exists('meta_keywords', $args)) {
+                    $updateData['meta_keywords'] = $args['meta_keywords'];
+                }
+
+                $article->update($updateData);
+                return $article->fresh();
+
+            case 'update_article_seo':
+                $id = $args['id'] ?? null;
+                if (!$id) {
+                    throw new \InvalidArgumentException("Parameter 'id' wajib disertakan.");
+                }
+
+                $article = Article::find($id);
+                if (!$article) {
+                    throw new \InvalidArgumentException("Artikel blog dengan ID {$id} tidak ditemukan.");
+                }
+
+                $updateData = [];
+                if (array_key_exists('meta_title', $args)) {
+                    $updateData['meta_title'] = $args['meta_title'];
+                }
+                if (array_key_exists('meta_description', $args)) {
+                    $updateData['meta_description'] = $args['meta_description'];
+                }
+                if (array_key_exists('meta_keywords', $args)) {
+                    $updateData['meta_keywords'] = $args['meta_keywords'];
                 }
 
                 $article->update($updateData);

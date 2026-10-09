@@ -578,6 +578,47 @@ it('executes MCP tool update_article via POST /api/mcp', function () {
     ]);
 });
 
+it('executes MCP tool update_article_seo via POST /api/mcp', function () {
+    $article = Article::create([
+        'title' => 'Artikel SEO Testing',
+        'slug' => 'artikel-seo-testing',
+        'excerpt' => 'Artikel excerpt.',
+        'content' => 'Artikel content.',
+    ]);
+
+    $response = $this->withHeaders(['X-API-KEY' => TEST_API_KEY])
+        ->postJson('/api/mcp', [
+            'jsonrpc' => '2.0',
+            'id' => 8,
+            'method' => 'tools/call',
+            'params' => [
+                'name' => 'update_article_seo',
+                'arguments' => [
+                    'id' => $article->id,
+                    'meta_title' => 'Optimalisasi SEO Lewat AI MCP',
+                    'meta_description' => 'Panduan lengkap optimasi SEO artikel menggunakan MCP server.',
+                    'meta_keywords' => 'mcp, seo, artificial-intelligence, laravel',
+                ],
+            ],
+        ]);
+
+    $response->assertStatus(200)
+        ->assertJson([
+            'jsonrpc' => '2.0',
+            'id' => 8,
+            'result' => [
+                'isError' => false,
+            ],
+        ]);
+
+    $this->assertDatabaseHas('articles', [
+        'id' => $article->id,
+        'meta_title' => 'Optimalisasi SEO Lewat AI MCP',
+        'meta_description' => 'Panduan lengkap optimasi SEO artikel menggunakan MCP server.',
+        'meta_keywords' => 'mcp, seo, artificial-intelligence, laravel',
+    ]);
+});
+
 it('renders article detail page with cover image and markdown inline images', function () {
     $article = Article::create([
         'title' => 'Artikel dengan Media Gambar',

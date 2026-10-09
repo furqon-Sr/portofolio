@@ -23,7 +23,8 @@ class SitemapController extends Controller
 
         return response($xml, 200, [
             'Content-Type' => 'application/xml; charset=utf-8',
-            'Cache-Control' => 'public, max-age=3600, s-maxage=86400',
+            'Content-Length' => strlen($xml),
+            'Cache-Control' => 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400',
         ]);
     }
 }
