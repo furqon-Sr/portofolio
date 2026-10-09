@@ -213,16 +213,16 @@
                 <a href="{{ route('certificates.show') }}" class="shrink-0 text-sm text-gray-400 hover:text-white transition-colors">View all &rarr;</a>
             </div>
 
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 sm:gap-x-10 md:gap-x-12 lg:gap-x-8 gap-y-10 sm:gap-y-12">
                 @foreach($certificates->take(4) as $cert)
                     @php
                         $isCertPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
                         $certImg = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/certificates/' . $cert->image));
                     @endphp
                     <a href="{{ route('certificates.show') }}" class="group block">
-                        <div class="aspect-video w-full rounded-lg bg-white/[0.03] overflow-hidden relative flex items-center justify-center">
+                        <div class="aspect-[16/10] w-full rounded-2xl bg-[#111113] border border-white/10 group-hover:border-blue-500/40 p-2.5 sm:p-3 overflow-hidden relative flex items-center justify-center transition-all duration-300 group-hover:shadow-xl group-hover:shadow-blue-500/5 group-hover:-translate-y-1">
                             @if($isCertPdf)
-                            <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300"></canvas>
+                            <canvas data-pdf-thumb="{{ $certImg }}" class="w-full h-full object-contain rounded-lg opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 shadow-sm"></canvas>
                             <div class="pdf-welcome-fallback absolute inset-0 flex items-center justify-center text-gray-600">
                                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
                             </div>
@@ -230,14 +230,14 @@
                             <img src="{{ $certImg }}"
                                  alt="{{ $cert->name }}"
                                  width="280"
-                                 height="158"
+                                 height="175"
                                  loading="lazy"
                                  decoding="async"
-                                 class="max-w-full max-h-full object-contain opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                                 class="max-w-full max-h-full object-contain rounded-lg opacity-85 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 shadow-sm">
                             @endif
                         </div>
-                        <h3 class="text-sm text-gray-200 mt-4 truncate">{{ $cert->name }}</h3>
-                        <p class="text-xs text-gray-500 mt-1 truncate">{{ $cert->issuer }} &middot; {{ $cert->issued_at }}</p>
+                        <h3 class="text-sm sm:text-base font-semibold text-white mt-3.5 group-hover:text-blue-400 transition-colors truncate tracking-tight">{{ $cert->name }}</h3>
+                        <p class="text-xs sm:text-sm text-gray-400 mt-1 truncate">{{ $cert->issuer }} &middot; {{ $cert->issued_at }}</p>
                     </a>
                 @endforeach
             </div>
