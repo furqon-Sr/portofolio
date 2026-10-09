@@ -58,9 +58,8 @@ async function start() {
     // --- profile photo plane ---------------------------------------------
     const photoMat = new THREE.MeshStandardMaterial({
         map: photo.texture,
-        emissive: 0xffffff,
-        emissiveMap: photo.texture,
-        emissiveIntensity: 0.26, // keeps the face readable between light passes
+        // no emissive: the photo stays dark until a light passes over it
+        color: new THREE.Color(1.6, 1.6, 1.6), // >1 so lit areas pop despite the dark suit
         roughness: 0.85,
         metalness: 0,
         transparent: true,
