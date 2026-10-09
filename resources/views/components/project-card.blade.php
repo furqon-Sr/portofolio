@@ -71,14 +71,9 @@
         <!-- Content Area -->
         <div class="mt-4">
             <!-- Title -->
-            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors mb-1.5 leading-snug line-clamp-1">
+            <h3 class="text-base sm:text-lg font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors leading-snug line-clamp-1">
                 {{ $cleanTitle }}
             </h3>
-
-            <!-- Description -->
-            <p class="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2 group-hover:text-gray-300 transition-colors">
-                {{ $cleanDesc }}
-            </p>
         </div>
     </div>
 

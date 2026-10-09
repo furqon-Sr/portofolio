@@ -94,12 +94,12 @@
                     $isPdf = Str::startsWith($cert->image, 'data:application/pdf') || Str::endsWith(strtolower($cert->image), '.pdf');
                     $imgUrl = Str::startsWith($cert->image, 'data:') ? route('media.certificate', [$cert->id, 'v' => $cert->updated_at?->timestamp ?? 1]) : (Str::startsWith($cert->image, 'http') ? $cert->image : asset('img/' . $cert->image));
                 @endphp
-                <div class="cursor-pointer group flex flex-col justify-between bg-[#111111]/40 border border-gray-800/60 rounded-2xl p-4 transition-all duration-500 hover:border-blue-500/40 hover:shadow-2xl hover:shadow-blue-500/5 h-full"
+                <div class="cursor-pointer group flex flex-col justify-between h-full transition-all duration-300"
                      @click="openModal('{{ $imgUrl }}', '{{ addslashes($cert->name) }}', {{ $isPdf ? 'true' : 'false' }})">
                     
                     <div>
-                        <!-- Clickable Image / PDF Area -->
-                        <div class="block aspect-[16/10] bg-[#1a1a1a] border border-gray-800/80 rounded-xl overflow-hidden relative mb-4 transition-all duration-500 group-hover:border-blue-500/30">
+                        <!-- Clickable Image / PDF Area (Frameless rounded container) -->
+                        <div class="w-full aspect-[16/10] bg-[#18181b] rounded-xl overflow-hidden relative mb-4">
                             @if($isPdf)
                             <!-- Interactive PDF Document Card (LinkedIn Style Carousel) -->
                             <div class="pdf-card-wrapper w-full h-full relative overflow-hidden" 
@@ -131,12 +131,12 @@
                                 </button>
                             </div>
                             @else
-                            <img src="{{ $imgUrl }}" alt="{{ $cert->name }}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-75">
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-transparent opacity-85 group-hover:opacity-70 transition-opacity duration-500"></div>
+                            <img src="{{ $imgUrl }}" alt="{{ $cert->name }}" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-20 transition-opacity z-10 pointer-events-none"></div>
                             @endif
                             
                             <!-- Zoom Icon Overlay (unified blue magnifying glass) -->
-                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20">
                                 <div class="p-3 bg-blue-600 shadow-blue-500/30 rounded-full text-white shadow-lg scale-90 group-hover:scale-100 transition-transform">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                                 </div>
@@ -144,18 +144,18 @@
                         </div>
 
                         <!-- Details & Info -->
-                        <div class="space-y-2">
-                            <h4 class="text-white font-bold text-sm md:text-base leading-tight group-hover:text-blue-500 transition-colors">{{ $cert->name }}</h4>
+                        <div class="space-y-1.5">
+                            <h4 class="text-white font-bold text-sm md:text-base leading-snug group-hover:text-blue-400 transition-colors">{{ $cert->name }}</h4>
                             <div class="text-xs text-gray-400 font-semibold">{{ $cert->issuer }}</div>
-                            <div class="text-[10px] text-gray-500 tracking-wide uppercase font-bold">Terbit: {{ $cert->issued_at }}</div>
+                            <div class="text-[10px] text-gray-500 tracking-wide uppercase font-semibold">Terbit: {{ $cert->issued_at }}</div>
                             @if($cert->credential_id)
-                            <div class="text-[9px] text-gray-600 bg-white/[0.02] border border-white/5 py-1 px-2 rounded-md inline-block">ID: {{ $cert->credential_id }}</div>
+                            <div class="text-[9px] text-gray-400 bg-white/[0.04] py-0.5 px-2 rounded-md inline-block">ID: {{ $cert->credential_id }}</div>
                             @endif
                         </div>
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex items-center justify-between pt-3 mt-4 border-t border-white/5 text-xs font-semibold">
+                    <div class="flex items-center justify-between pt-3 mt-4 text-xs font-semibold">
                         <span class="text-blue-400 group-hover:text-blue-300 flex items-center gap-1.5 transition-colors">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                             <span>Pratinjau</span>
