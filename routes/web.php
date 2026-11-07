@@ -18,6 +18,11 @@ Route::any('/wp-login.php', fn () => redirect('/'));
 Route::any('/wp-admin', fn () => redirect('/'));
 Route::any('/wp-admin/{any}', fn () => redirect('/'))->where('any', '.*');
 
+// Glass Dashboard Preview Route
+Route::get('/glass-dashboard', function () {
+    return view('glass-dashboard');
+})->name('glass-dashboard');
+
 
 // Home Page - Optimized query delivery with Edge CDN caching
 Route::get('/', function () {
