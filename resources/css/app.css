@@ -21,6 +21,82 @@ html.admin-panel body {
     zoom: 1 !important;
 }
 
+/* ==========================================================================
+   Admin Panel Glassmorphism Theme (Consistent with Glass Dashboard)
+   ========================================================================== */
+html.admin-panel {
+    background-color: #09090d !important;
+    color: #f4f4f5 !important;
+}
+
+/* Glass cards and containers */
+html.admin-panel .bg-\[\#111111\],
+html.admin-panel .bg-\[\#141416\],
+html.admin-panel .bg-\[\#18181b\],
+html.admin-panel .bg-gray-900,
+html.admin-panel .bg-gray-950,
+html.admin-panel .admin-glass-card {
+    background: rgba(18, 18, 26, 0.68) !important;
+    backdrop-filter: blur(24px) saturate(1.25) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(1.25) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Border softening */
+html.admin-panel .border-white\/5,
+html.admin-panel .border-white\/10 {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Tables in admin */
+html.admin-panel .bg-black\/20,
+html.admin-panel th {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.admin-panel table td {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+html.admin-panel table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Inputs, Selects, Textareas */
+html.admin-panel input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+html.admin-panel select,
+html.admin-panel textarea {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #f4f4f5 !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    transition: all 0.2s ease;
+}
+
+html.admin-panel input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+html.admin-panel select:focus,
+html.admin-panel textarea:focus {
+    background-color: rgba(255, 255, 255, 0.09) !important;
+    border-color: rgba(59, 130, 246, 0.6) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+    outline: none !important;
+}
+
+/* Modal and dialog glass styling */
+html.admin-panel [role="dialog"],
+html.admin-panel .modal-content {
+    background: rgba(18, 18, 26, 0.88) !important;
+    backdrop-filter: blur(28px) saturate(1.3) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(1.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
 
 
 /* 3D Tilt & Spotlight Border */
