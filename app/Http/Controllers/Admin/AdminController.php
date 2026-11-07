@@ -9,10 +9,13 @@ use App\Models\AboutSetting;
 use App\Models\AboutBox;
 use App\Models\Expertise;
 use App\Models\Certificate;
+use App\Models\Article;
+use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -24,9 +27,12 @@ class AdminController extends Controller
         $projectCount = Project::count();
         $messageCount = Contact::count();
         $certificateCount = Certificate::count();
-        $recentMessages = Contact::latest()->take(5)->get();
-        $recentProjects = Project::select('id', 'title', 'category', 'cover_image', 'updated_at')->latest()->take(5)->get();
-        $recentCertificates = Certificate::select('id', 'name', 'issuer', 'image', 'updated_at')->latest()->take(5)->get();
+        $articleCount = Article::count();
+        $clientCount = Client::count();
+
+        $recentMessages = Contact::latest()->take(10)->get();
+        $recentProjects = Project::select('id', 'title', 'slug', 'category', 'cover_image', 'updated_at')->latest()->take(6)->get();
+        $recentCertificates = Certificate::select('id', 'name', 'issuer', 'image', 'updated_at')->latest()->take(6)->get();
 
         // Interaction stats: last 14 days, grouped per day.
         $days = collect(range(13, 0))->map(fn ($i) => now()->subDays($i)->startOfDay());
@@ -44,7 +50,82 @@ class AdminController extends Controller
             'content' => $days->map(fn ($d) => ($projectsPerDay[$d->format('Y-m-d')] ?? 0) + ($certificatesPerDay[$d->format('Y-m-d')] ?? 0))->all(),
         ];
 
-        return view('admin.dashboard', compact('projectCount', 'messageCount', 'certificateCount', 'recentMessages', 'recentProjects', 'recentCertificates', 'chartData'));
+        $formattedMessages = $recentMessages->map(function ($msg) {
+            return [
+                'id' => (string) $msg->id,
+                'name' => $msg->name,
+                'email' => $msg->email,
+                'message' => $msg->message,
+                'time' => $msg->created_at ? $msg->created_at->diffForHumans() : 'Baru saja',
+                'date' => $msg->created_at ? $msg->created_at->translatedFormat('d M Y, H:i') : '',
+            ];
+        });
+
+        $formattedProjects = $recentProjects->map(function ($p) {
+            return [
+                'id' => (string) $p->id,
+                'title' => $p->title,
+                'category' => $p->category ?? 'Portfolio',
+                'cover_image' => $p->cover_image_url ?? $p->cover_image,
+                'updated_at' => $p->updated_at ? $p->updated_at->diffForHumans() : '',
+            ];
+        });
+
+        $formattedCertificates = $recentCertificates->map(function ($c) {
+            return [
+                'id' => (string) $c->id,
+                'name' => $c->name,
+                'issuer' => $c->issuer ?? 'Official Certificate',
+                'is_pdf' => (bool) $c->is_pdf,
+                'image_url' => $c->image_url ?? $c->image,
+                'updated_at' => $c->updated_at ? $c->updated_at->diffForHumans() : '',
+            ];
+        });
+
+        $routes = [
+            'dashboard' => route('admin.dashboard'),
+            'projects' => route('admin.projects.index'),
+            'projectsCreate' => route('admin.projects.create'),
+            'certificates' => route('admin.certificates.index'),
+            'certificatesCreate' => route('admin.certificates.create'),
+            'articles' => route('admin.articles.index'),
+            'articlesCreate' => route('admin.articles.create'),
+            'clients' => route('admin.clients.index'),
+            'clientsCreate' => route('admin.clients.create'),
+            'about' => route('admin.about'),
+            'messages' => route('admin.messages'),
+            'website' => url('/'),
+            'logout' => route('logout'),
+        ];
+
+        $dashboardData = [
+            'adminName' => Auth::user()->name ?? 'Administrator',
+            'adminEmail' => Auth::user()->email ?? '',
+            'projectCount' => $projectCount,
+            'messageCount' => $messageCount,
+            'certificateCount' => $certificateCount,
+            'articleCount' => $articleCount,
+            'clientCount' => $clientCount,
+            'recentMessages' => $formattedMessages,
+            'recentProjects' => $formattedProjects,
+            'recentCertificates' => $formattedCertificates,
+            'chartData' => $chartData,
+            'routes' => $routes,
+            'csrfToken' => csrf_token(),
+        ];
+
+        return view('admin.dashboard', compact(
+            'projectCount',
+            'messageCount',
+            'certificateCount',
+            'articleCount',
+            'clientCount',
+            'recentMessages',
+            'recentProjects',
+            'recentCertificates',
+            'chartData',
+            'dashboardData'
+        ));
     }
 
     /**
